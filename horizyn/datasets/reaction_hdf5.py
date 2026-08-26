@@ -3,6 +3,7 @@ Datasets for ragged reaction-level molecule embeddings.
 """
 
 from pathlib import Path
+import os
 from typing import Any, Callable, Optional
 
 import h5py
@@ -32,74 +33,88 @@ class UniMol2ReactionEmbedDataset(BaseDataset[str]):
         **kwargs,
     ):
         file_path_obj = Path(file_path)
-        if not file_path_obj.exists():
+        if not file_path_obj.is_file():
             raise FileNotFoundError(f"Reaction HDF5 file not found: {file_path}")
 
         self.file_path = str(file_path_obj)
         self.dtype = dtype
-        self.file = h5py.File(self.file_path, "r")
+        self.file: h5py.File | None = None
+        self._file_pid: int | None = None
 
-        required = [
-            "ids",
-            "reactant_vectors",
-            "reactant_offsets",
-            "product_vectors",
-            "product_offsets",
-        ]
-        missing = [name for name in required if name not in self.file]
-        if missing:
-            available = list(self.file.keys())
-            self.file.close()
-            raise KeyError(
-                f"Missing required reaction HDF5 dataset(s): {missing}. "
-                f"Available datasets: {available}"
-            )
-
-        ids_data = self.file["ids"][:]
-        if ids_data.dtype.kind in {"S", "O"}:
-            keys = [
-                value.decode("utf-8") if isinstance(value, bytes) else str(value)
-                for value in ids_data
+        with h5py.File(self.file_path, "r") as h5_file:
+            required = [
+                "ids",
+                "reactant_vectors",
+                "reactant_offsets",
+                "product_vectors",
+                "product_offsets",
             ]
-        else:
-            keys = [str(value) for value in ids_data]
+            missing = [name for name in required if name not in h5_file]
+            if missing:
+                raise KeyError(
+                    f"Missing required reaction HDF5 dataset(s): {missing}. "
+                    f"Available datasets: {list(h5_file.keys())}"
+                )
 
-        num_ids = len(keys)
-        if len(self.file["reactant_offsets"]) != num_ids + 1:
-            self.file.close()
-            raise ValueError("reactant_offsets length must equal len(ids) + 1")
-        if len(self.file["product_offsets"]) != num_ids + 1:
-            self.file.close()
-            raise ValueError("product_offsets length must equal len(ids) + 1")
+            ids_data = h5_file["ids"][:]
+            if ids_data.dtype.kind in {"S", "O"}:
+                keys = [
+                    value.decode("utf-8") if isinstance(value, bytes) else str(value)
+                    for value in ids_data
+                ]
+            else:
+                keys = [str(value) for value in ids_data]
+            if any(not key.strip() for key in keys):
+                raise ValueError("Reaction HDF5 'ids' must not contain empty strings")
+            if len(keys) != len(set(keys)):
+                raise ValueError("Reaction HDF5 'ids' must be unique")
 
-        self.reactant_offsets = self.file["reactant_offsets"][:].astype("int64")
-        self.product_offsets = self.file["product_offsets"][:].astype("int64")
-        self.embedding_dim = int(self.file["reactant_vectors"].shape[1])
-        product_dim = int(self.file["product_vectors"].shape[1])
-        if product_dim != self.embedding_dim:
-            self.file.close()
-            raise ValueError(
-                f"Reactant/product embedding dims differ: {self.embedding_dim} vs {product_dim}"
-            )
-        if expected_dim is not None and self.embedding_dim != expected_dim:
-            self.file.close()
-            raise ValueError(
-                f"Reaction embedding dim mismatch: expected {expected_dim}, "
-                f"got {self.embedding_dim}"
-            )
-        if (self.reactant_offsets[1:] - self.reactant_offsets[:-1] <= 0).any():
-            self.file.close()
-            raise ValueError("Every reaction must contain at least one reactant embedding")
-        if (self.product_offsets[1:] - self.product_offsets[:-1] <= 0).any():
-            self.file.close()
-            raise ValueError("Every reaction must contain at least one product embedding")
+            num_ids = len(keys)
+            if len(h5_file["reactant_offsets"]) != num_ids + 1:
+                raise ValueError("reactant_offsets length must equal len(ids) + 1")
+            if len(h5_file["product_offsets"]) != num_ids + 1:
+                raise ValueError("product_offsets length must equal len(ids) + 1")
+
+            self.reactant_offsets = h5_file["reactant_offsets"][:].astype("int64")
+            self.product_offsets = h5_file["product_offsets"][:].astype("int64")
+            reactant_shape = h5_file["reactant_vectors"].shape
+            product_shape = h5_file["product_vectors"].shape
+            if len(reactant_shape) != 2 or len(product_shape) != 2:
+                raise ValueError("Reaction vector datasets must be rank-2")
+            if h5_file["reactant_vectors"].dtype.kind not in {"f", "i", "u"} or h5_file[
+                "product_vectors"
+            ].dtype.kind not in {"f", "i", "u"}:
+                raise ValueError("Reaction vector datasets must have numeric dtypes")
+            if h5_file["reactant_offsets"].dtype.kind not in {"i", "u"} or h5_file[
+                "product_offsets"
+            ].dtype.kind not in {"i", "u"}:
+                raise ValueError("Reaction offset datasets must have integer dtypes")
+            self.embedding_dim = int(reactant_shape[1])
+            product_dim = int(product_shape[1])
+            if product_dim != self.embedding_dim:
+                raise ValueError(
+                    f"Reactant/product embedding dims differ: {self.embedding_dim} vs {product_dim}"
+                )
+            if expected_dim is not None and self.embedding_dim != expected_dim:
+                raise ValueError(
+                    f"Reaction embedding dim mismatch: expected {expected_dim}, "
+                    f"got {self.embedding_dim}"
+                )
+            for side, offsets, vector_count in (
+                ("reactant", self.reactant_offsets, reactant_shape[0]),
+                ("product", self.product_offsets, product_shape[0]),
+            ):
+                if offsets[0] != 0 or offsets[-1] != vector_count:
+                    raise ValueError(f"{side}_offsets must span exactly [0, {vector_count}]")
+                if (offsets[1:] - offsets[:-1] <= 0).any():
+                    raise ValueError(f"Every reaction must contain at least one {side} embedding")
 
         super().__init__(keys=keys, use_key_to_idx=True, transforms=transforms, **kwargs)
 
     def _slice_side(self, vector_key: str, offsets, idx: int) -> torch.Tensor:
         start = int(offsets[idx])
         end = int(offsets[idx + 1])
-        vectors = self.file[vector_key][start:end]
+        vectors = self._ensure_file()[vector_key][start:end]
         return torch.from_numpy(vectors).to(dtype=self.dtype)
 
     def __getitem__(self, key: str | int) -> dict[str, torch.Tensor]:
@@ -126,12 +141,36 @@ class UniMol2ReactionEmbedDataset(BaseDataset[str]):
         }
         return self._apply_transforms(actual_key, sample)
 
-    def __del__(self):
-        if hasattr(self, "file") and self.file is not None:
+    def _ensure_file(self) -> h5py.File:
+        current_pid = os.getpid()
+        if self.file is not None and self._file_pid != current_pid:
+            self.close()
+        if self.file is None:
+            self.file = h5py.File(self.file_path, "r")
+            self._file_pid = current_pid
+        return self.file
+
+    def close(self) -> None:
+        file_handle = getattr(self, "file", None)
+        if file_handle is not None:
             try:
-                self.file.close()
+                file_handle.close()
             except Exception:
                 pass
+        self.file = None
+        self._file_pid = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["file"] = None
+        state["_file_pid"] = None
+        return state
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass
 
 
 __all__ = ["UniMol2ReactionEmbedDataset"]

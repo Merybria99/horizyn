@@ -146,8 +146,10 @@ def _load_hard_negative_map(path: str | Path) -> dict[str, list[str]]:
     result: dict[str, list[str]] = {}
     for query_id, negatives in payload.items():
         if not isinstance(negatives, list):
-            continue
-        cleaned = [str(value) for value in negatives if str(value)]
+            raise ValueError(f"Hard-negative candidates for {query_id!r} must be a JSON list")
+        cleaned = [str(value).strip() for value in negatives if str(value).strip()]
+        if len(cleaned) != len(set(cleaned)):
+            raise ValueError(f"Hard-negative candidates for {query_id!r} contain duplicates")
         if cleaned:
             result[str(query_id)] = cleaned
     return result
@@ -178,8 +180,13 @@ class DirectionalHardNegativeBatchSampler(BatchSampler):
         if negatives_per_query <= 0:
             raise ValueError("negatives_per_query must be positive")
         if direction not in {"reaction_to_enzyme", "enzyme_to_reaction"}:
+            raise ValueError("direction must be reaction_to_enzyme or enzyme_to_reaction")
+        if len(dataset) == 0:
+            raise ValueError("Hard-negative sampling requires a non-empty dataset")
+        if batch_size > len(dataset):
             raise ValueError(
-                "direction must be reaction_to_enzyme or enzyme_to_reaction"
+                "batch_size cannot exceed the number of distinct pair rows when "
+                f"sampling without replacement: batch_size={batch_size}, rows={len(dataset)}"
             )
         self.dataset = dataset
         self.direction = direction
@@ -213,10 +220,7 @@ class DirectionalHardNegativeBatchSampler(BatchSampler):
         hard_anchors = []
         for anchor_id in sorted(anchor_ids):
             base_anchor_id = _strip_direction_suffix(anchor_id)
-            if (
-                anchor_id in self.hard_negative_map
-                or base_anchor_id in self.hard_negative_map
-            ):
+            if anchor_id in self.hard_negative_map or base_anchor_id in self.hard_negative_map:
                 hard_anchors.append(anchor_id)
         if not hard_anchors:
             raise ValueError(
@@ -289,11 +293,15 @@ class DirectionalHardNegativeBatchSampler(BatchSampler):
                         break
                 if len(batch) >= self.batch_size:
                     break
-            while len(batch) < self.batch_size:
-                row_idx = rng.choice(self.all_indices)
-                if row_idx not in seen:
-                    batch.append(row_idx)
-                    seen.add(row_idx)
+            remaining_indices = [row_idx for row_idx in self.all_indices if row_idx not in seen]
+            rng.shuffle(remaining_indices)
+            missing_count = self.batch_size - len(batch)
+            if missing_count > len(remaining_indices):
+                raise RuntimeError(
+                    "Cannot complete a distinct-row hard-negative batch: "
+                    f"need={missing_count}, available={len(remaining_indices)}"
+                )
+            batch.extend(remaining_indices[:missing_count])
             if self.drop_last and len(batch) < self.batch_size:
                 continue
             if batch_number % world_size == rank:
@@ -341,7 +349,9 @@ class ReactionDegreeBalancedBatchSampler(BatchSampler):
             raise ValueError("degree_exponent must be non-negative")
         if (rank is None) != (world_size is None):
             raise ValueError("rank and world_size must be provided together")
-        if world_size is not None and (world_size <= 0 or rank is None or not 0 <= rank < world_size):
+        if world_size is not None and (
+            world_size <= 0 or rank is None or not 0 <= rank < world_size
+        ):
             raise ValueError("rank must be in [0, world_size)")
         self.dataset = dataset
         self.batch_size = int(batch_size)
@@ -403,9 +413,7 @@ class ReactionDegreeBalancedBatchSampler(BatchSampler):
                 global_batch_size,
                 rng,
             )
-            global_indices = [
-                rng.choice(self.query_to_indices[query_id]) for query_id in queries
-            ]
+            global_indices = [rng.choice(self.query_to_indices[query_id]) for query_id in queries]
             start = rank * self.batch_size
             batch = global_indices[start : start + self.batch_size]
             if self.drop_last and len(batch) < self.batch_size:
@@ -673,9 +681,7 @@ class ReactionConditionedDataModule(HorizynDataModule):
         self.hard_negative_negatives_per_query = int(hard_negative_negatives_per_query)
         self.hard_negative_seed = int(hard_negative_seed)
         self.reaction_balanced_sampling = bool(reaction_balanced_sampling)
-        self.reaction_balanced_degree_exponent = float(
-            reaction_balanced_degree_exponent
-        )
+        self.reaction_balanced_degree_exponent = float(reaction_balanced_degree_exponent)
         self.reaction_balanced_seed = int(reaction_balanced_seed)
         if self.reaction_balanced_degree_exponent < 0.0:
             raise ValueError("reaction_balanced_degree_exponent must be non-negative")
@@ -848,7 +854,9 @@ class ReactionConditionedDataModule(HorizynDataModule):
                         "validation_retrieval_candidate_set='custom' requires "
                         "validation_retrieval_candidate_ids_path"
                     )
-                requested_candidate_ids = _load_id_list(self.validation_retrieval_candidate_ids_path)
+                requested_candidate_ids = _load_id_list(
+                    self.validation_retrieval_candidate_ids_path
+                )
                 target_candidate_ids = [
                     target_id
                     for target_id in requested_candidate_ids

@@ -3,7 +3,8 @@ Dataset for loading embeddings from HDF5 files.
 """
 
 from pathlib import Path
-from typing import Any, Callable, List, Optional
+import os
+from typing import Any, Callable, Optional
 
 import h5py
 import torch
@@ -79,64 +80,53 @@ class EmbedDataset(BaseDataset[str]):
             ValueError: If 'ids' and 'vectors' have mismatched lengths.
         """
         file_path_obj = Path(file_path)
-        if not file_path_obj.exists():
+        if not file_path_obj.is_file():
             raise FileNotFoundError(f"HDF5 file not found: {file_path}")
 
         self.file_path = str(file_path_obj)
         self.in_memory = in_memory
         self.dtype = dtype
 
-        # Open HDF5 file
-        self.file = h5py.File(self.file_path, "r")
+        self.file: h5py.File | None = None
+        self._file_pid: int | None = None
+        with h5py.File(self.file_path, "r") as h5_file:
+            for dataset_name in ("ids", "vectors"):
+                if dataset_name not in h5_file:
+                    raise KeyError(
+                        f"Required dataset '{dataset_name}' not found in HDF5 file. "
+                        f"Available datasets: {list(h5_file.keys())}"
+                    )
 
-        # Verify required datasets exist
-        if "ids" not in self.file:
-            available = list(self.file.keys())
-            self.file.close()
-            raise KeyError(
-                f"Required dataset 'ids' not found in HDF5 file. "
-                f"Available datasets: {available}"
+            vector_shape = h5_file["vectors"].shape
+            if len(vector_shape) != 2:
+                raise ValueError(f"'vectors' must be rank-2, got shape={vector_shape}")
+            if h5_file["vectors"].dtype.kind not in {"f", "i", "u"}:
+                raise ValueError("HDF5 'vectors' must have a numeric dtype")
+            self.num_vecs, self.vec_dim = vector_shape
+            num_ids = len(h5_file["ids"])
+            if self.num_vecs != num_ids:
+                raise ValueError(
+                    f"Mismatch between number of ids ({num_ids}) and vectors ({self.num_vecs})"
+                )
+
+            ids_data = h5_file["ids"][:]
+            if ids_data.dtype.kind in {"S", "O"}:
+                keys = [
+                    id_val.decode("utf-8") if isinstance(id_val, bytes) else str(id_val)
+                    for id_val in ids_data
+                ]
+            else:
+                keys = [str(id_val) for id_val in ids_data]
+            if any(not key.strip() for key in keys):
+                raise ValueError("HDF5 'ids' must not contain empty strings")
+            if len(keys) != len(set(keys)):
+                raise ValueError("HDF5 'ids' must be unique")
+
+            self.data = (
+                torch.from_numpy(h5_file["vectors"][:]).to(dtype=self.dtype)
+                if self.in_memory
+                else None
             )
-
-        if "vectors" not in self.file:
-            available = list(self.file.keys())
-            self.file.close()
-            raise KeyError(
-                f"Required dataset 'vectors' not found in HDF5 file. "
-                f"Available datasets: {available}"
-            )
-
-        # Get shapes
-        self.num_vecs, self.vec_dim = self.file["vectors"].shape
-        num_ids = len(self.file["ids"])
-
-        if self.num_vecs != num_ids:
-            self.file.close()
-            raise ValueError(
-                f"Mismatch between number of ids ({num_ids}) and " f"vectors ({self.num_vecs})"
-            )
-
-        # Load ids (always load these, they're small)
-        # Decode bytes to strings if necessary
-        ids_data = self.file["ids"][:]
-        if ids_data.dtype.kind == "S" or ids_data.dtype.kind == "O":
-            # Byte strings or object array
-            keys = [
-                id_val.decode("utf-8") if isinstance(id_val, bytes) else str(id_val)
-                for id_val in ids_data
-            ]
-        else:
-            keys = [str(id_val) for id_val in ids_data]
-
-        # Load vectors into memory if requested
-        if self.in_memory:
-            # Load all vectors at once
-            self.data = torch.from_numpy(self.file["vectors"][:]).to(dtype=self.dtype)
-            # Close file since we don't need it anymore
-            self.file.close()
-            self.file = None
-        else:
-            self.data = None
 
         # Initialize base dataset with key_to_idx mapping enabled
         super().__init__(keys=keys, use_key_to_idx=True, transforms=transforms, **kwargs)
@@ -173,18 +163,40 @@ class EmbedDataset(BaseDataset[str]):
                 raise RuntimeError("Data not initialized")
             vector = self.data[idx]
         else:
-            if self.file is None:
-                raise RuntimeError("HDF5 file is closed")
             # Load from disk on-the-fly
             # torch.from_numpy avoids copying and shares memory with numpy array
-            vector = torch.from_numpy(self.file["vectors"][idx]).to(dtype=self.dtype)
+            vector = torch.from_numpy(self._ensure_file()["vectors"][idx]).to(dtype=self.dtype)
 
         return self._apply_transforms(actual_key, vector)
 
-    def __del__(self):
-        """Close HDF5 file when dataset is destroyed."""
-        if hasattr(self, "file") and self.file is not None:
+    def _ensure_file(self) -> h5py.File:
+        current_pid = os.getpid()
+        if self.file is not None and self._file_pid != current_pid:
+            self.close()
+        if self.file is None:
+            self.file = h5py.File(self.file_path, "r")
+            self._file_pid = current_pid
+        return self.file
+
+    def close(self) -> None:
+        """Close this process's lazy HDF5 handle."""
+        file_handle = getattr(self, "file", None)
+        if file_handle is not None:
             try:
-                self.file.close()
+                file_handle.close()
             except Exception:
                 pass
+        self.file = None
+        self._file_pid = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["file"] = None
+        state["_file_pid"] = None
+        return state
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass

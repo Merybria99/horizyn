@@ -3,6 +3,7 @@ Dataset for loading ragged residue-level protein embeddings from HDF5 files.
 """
 
 from pathlib import Path
+import os
 from typing import Any, Callable, Optional
 
 import h5py
@@ -67,7 +68,7 @@ class ResidueEmbedDataset(BaseDataset[str]):
         **kwargs,
     ):
         file_path_obj = Path(file_path)
-        if not file_path_obj.exists():
+        if not file_path_obj.is_file():
             raise FileNotFoundError(f"HDF5 file not found: {file_path}")
 
         self.file_path = str(file_path_obj)
@@ -77,6 +78,7 @@ class ResidueEmbedDataset(BaseDataset[str]):
         self.truncation = truncation
         self.drop_empty = drop_empty
         self.file: h5py.File | None = None
+        self._file_pid: int | None = None
         self.data: torch.Tensor | None = None
         self.h5_indices: torch.Tensor | None = None
 
@@ -92,6 +94,8 @@ class ResidueEmbedDataset(BaseDataset[str]):
             vectors_shape = h5_file["vectors"].shape
             if len(vectors_shape) != 2:
                 raise ValueError(f"'vectors' must be rank-2, got shape={vectors_shape}")
+            if h5_file["vectors"].dtype.kind not in {"f", "i", "u"}:
+                raise ValueError("'vectors' must have a numeric dtype")
             self.num_residues, self.vec_dim = vectors_shape
 
             ids_data = h5_file["ids"][:]
@@ -102,7 +106,13 @@ class ResidueEmbedDataset(BaseDataset[str]):
                 ]
             else:
                 keys = [str(id_val) for id_val in ids_data]
+            if any(not key.strip() for key in keys):
+                raise ValueError("Residue HDF5 'ids' must not contain empty strings")
+            if len(keys) != len(set(keys)):
+                raise ValueError("Residue HDF5 'ids' must be unique")
 
+            if h5_file["offsets"].dtype.kind not in {"i", "u"}:
+                raise ValueError("'offsets' must have an integer dtype")
             offsets_tensor = torch.as_tensor(h5_file["offsets"][:], dtype=torch.long)
             if offsets_tensor.ndim != 1:
                 raise ValueError("'offsets' must be rank-1")
@@ -123,12 +133,19 @@ class ResidueEmbedDataset(BaseDataset[str]):
 
             self.offsets = offsets_tensor
             lengths = offsets_tensor[1:] - offsets_tensor[:-1]
+            self.source_keys = tuple(keys)
+            self.source_lengths = lengths.clone()
+            self.length_by_key = {
+                protein_id: int(length.item())
+                for protein_id, length in zip(self.source_keys, self.source_lengths)
+            }
             if drop_empty:
                 h5_indices = torch.nonzero(lengths > 0, as_tuple=False).flatten()
                 keys = [keys[int(idx.item())] for idx in h5_indices]
             else:
                 h5_indices = torch.arange(len(keys), dtype=torch.long)
             self.h5_indices = h5_indices
+            self.lengths = lengths.index_select(0, h5_indices).clone()
 
             if self.in_memory:
                 self.data = torch.from_numpy(h5_file["vectors"][:]).to(dtype=self.dtype)
@@ -136,8 +153,12 @@ class ResidueEmbedDataset(BaseDataset[str]):
         super().__init__(keys=keys, use_key_to_idx=True, transforms=transforms, **kwargs)
 
     def _ensure_file(self) -> h5py.File:
+        current_pid = os.getpid()
+        if self.file is not None and self._file_pid != current_pid:
+            self.close()
         if self.file is None:
             self.file = h5py.File(self.file_path, "r")
+            self._file_pid = current_pid
         return self.file
 
     def __getitem__(self, key: str | int) -> dict[str, torch.Tensor]:
@@ -174,9 +195,24 @@ class ResidueEmbedDataset(BaseDataset[str]):
         sample = {"residue_embeddings": residue_embeddings}
         return self._apply_transforms(actual_key, sample)
 
-    def __del__(self):
-        if hasattr(self, "file") and self.file is not None:
+    def close(self) -> None:
+        file_handle = getattr(self, "file", None)
+        if file_handle is not None:
             try:
-                self.file.close()
+                file_handle.close()
             except Exception:
                 pass
+        self.file = None
+        self._file_pid = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["file"] = None
+        state["_file_pid"] = None
+        return state
+
+    def __del__(self):
+        try:
+            self.close()
+        except Exception:
+            pass

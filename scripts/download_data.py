@@ -36,6 +36,7 @@ Note:
 import argparse
 import gzip
 import hashlib
+import os
 import shutil
 import sys
 from pathlib import Path
@@ -115,17 +116,25 @@ def download_file(url: str, output_path: Path, expected_size: float | None = Non
         desc=output_path.name,
     )
 
-    # Download with progress updates
+    # Download to a sibling temporary file so interrupted transfers never look complete.
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    with open(output_path, "wb") as f:
-        for chunk in response.iter_content(chunk_size=8192):
-            size = f.write(chunk)
-            progress_bar.update(size)
-
-    progress_bar.close()
-
-    if total_size != 0 and progress_bar.n != total_size:
-        raise RuntimeError("Download incomplete")
+    temporary_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.part")
+    try:
+        with temporary_path.open("wb") as handle:
+            for chunk in response.iter_content(chunk_size=8192):
+                if not chunk:
+                    continue
+                size = handle.write(chunk)
+                progress_bar.update(size)
+        if total_size != 0 and progress_bar.n != total_size:
+            raise RuntimeError("Download incomplete")
+        os.replace(temporary_path, output_path)
+    finally:
+        progress_bar.close()
+        try:
+            temporary_path.unlink()
+        except FileNotFoundError:
+            pass
 
     print(f"✓ Downloaded: {output_path.name}\n")
 
@@ -172,10 +181,19 @@ def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
 def decompress_gz(gz_path: Path, out_path: Path) -> None:
     """Decompress a .gz file to out_path and remove the .gz file."""
     print(f"Decompressing: {gz_path.name} -> {out_path.name}")
-    with gzip.open(gz_path, "rb") as f_in:
-        with open(out_path, "wb") as f_out:
-            shutil.copyfileobj(f_in, f_out)
-    gz_path.unlink()
+    out_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = out_path.with_name(f".{out_path.name}.{os.getpid()}.part")
+    try:
+        with gzip.open(gz_path, "rb") as source:
+            with temporary_path.open("wb") as destination:
+                shutil.copyfileobj(source, destination)
+        os.replace(temporary_path, out_path)
+        gz_path.unlink()
+    finally:
+        try:
+            temporary_path.unlink()
+        except FileNotFoundError:
+            pass
     print(f"✓ Decompressed: {out_path.name}\n")
 
 
@@ -195,7 +213,7 @@ def verify_dataset_files(output_dir: Path, expected_files: list) -> bool:
     all_present = True
     for filename in expected_files:
         file_path = output_dir / filename
-        if file_path.exists():
+        if file_path.is_file() and file_path.stat().st_size > 0:
             size_mb = file_path.stat().st_size / (1024 * 1024)
             print(f"  ✓ {filename} ({size_mb:.1f} MB)")
         else:
@@ -291,7 +309,11 @@ def main():
         if all((output_dir / f).exists() for f in DATASET_CONFIG["files"]):
             print("Dataset files already exist.")
             print("Use --force to re-download.\n")
-            if verify_dataset_files(output_dir, DATASET_CONFIG["files"]):
+            files_valid = verify_dataset_files(output_dir, DATASET_CONFIG["files"])
+            checksums_valid = args.skip_checksum or verify_file_checksums(
+                output_dir, DATASET_CONFIG["file_checksums"]
+            )
+            if files_valid and checksums_valid:
                 print("✓ All dataset files present and ready for training!\n")
                 print("To train the model, run:")
                 print("    python train.py --config configs/sota.yaml")

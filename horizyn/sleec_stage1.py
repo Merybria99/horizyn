@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import csv
 import math
+import os
 import random
 import re
 from dataclasses import dataclass
@@ -362,25 +363,50 @@ class RaggedResidueEmbeddingStore:
     """Lazy HDF5 lookup for the repo's ragged residue embedding schema."""
 
     def __init__(self, file_path: str | Path, *, dtype: torch.dtype = torch.float32):
-        self.file_path = str(file_path)
+        file_path_obj = Path(file_path)
+        if not file_path_obj.is_file():
+            raise FileNotFoundError(f"Residue HDF5 file not found: {file_path}")
+        self.file_path = str(file_path_obj)
         self.dtype = dtype
         self.file: h5py.File | None = None
+        self._file_pid: int | None = None
         with h5py.File(self.file_path, "r") as h5_file:
             for dataset_name in ("ids", "vectors", "offsets"):
                 if dataset_name not in h5_file:
                     raise KeyError(f"{self.file_path} missing dataset '{dataset_name}'")
-            self.offsets = torch.as_tensor(h5_file["offsets"][:], dtype=torch.long)
+            vectors_shape = h5_file["vectors"].shape
+            if len(vectors_shape) != 2 or h5_file["vectors"].dtype.kind not in {"f", "i", "u"}:
+                raise ValueError("Residue HDF5 'vectors' must be a numeric rank-2 dataset")
+            if h5_file["offsets"].dtype.kind not in {"i", "u"}:
+                raise ValueError("Residue HDF5 'offsets' must have an integer dtype")
             ids_data = h5_file["ids"][:]
             self.ids = [
                 value.decode("utf-8") if isinstance(value, bytes) else str(value)
                 for value in ids_data
             ]
+            if any(not protein_id.strip() for protein_id in self.ids):
+                raise ValueError("Residue HDF5 'ids' must not contain empty strings")
+            if len(self.ids) != len(set(self.ids)):
+                raise ValueError("Residue HDF5 'ids' must be unique")
+            self.offsets = torch.as_tensor(h5_file["offsets"][:], dtype=torch.long)
+            if self.offsets.ndim != 1 or len(self.offsets) != len(self.ids) + 1:
+                raise ValueError("Residue HDF5 'offsets' length must equal len(ids) + 1")
+            if int(self.offsets[0].item()) != 0:
+                raise ValueError("Residue HDF5 'offsets' must start at 0")
+            if int(self.offsets[-1].item()) != vectors_shape[0]:
+                raise ValueError("Residue HDF5 'offsets' must end at the vector row count")
+            if not torch.all(self.offsets[1:] >= self.offsets[:-1]):
+                raise ValueError("Residue HDF5 'offsets' must be monotonically non-decreasing")
             self.id_to_idx = {protein_id: idx for idx, protein_id in enumerate(self.ids)}
-            self.embedding_dim = int(h5_file["vectors"].shape[1])
+            self.embedding_dim = int(vectors_shape[1])
 
     def _ensure_file(self) -> h5py.File:
+        current_pid = os.getpid()
+        if self.file is not None and self._file_pid != current_pid:
+            self.close()
         if self.file is None:
             self.file = h5py.File(self.file_path, "r")
+            self._file_pid = current_pid
         return self.file
 
     def get(self, protein_id: str, residue_index: int) -> torch.Tensor:
@@ -401,9 +427,20 @@ class RaggedResidueEmbeddingStore:
         return vector
 
     def close(self) -> None:
-        if self.file is not None:
-            self.file.close()
-            self.file = None
+        file_handle = getattr(self, "file", None)
+        if file_handle is not None:
+            try:
+                file_handle.close()
+            except Exception:
+                pass
+        self.file = None
+        self._file_pid = None
+
+    def __getstate__(self):
+        state = self.__dict__.copy()
+        state["file"] = None
+        state["_file_pid"] = None
+        return state
 
     def __del__(self):
         try:
