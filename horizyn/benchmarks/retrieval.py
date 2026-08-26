@@ -20,8 +20,15 @@ import torch.nn.functional as F
 import yaml
 
 from horizyn.config import load_config
+from horizyn.artifacts import (
+    ArtifactManifestV2,
+    SplitRoleManifestV2,
+    current_git_revision,
+    fingerprint_file,
+    sha256_file,
+    sha256_strings,
+)
 from horizyn.datasets.base import BaseDataset
-from horizyn.datasets.csv import CSVDataset
 from horizyn.datasets.hdf5 import EmbedDataset
 from horizyn.datasets.residue_hdf5 import ResidueEmbedDataset
 from horizyn.reaction_features import build_reaction_feature_dataset
@@ -34,7 +41,7 @@ DEFAULT_SOTA_TOP_K = [1, 10, 100, 1000]
 DEFAULT_BEDROC_ALPHAS = [85.0, 20.0]
 DEFAULT_EF_FRACTIONS = [0.05, 0.10]
 COSINE_EPS = 1e-12
-TARGET_CACHE_SCHEMA_VERSION = 1
+TARGET_CACHE_SCHEMA_VERSION = 2
 TARGET_CACHE_LOCK_POLL_SECONDS = 10.0
 TARGET_CACHE_LOCK_STALE_SECONDS = 24 * 60 * 60
 
@@ -254,7 +261,9 @@ def read_id_list(path: str | Path | None, column: str | None = None) -> list[str
                 raise ValueError(
                     f"Column '{column}' not found in {id_path}; columns={reader.fieldnames}"
                 )
-            return [row[column] for row in reader if row.get(column)]
+            ids = [str(row[column]).strip() for row in reader if str(row.get(column, "")).strip()]
+            _require_unique_ids(ids, f"candidate ID file {id_path}")
+            return ids
     ids = []
     with id_path.open("r", encoding="utf-8") as handle:
         for line in handle:
@@ -262,7 +271,24 @@ def read_id_list(path: str | Path | None, column: str | None = None) -> list[str
             if not line or line.startswith("#"):
                 continue
             ids.append(line.split(",")[0].split()[0])
+    _require_unique_ids(ids, f"candidate ID file {id_path}")
     return ids
+
+
+def _require_unique_ids(values: Iterable[str], label: str) -> list[str]:
+    ordered = [str(value) for value in values]
+    if any(not value.strip() for value in ordered):
+        raise ValueError(f"{label} contains an empty ID")
+    seen: set[str] = set()
+    duplicates: list[str] = []
+    for value in ordered:
+        if value in seen and value not in duplicates:
+            duplicates.append(value)
+        seen.add(value)
+    if duplicates:
+        preview = duplicates[:10]
+        raise ValueError(f"{label} contains duplicate IDs: {preview}")
+    return ordered
 
 
 def read_pairs(
@@ -279,11 +305,19 @@ def read_pairs(
         missing = [col for col in (reaction_id_col, protein_id_col) if col not in reader.fieldnames]
         if missing:
             raise ValueError(f"Missing columns in {pairs_path}: {missing}")
-        for row in reader:
-            reaction_id = row.get(reaction_id_col)
-            protein_id = row.get(protein_id_col)
-            if reaction_id and protein_id:
-                pairs.append((reaction_id, protein_id))
+        seen_pairs: set[tuple[str, str]] = set()
+        for row_number, row in enumerate(reader, start=2):
+            reaction_id = str(row.get(reaction_id_col, "")).strip()
+            protein_id = str(row.get(protein_id_col, "")).strip()
+            if not reaction_id or not protein_id:
+                raise ValueError(f"Pair file {pairs_path} has an empty ID at row {row_number}")
+            pair = (reaction_id, protein_id)
+            if pair in seen_pairs:
+                raise ValueError(f"Pair file {pairs_path} contains duplicate pair {pair}")
+            seen_pairs.add(pair)
+            pairs.append(pair)
+    if not pairs:
+        raise ValueError(f"Pair file contains no positive pairs: {pairs_path}")
     return pairs
 
 
@@ -321,12 +355,25 @@ def rank_metrics_for_query(
 ) -> dict[str, float]:
     """Compute retrieval metrics for one query."""
 
+    if scores.dim() != 1 or scores.numel() == 0:
+        raise ValueError("scores must be a non-empty 1D tensor")
+    if not torch.isfinite(scores).all():
+        raise ValueError("scores must all be finite")
     if not positive_indices:
         return {}
-    order = torch.argsort(scores, descending=True)
+    unique_positive_indices = sorted(set(int(index) for index in positive_indices))
+    if unique_positive_indices[0] < 0 or unique_positive_indices[-1] >= scores.numel():
+        raise ValueError("positive_indices contains an out-of-range candidate index")
+    if not top_k_values or any(int(k) <= 0 for k in top_k_values):
+        raise ValueError("top_k_values must contain positive integers")
+    if len({int(k) for k in top_k_values}) != len(top_k_values):
+        raise ValueError("top_k_values must not contain duplicates")
+    order = torch.argsort(scores, descending=True, stable=True)
     ranks = torch.empty_like(order)
     ranks[order] = torch.arange(scores.numel(), device=scores.device, dtype=order.dtype)
-    positive_tensor = torch.as_tensor(positive_indices, device=scores.device, dtype=torch.long)
+    positive_tensor = torch.as_tensor(
+        unique_positive_indices, device=scores.device, dtype=torch.long
+    )
     positive_ranks = torch.sort(ranks[positive_tensor].to(torch.float32) + 1.0).values
     if positive_ranks.numel() == 0:
         return {}
@@ -349,9 +396,10 @@ def rank_metrics_for_query(
     )
     metrics["avg_precision"] = float(precisions.mean().item())
     for k in top_k_values:
-        hits = int((positive_ranks <= k).sum().item())
+        cutoff = min(int(k), int(scores.numel()))
+        hits = int((positive_ranks <= cutoff).sum().item())
         metrics[f"top_{k}"] = float(hits > 0)
-        metrics[f"top_{k}_n"] = float(hits / k)
+        metrics[f"top_{k}_n"] = float(hits / cutoff)
     return metrics
 
 
@@ -369,6 +417,11 @@ def screening_metrics_for_query(
 
     metrics: dict[str, float] = {}
     num_mol = int(scores.numel())
+    if scores.dim() != 1 or not torch.isfinite(scores).all():
+        raise ValueError("screening scores must be a finite 1D tensor")
+    positive_indices = sorted(set(int(index) for index in positive_indices))
+    if positive_indices and (positive_indices[0] < 0 or positive_indices[-1] >= num_mol):
+        raise ValueError("positive_indices contains an out-of-range candidate index")
     num_actives = len(positive_indices)
     if num_mol == 0:
         raise ValueError("score list is empty")
@@ -379,15 +432,15 @@ def screening_metrics_for_query(
             metrics[f"ef_{_metric_key(fraction)}"] = 0.0
         return metrics
 
-    order = torch.argsort(scores, descending=True)
+    order = torch.argsort(scores, descending=True, stable=True)
     ranks = torch.empty_like(order)
     ranks[order] = torch.arange(num_mol, device=scores.device, dtype=order.dtype)
     positive_tensor = torch.as_tensor(positive_indices, device=scores.device, dtype=torch.long)
     positive_ranks = ranks[positive_tensor]
 
     for alpha in bedroc_alphas:
-        if alpha <= 0:
-            raise ValueError("BEDROC alpha must be greater than zero")
+        if not math.isfinite(alpha) or alpha <= 0:
+            raise ValueError("BEDROC alpha must be finite and greater than zero")
         alpha_key = _metric_key(alpha)
         ratio = float(num_actives) / float(num_mol)
         denom = (1.0 / num_mol) * ((-math.expm1(-alpha)) / math.expm1(alpha / num_mol))
@@ -400,8 +453,8 @@ def screening_metrics_for_query(
         )
 
     for fraction in ef_fractions:
-        if fraction < 0 or fraction > 1:
-            raise ValueError("enrichment fractions must be in [0, 1]")
+        if not math.isfinite(fraction) or fraction < 0 or fraction > 1:
+            raise ValueError("enrichment fractions must be finite and in [0, 1]")
         fraction_key = _metric_key(fraction)
         cutoff = math.ceil(num_mol * fraction)
         if cutoff <= 0:
@@ -669,17 +722,25 @@ def load_candidate_keys_from_embedding(
     requested_ids = read_id_list(candidate_ids_path)
     key_set = set(dataset.keys)
     if requested_ids is None:
-        return list(dataset.keys), {
+        candidate_keys = _require_unique_ids(dataset.keys, "embedding candidate store")
+        return candidate_keys, {
             "requested_candidate_count": len(dataset.keys),
             "candidate_count": len(dataset.keys),
             "missing_candidate_id_count": 0,
             "zero_length_candidate_count": 0,
         }
     candidate_keys = [protein_id for protein_id in requested_ids if protein_id in key_set]
-    return candidate_keys, {
+    missing_count = len(requested_ids) - len(candidate_keys)
+    if missing_count:
+        missing = [protein_id for protein_id in requested_ids if protein_id not in key_set]
+        raise ValueError(
+            f"Candidate manifest references {missing_count} IDs absent from the embedding store: "
+            f"{missing[:10]}"
+        )
+    return _require_unique_ids(candidate_keys, "resolved embedding candidates"), {
         "requested_candidate_count": len(requested_ids),
         "candidate_count": len(candidate_keys),
-        "missing_candidate_id_count": len(requested_ids) - len(candidate_keys),
+        "missing_candidate_id_count": missing_count,
         "zero_length_candidate_count": 0,
     }
 
@@ -688,10 +749,7 @@ def load_candidate_keys_from_residue(
     dataset: ResidueEmbedDataset,
     candidate_ids_path: Path | None,
 ) -> tuple[list[str], dict[str, int]]:
-    residue_lengths = dataset.offsets[1:] - dataset.offsets[:-1]
-    length_by_key = {
-        protein_id: int(length.item()) for protein_id, length in zip(dataset.keys, residue_lengths)
-    }
+    length_by_key = dataset.length_by_key
     requested_ids = read_id_list(candidate_ids_path)
     key_set = set(dataset.keys)
     source_ids = list(dataset.keys) if requested_ids is None else requested_ids
@@ -700,14 +758,23 @@ def load_candidate_keys_from_residue(
         for protein_id in source_ids
         if protein_id in key_set and length_by_key.get(protein_id, 0) > 0
     ]
+    missing_ids = [protein_id for protein_id in source_ids if protein_id not in length_by_key]
+    zero_length_ids = [
+        protein_id
+        for protein_id in source_ids
+        if protein_id in length_by_key and length_by_key[protein_id] <= 0
+    ]
+    if requested_ids is not None and (missing_ids or zero_length_ids):
+        raise ValueError(
+            "Candidate manifest cannot be represented exactly by residue embeddings: "
+            f"missing={missing_ids[:10]}, zero_length={zero_length_ids[:10]}"
+        )
+    candidate_keys = _require_unique_ids(candidate_keys, "resolved residue candidates")
     return candidate_keys, {
         "requested_candidate_count": len(source_ids),
         "candidate_count": len(candidate_keys),
-        "missing_candidate_id_count": sum(protein_id not in key_set for protein_id in source_ids),
-        "zero_length_candidate_count": sum(
-            protein_id in key_set and length_by_key.get(protein_id, 0) <= 0
-            for protein_id in source_ids
-        ),
+        "missing_candidate_id_count": len(missing_ids),
+        "zero_length_candidate_count": len(zero_length_ids),
     }
 
 
@@ -715,27 +782,32 @@ def filter_candidate_keys_by_score_residue(
     candidate_keys: list[str],
     score_dataset: ResidueEmbedDataset,
 ) -> tuple[list[str], dict[str, int]]:
-    score_lengths = score_dataset.offsets[1:] - score_dataset.offsets[:-1]
-    score_length_by_key = {
-        protein_id: int(length.item())
-        for protein_id, length in zip(score_dataset.keys, score_lengths)
-    }
+    score_length_by_key = score_dataset.length_by_key
     score_key_set = set(score_dataset.keys)
     filtered_keys = [
         protein_id
         for protein_id in candidate_keys
         if protein_id in score_key_set and score_length_by_key.get(protein_id, 0) > 0
     ]
+    missing_ids = [
+        protein_id for protein_id in candidate_keys if protein_id not in score_length_by_key
+    ]
+    zero_length_ids = [
+        protein_id
+        for protein_id in candidate_keys
+        if protein_id in score_length_by_key and score_length_by_key[protein_id] <= 0
+    ]
+    if missing_ids or zero_length_ids:
+        raise ValueError(
+            "Score-residue store cannot represent the candidate manifest exactly: "
+            f"missing={missing_ids[:10]}, zero_length={zero_length_ids[:10]}"
+        )
+    filtered_keys = _require_unique_ids(filtered_keys, "score-residue candidates")
     return filtered_keys, {
         "score_candidate_store_count": len(score_dataset.keys),
         "score_candidate_store_overlap": len(set(candidate_keys) & score_key_set),
-        "score_missing_candidate_id_count": sum(
-            protein_id not in score_key_set for protein_id in candidate_keys
-        ),
-        "score_zero_length_candidate_count": sum(
-            protein_id in score_key_set and score_length_by_key.get(protein_id, 0) <= 0
-            for protein_id in candidate_keys
-        ),
+        "score_missing_candidate_id_count": len(missing_ids),
+        "score_zero_length_candidate_count": len(zero_length_ids),
     }
 
 
@@ -746,13 +818,16 @@ def validate_task_inputs(
     target_store_keys: list[str],
     eval_pairs: list[tuple[str, str]],
     candidate_stats: dict[str, int],
-) -> dict[str, int | str]:
+) -> dict[str, Any]:
+    _require_unique_ids(target_keys, f"task {task.name} candidates")
+    _require_unique_ids(target_store_keys, f"task {task.name} target store")
+    _require_unique_ids(reaction_inputs.keys, f"task {task.name} reaction inputs")
     target_key_set = set(target_keys)
     store_key_set = set(target_store_keys)
     pair_reactions = {reaction_id for reaction_id, _protein_id in eval_pairs}
     pair_proteins = {protein_id for _reaction_id, protein_id in eval_pairs}
     reaction_key_set = set(reaction_inputs.keys)
-    stats: dict[str, int | str] = {
+    stats: dict[str, Any] = {
         "pair_count": len(eval_pairs),
         "unique_pair_reactions": len(pair_reactions),
         "unique_pair_proteins": len(pair_proteins),
@@ -768,9 +843,87 @@ def validate_task_inputs(
     }
     if not target_keys:
         raise ValueError(f"Task {task.name} has no evaluable candidates")
-    if stats["candidate_store_overlap"] <= 0:
-        raise ValueError(f"Task {task.name} candidate IDs do not overlap target store")
+    if stats["candidate_store_overlap"] != len(target_keys):
+        raise ValueError(f"Task {task.name} candidate IDs are not fully present in target store")
+    if stats["missing_reaction_count"]:
+        raise ValueError(
+            f"Task {task.name} has {stats['missing_reaction_count']} positive reactions "
+            "without query representations"
+        )
+    if stats["missing_candidate_positive_count"]:
+        raise ValueError(
+            f"Task {task.name} has {stats['missing_candidate_positive_count']} positive proteins "
+            "outside the candidate manifest"
+        )
+    if task.train_pairs is not None:
+        train_pairs = set(read_pairs(task.train_pairs, task.reaction_id_col, task.protein_id_col))
+        overlap = train_pairs & set(eval_pairs)
+        stats["train_eval_pair_overlap_count"] = len(overlap)
+        if overlap:
+            raise ValueError(
+                f"Task {task.name} leaks {len(overlap)} exact positive pairs from training"
+            )
+    pair_tokens = [f"{reaction_id}\t{protein_id}" for reaction_id, protein_id in eval_pairs]
+    split_manifest = SplitRoleManifestV2(
+        split=task.split,
+        pairs_sha256=sha256_strings(sorted(pair_tokens)),
+        candidate_ids_sha256=sha256_strings(target_keys),
+        positive_pair_count=len(eval_pairs),
+        query_count=len(pair_reactions),
+        candidate_count=len(target_keys),
+    )
+    stats["split_manifest"] = split_manifest.to_dict()
     return stats
+
+
+def benchmark_artifact_inputs(
+    task: BenchmarkTask,
+    target_cache_base_metadata: dict[str, Any],
+) -> dict[str, Any]:
+    """Build strict source identities shared by benchmark results and score dumps."""
+
+    return {
+        "task": task_to_dict(task),
+        "pairs": fingerprint_file(task.pairs),
+        "reactions": fingerprint_file(task.reactions),
+        "train_pairs": _path_fingerprint(task.train_pairs),
+        "candidate_ids": _path_fingerprint(task.candidate_ids),
+        "target_encoding": target_cache_base_metadata,
+    }
+
+
+def attach_benchmark_artifact_manifest(
+    result: dict[str, Any],
+    *,
+    task: BenchmarkTask,
+    candidate_keys: list[str],
+    artifact_inputs: dict[str, Any],
+    config_sha256: str,
+    validate_only: bool,
+) -> None:
+    """Attach the v2 provenance contract to a benchmark result in-place."""
+
+    if task.is_screening:
+        direction = "reaction_to_enzyme"
+    elif set(task.directions) == {"reaction_to_enzyme", "enzyme_to_reaction"}:
+        direction = "both"
+    elif len(task.directions) == 1:
+        direction = task.directions[0]
+    else:
+        raise ValueError(f"Task {task.name} has unsupported directions: {task.directions}")
+    result["schema_version"] = 2
+    result["metric_schema_version"] = 2
+    result["score_semantics"] = "higher_is_better_except_mean_rank"
+    result["artifact_manifest"] = ArtifactManifestV2(
+        artifact_type="benchmark_validation" if validate_only else "benchmark_result",
+        role="validation" if validate_only else "evaluation",
+        direction=direction,
+        inputs=artifact_inputs,
+        code_revision=current_git_revision(),
+        config_sha256=config_sha256,
+        candidate_ids_sha256=sha256_strings(candidate_keys),
+        row_count=int(result["validation"]["pair_count"]),
+    ).to_dict()
 
 
 def build_query_inputs(
@@ -1000,23 +1153,13 @@ def _stable_json_dumps(payload: Any) -> str:
 
 
 def _sha256_strings(values: Iterable[str]) -> str:
-    digest = hashlib.sha256()
-    for value in values:
-        digest.update(str(value).encode("utf-8"))
-        digest.update(b"\0")
-    return digest.hexdigest()
+    return sha256_strings(values)
 
 
 def _path_fingerprint(path: str | Path | None) -> dict[str, Any] | None:
     if path in {None, ""}:
         return None
-    resolved = Path(path).expanduser().resolve()
-    stat_result = resolved.stat()
-    return {
-        "path": str(resolved),
-        "size": int(stat_result.st_size),
-        "mtime_ns": int(stat_result.st_mtime_ns),
-    }
+    return fingerprint_file(path)
 
 
 def _target_cache_base_metadata(
@@ -1096,19 +1239,42 @@ def _load_target_cache_payload(
     tensor_path: Path,
     *,
     expected_num_targets: int,
+    expected_base_metadata: dict[str, Any],
+    expected_target_keys: list[str],
 ) -> torch.Tensor:
-    payload = torch.load(tensor_path, map_location="cpu")
+    payload = torch.load(tensor_path, map_location="cpu", weights_only=True)
     if not isinstance(payload, dict) or "target_embeds" not in payload:
         raise ValueError(f"Target cache payload is malformed: {tensor_path}")
+    if payload.get("schema_version") != TARGET_CACHE_SCHEMA_VERSION:
+        raise ValueError(f"Target cache schema mismatch: {tensor_path}")
+    if payload.get("base_metadata") != expected_base_metadata:
+        raise ValueError(f"Target cache provenance mismatch: {tensor_path}")
+    if payload.get("target_keys") != expected_target_keys:
+        raise ValueError(f"Target cache candidate order mismatch: {tensor_path}")
+    ArtifactManifestV2.from_dict(payload.get("artifact_manifest", {}))
     target_embeds = payload["target_embeds"]
     if not isinstance(target_embeds, torch.Tensor):
         raise ValueError(f"Target cache embeddings are not a tensor: {tensor_path}")
+    if target_embeds.dim() != 2:
+        raise ValueError(f"Target cache embeddings must be rank-2: {tensor_path}")
     if target_embeds.shape[0] != expected_num_targets:
         raise ValueError(
             f"Target cache row count mismatch for {tensor_path}: "
             f"expected {expected_num_targets}, got {target_embeds.shape[0]}"
         )
+    if not torch.isfinite(target_embeds).all():
+        raise ValueError(f"Target cache contains non-finite embeddings: {tensor_path}")
     return target_embeds.float().cpu()
+
+
+def _cache_tensor_matches(sidecar: dict[str, Any], tensor_path: Path) -> bool:
+    expected_digest = sidecar.get("tensor_sha256")
+    return (
+        isinstance(expected_digest, str)
+        and len(expected_digest) == 64
+        and tensor_path.is_file()
+        and sha256_file(tensor_path) == expected_digest
+    )
 
 
 def _move_target_cache_tensor(
@@ -1150,11 +1316,13 @@ def _try_load_target_cache(
         and _cache_sidecar_matches(sidecar, base_metadata)
         and sidecar.get("target_keys_sha256") == target_keys_sha256
         and sidecar.get("target_keys") == target_keys
-        and tensor_path.exists()
+        and _cache_tensor_matches(sidecar, tensor_path)
     ):
         target_embeds = _load_target_cache_payload(
             tensor_path,
             expected_num_targets=len(target_keys),
+            expected_base_metadata=base_metadata,
+            expected_target_keys=target_keys,
         )
         return (
             _move_target_cache_tensor(
@@ -1187,11 +1355,13 @@ def _try_load_target_cache(
         if not target_key_set.issubset(cached_key_set):
             continue
         source_tensor_path = candidate_sidecar_path.with_suffix(".pt")
-        if not source_tensor_path.exists():
+        if not _cache_tensor_matches(candidate_sidecar, source_tensor_path):
             continue
         source_embeds = _load_target_cache_payload(
             source_tensor_path,
             expected_num_targets=len(cached_keys),
+            expected_base_metadata=base_metadata,
+            expected_target_keys=cached_keys,
         )
         cached_key_to_idx = {key: idx for idx, key in enumerate(cached_keys)}
         rows = torch.as_tensor(
@@ -1300,27 +1470,50 @@ def write_target_embedding_cache(
     lock_path = Path(cache_info["lock_path"])
     cache_dir = tensor_path.parent
     target_embeds_cpu = target_embeds.detach().float().cpu()
+    if target_embeds_cpu.dim() != 2 or target_embeds_cpu.shape[0] != len(target_keys):
+        raise ValueError("Target embeddings must be rank-2 and aligned one-to-one with target_keys")
+    if not torch.isfinite(target_embeds_cpu).all():
+        raise ValueError("Refusing to cache non-finite target embeddings")
+    candidate_digest = sha256_strings(target_keys)
+    config_fingerprint = base_metadata.get("config")
+    if not isinstance(config_fingerprint, dict) or "sha256" not in config_fingerprint:
+        raise ValueError("Target cache metadata requires a content-hashed config")
+    artifact_manifest = ArtifactManifestV2(
+        artifact_type="target_embedding_cache",
+        role="candidate_store",
+        direction=str(base_metadata.get("retrieval_direction")),
+        inputs=base_metadata,
+        code_revision=current_git_revision(),
+        config_sha256=str(config_fingerprint["sha256"]),
+        candidate_ids_sha256=candidate_digest,
+        row_count=len(target_keys),
+        shape=tuple(int(value) for value in target_embeds_cpu.shape),
+        dtype=str(target_embeds_cpu.dtype).removeprefix("torch."),
+    ).to_dict()
     sidecar = {
         "schema_version": TARGET_CACHE_SCHEMA_VERSION,
         "base_metadata": base_metadata,
-        "target_keys_sha256": _sha256_strings(target_keys),
+        "target_keys_sha256": candidate_digest,
         "target_keys": target_keys,
         "num_targets": len(target_keys),
         "embedding_shape": list(target_embeds_cpu.shape),
         "tensor_file": tensor_path.name,
         "created_at": time.time(),
+        "artifact_manifest": artifact_manifest,
     }
     payload = {
         "schema_version": TARGET_CACHE_SCHEMA_VERSION,
         "base_metadata": base_metadata,
         "target_keys": target_keys,
         "target_embeds": target_embeds_cpu,
+        "artifact_manifest": artifact_manifest,
     }
 
     temp_tensor_path = cache_dir / f".{tensor_path.name}.{os.getpid()}.tmp"
     temp_sidecar_path = cache_dir / f".{sidecar_path.name}.{os.getpid()}.tmp"
     try:
         torch.save(payload, temp_tensor_path)
+        sidecar["tensor_sha256"] = sha256_file(temp_tensor_path)
         with temp_sidecar_path.open("w", encoding="utf-8") as handle:
             json.dump(sidecar, handle, indent=2)
         os.replace(temp_tensor_path, tensor_path)
@@ -1355,16 +1548,35 @@ def evaluate_retrieval_direction(
     query_to_candidates: dict[str, list[str]],
     top_k_values: list[int] | tuple[int, ...],
 ) -> dict[str, float | int]:
+    _require_unique_ids(query_ids, label="retrieval query IDs")
+    _require_unique_ids(candidate_ids, label="retrieval candidate IDs")
+    if score_matrix.dim() != 2:
+        raise ValueError(f"score_matrix must be rank-2, got shape={tuple(score_matrix.shape)}")
+    expected_shape = (len(query_ids), len(candidate_ids))
+    if tuple(score_matrix.shape) != expected_shape:
+        raise ValueError(
+            f"score_matrix shape mismatch: expected {expected_shape}, "
+            f"got {tuple(score_matrix.shape)}"
+        )
+    if not torch.isfinite(score_matrix).all():
+        raise ValueError("score_matrix contains non-finite values")
     candidate_to_idx = {candidate_id: idx for idx, candidate_id in enumerate(candidate_ids)}
     metric_rows: list[dict[str, float]] = []
     for row_idx, query_id in enumerate(query_ids):
-        positives = [
-            candidate_to_idx[candidate_id]
-            for candidate_id in query_to_candidates.get(query_id, [])
-            if candidate_id in candidate_to_idx
+        declared_positives = query_to_candidates.get(query_id, [])
+        missing_positives = [
+            candidate_id
+            for candidate_id in declared_positives
+            if candidate_id not in candidate_to_idx
         ]
+        if missing_positives:
+            raise ValueError(
+                f"Query {query_id!r} has positives outside the candidate IDs: "
+                f"{missing_positives[:10]}"
+            )
+        positives = [candidate_to_idx[candidate_id] for candidate_id in declared_positives]
         if not positives:
-            continue
+            raise ValueError(f"Query {query_id!r} has no declared positive candidates")
         metric_rows.append(
             rank_metrics_for_query(score_matrix[row_idx], positives, top_k_values=top_k_values)
         )
@@ -1374,9 +1586,86 @@ def evaluate_retrieval_direction(
     return results
 
 
+def evaluate_embedding_retrieval_direction(
+    query_ids: list[str],
+    candidate_ids: list[str],
+    query_embeds: torch.Tensor,
+    candidate_embeds: torch.Tensor,
+    query_to_candidates: dict[str, list[str]],
+    top_k_values: list[int] | tuple[int, ...],
+    *,
+    scoring_mode: str,
+    query_batch_size: int,
+) -> dict[str, float | int]:
+    """Evaluate retrieval without materializing the full query-by-candidate matrix."""
+
+    _require_unique_ids(query_ids, label="retrieval query IDs")
+    _require_unique_ids(candidate_ids, label="retrieval candidate IDs")
+    if query_batch_size <= 0:
+        raise ValueError("query_batch_size must be positive")
+    if query_embeds.dim() != 2 or candidate_embeds.dim() != 2:
+        raise ValueError("query_embeds and candidate_embeds must both be rank-2")
+    if query_embeds.shape[0] != len(query_ids):
+        raise ValueError("query_embeds rows must align one-to-one with query_ids")
+    if candidate_embeds.shape[0] != len(candidate_ids):
+        raise ValueError("candidate_embeds rows must align one-to-one with candidate_ids")
+    if query_embeds.shape[1] != candidate_embeds.shape[1]:
+        raise ValueError(
+            "query and candidate embedding dimensions differ: "
+            f"{query_embeds.shape[1]} vs {candidate_embeds.shape[1]}"
+        )
+    if not torch.isfinite(query_embeds).all() or not torch.isfinite(candidate_embeds).all():
+        raise ValueError("retrieval embeddings contain non-finite values")
+
+    candidate_to_idx = {candidate_id: idx for idx, candidate_id in enumerate(candidate_ids)}
+    metric_rows: list[dict[str, float]] = []
+    for query_start in range(0, len(query_ids), query_batch_size):
+        query_end = min(query_start + query_batch_size, len(query_ids))
+        score_batch = score_embeddings(
+            query_embeds[query_start:query_end],
+            candidate_embeds,
+            scoring_mode,
+        )
+        for row_idx, query_id in enumerate(query_ids[query_start:query_end]):
+            declared_positives = query_to_candidates.get(query_id, [])
+            missing_positives = [
+                candidate_id
+                for candidate_id in declared_positives
+                if candidate_id not in candidate_to_idx
+            ]
+            if missing_positives:
+                raise ValueError(
+                    f"Query {query_id!r} has positives outside the candidate IDs: "
+                    f"{missing_positives[:10]}"
+                )
+            positives = [candidate_to_idx[candidate_id] for candidate_id in declared_positives]
+            if not positives:
+                raise ValueError(f"Query {query_id!r} has no declared positive candidates")
+            metric_rows.append(
+                rank_metrics_for_query(
+                    score_batch[row_idx],
+                    positives,
+                    top_k_values=top_k_values,
+                )
+            )
+
+    results: dict[str, float | int] = mean_dict(metric_rows)
+    results["num_queries"] = len(metric_rows)
+    results["num_targets"] = len(candidate_ids)
+    return results
+
+
 def l2_normalize_embeddings(embeds: torch.Tensor) -> torch.Tensor:
     """Return embeddings normalized for cosine retrieval scoring."""
-    return F.normalize(embeds.float(), p=2, dim=-1, eps=COSINE_EPS)
+    if embeds.dim() != 2 or embeds.shape[0] == 0 or embeds.shape[1] == 0:
+        raise ValueError(f"embeddings must be a non-empty rank-2 tensor, got {embeds.shape}")
+    embeds_float = embeds.float()
+    if not torch.isfinite(embeds_float).all():
+        raise ValueError("embeddings contain non-finite values")
+    norms = torch.linalg.vector_norm(embeds_float, ord=2, dim=-1)
+    if bool((norms <= COSINE_EPS).any()):
+        raise ValueError("cosine scoring is undefined for zero-norm embeddings")
+    return F.normalize(embeds_float, p=2, dim=-1, eps=COSINE_EPS)
 
 
 def cosine_scores(query_embeds: torch.Tensor, target_embeds: torch.Tensor) -> torch.Tensor:
@@ -1388,7 +1677,15 @@ def cosine_scores(query_embeds: torch.Tensor, target_embeds: torch.Tensor) -> to
 
 def dot_scores(query_embeds: torch.Tensor, target_embeds: torch.Tensor) -> torch.Tensor:
     """Compute raw dot-product scores without norm correction."""
-    return torch.matmul(query_embeds.float(), target_embeds.float().T)
+    if query_embeds.dim() != 2 or target_embeds.dim() != 2:
+        raise ValueError("dot scoring expects rank-2 query and target embeddings")
+    if query_embeds.shape[1] != target_embeds.shape[1]:
+        raise ValueError("query and target embedding dimensions must match")
+    query_float = query_embeds.float()
+    target_float = target_embeds.float()
+    if not torch.isfinite(query_float).all() or not torch.isfinite(target_float).all():
+        raise ValueError("embeddings contain non-finite values")
+    return torch.matmul(query_float, target_float.T)
 
 
 def parse_scoring_mode(value: str | None, *, allow_both: bool, default: str) -> str:
@@ -1441,6 +1738,8 @@ def evaluate_retrieval(
     batch_size: int,
     score_dump_task_name: str | None = None,
     e2r_target_embeds: torch.Tensor | None = None,
+    artifact_inputs: dict[str, Any] | None = None,
+    config_sha256: str | None = None,
 ) -> dict[str, Any]:
     reaction_key_set = set(reaction_inputs.keys)
     reaction_ids = sorted({rid for rid in reaction_to_proteins if rid in reaction_key_set})
@@ -1512,31 +1811,50 @@ def evaluate_retrieval(
                 if requested_scoring_mode == "both" and scoring_mode == primary_scoring_mode:
                     score_filenames.append("scores_enzyme_by_reaction.npz")
                 for score_filename in score_filenames:
-                    np.savez(
-                        dump_dir / score_filename,
-                        scores=full_scores.detach().float().cpu().numpy(),
-                        enzyme_ids=np.asarray(candidate_keys, dtype=str),
-                        reaction_ids=np.asarray(reaction_ids, dtype=str),
-                    )
+                    score_path = dump_dir / score_filename
+                    temporary_score_path = dump_dir / f".{score_filename}.{os.getpid()}.tmp"
+                    with temporary_score_path.open("wb") as handle:
+                        np.savez(
+                            handle,
+                            scores=full_scores.detach().float().cpu().numpy(),
+                            enzyme_ids=np.asarray(candidate_keys, dtype=str),
+                            reaction_ids=np.asarray(reaction_ids, dtype=str),
+                        )
+                    os.replace(temporary_score_path, score_path)
                     metadata_filename = (
                         "score_metadata.json"
                         if score_filename == "scores_enzyme_by_reaction.npz"
                         else f"score_metadata_{scoring_mode}.json"
                     )
-                    with (dump_dir / metadata_filename).open("w", encoding="utf-8") as handle:
-                        json.dump(
-                            {
-                                "task": score_dump_task_name,
-                                "format": "npz_dense_enzyme_by_reaction",
-                                "scores": score_filename,
-                                **scoring_metadata(scoring_mode),
-                                "shape": [len(candidate_keys), len(reaction_ids)],
-                                "rows": "enzyme_ids",
-                                "columns": "reaction_ids",
-                            },
-                            handle,
-                            indent=2,
-                        )
+                    score_meta = scoring_metadata(scoring_mode)
+                    metadata: dict[str, Any] = {
+                        "schema_version": 2,
+                        "task": score_dump_task_name,
+                        "format": "npz_dense_enzyme_by_reaction",
+                        "scores": score_filename,
+                        "score_sha256": sha256_file(score_path),
+                        **score_meta,
+                        "higher_is_better": True,
+                        "shape": [len(candidate_keys), len(reaction_ids)],
+                        "rows": "enzyme_ids",
+                        "columns": "reaction_ids",
+                    }
+                    if artifact_inputs is not None and config_sha256 is not None:
+                        metadata["artifact_manifest"] = ArtifactManifestV2(
+                            artifact_type="retrieval_score_matrix",
+                            role="benchmark_score_dump",
+                            direction="enzyme_to_reaction",
+                            inputs=artifact_inputs,
+                            code_revision=current_git_revision(),
+                            config_sha256=config_sha256,
+                            candidate_ids_sha256=sha256_strings(candidate_keys),
+                            score_type=score_meta["score_type"],
+                            higher_is_better=True,
+                            row_count=len(candidate_keys),
+                            shape=(len(candidate_keys), len(reaction_ids)),
+                            dtype="float32",
+                        ).to_dict()
+                    write_json(dump_dir / metadata_filename, metadata)
 
         reaction_id_set = set(reaction_ids)
         protein_query_ids = [
@@ -1553,30 +1871,30 @@ def evaluate_retrieval(
         for scoring_mode in scoring_modes:
             suffix = "" if requested_scoring_mode != "both" else f"_{scoring_mode}"
             if "reaction_to_enzyme" in directions:
-                scores = score_embeddings(reaction_embeds, protein_embeds, scoring_mode)
-                metrics = evaluate_retrieval_direction(
+                metrics = evaluate_embedding_retrieval_direction(
                     query_ids=reaction_ids,
                     candidate_ids=candidate_keys,
-                    score_matrix=scores,
+                    query_embeds=reaction_embeds,
+                    candidate_embeds=protein_embeds,
                     query_to_candidates=reaction_to_proteins,
                     top_k_values=top_k_values,
+                    scoring_mode=scoring_mode,
+                    query_batch_size=batch_size,
                 )
                 results[f"reaction_to_enzyme{suffix}"] = metrics
                 if scoring_mode == primary_scoring_mode:
                     results["reaction_to_enzyme"] = metrics
 
             if "enzyme_to_reaction" in directions:
-                scores = score_embeddings(
-                    e2r_protein_embeds[protein_rows],
-                    e2r_reaction_embeds,
-                    scoring_mode,
-                )
-                metrics = evaluate_retrieval_direction(
+                metrics = evaluate_embedding_retrieval_direction(
                     query_ids=protein_query_ids,
                     candidate_ids=reaction_ids,
-                    score_matrix=scores,
+                    query_embeds=e2r_protein_embeds[protein_rows],
+                    candidate_embeds=e2r_reaction_embeds,
                     query_to_candidates=protein_to_reactions,
                     top_k_values=top_k_values,
+                    scoring_mode=scoring_mode,
+                    query_batch_size=batch_size,
                 )
                 results[f"enzyme_to_reaction{suffix}"] = metrics
                 if scoring_mode == primary_scoring_mode:
@@ -1770,6 +2088,7 @@ def run_benchmark_task(
             text_vector_missing_policy=text_vector_missing_policy,
             max_tokens=max_tokens,
             truncation=truncation,
+            retrieval_direction=target_retrieval_direction,
         )
 
     validation_stats = validate_task_inputs(
@@ -1820,7 +2139,21 @@ def run_benchmark_task(
     if task.reaction_embeds_h5 is not None:
         result["reaction_embeds_h5"] = str(task.reaction_embeds_h5)
 
+    artifact_inputs = benchmark_artifact_inputs(task, target_cache_base_metadata)
+    config_fingerprint = target_cache_base_metadata.get("config")
+    if not isinstance(config_fingerprint, dict) or "sha256" not in config_fingerprint:
+        raise ValueError("Benchmark provenance requires a content-hashed config")
+    config_sha256 = str(config_fingerprint["sha256"])
+
     if validate_only:
+        attach_benchmark_artifact_manifest(
+            result,
+            task=task,
+            candidate_keys=candidate_keys,
+            artifact_inputs=artifact_inputs,
+            config_sha256=config_sha256,
+            validate_only=True,
+        )
         return result
 
     with torch.inference_mode():
@@ -1936,8 +2269,18 @@ def run_benchmark_task(
                 query_batch_size,
                 score_dump_task_name=task.name,
                 e2r_target_embeds=e2r_target_embeds,
+                artifact_inputs=artifact_inputs,
+                config_sha256=config_sha256,
             )
     result.update(metrics)
+    attach_benchmark_artifact_manifest(
+        result,
+        task=task,
+        candidate_keys=candidate_keys,
+        artifact_inputs=artifact_inputs,
+        config_sha256=config_sha256,
+        validate_only=False,
+    )
     return result
 
 
@@ -2169,4 +2512,15 @@ def write_grouped_summary_tables(results: list[dict[str, Any]], output_dir: str 
 def write_json(path: str | Path, payload: dict[str, Any]) -> None:
     output_path = Path(path)
     output_path.parent.mkdir(parents=True, exist_ok=True)
-    output_path.write_text(json.dumps(payload, indent=2, sort_keys=True), encoding="utf-8")
+    temporary_path = output_path.with_name(f".{output_path.name}.{os.getpid()}.tmp")
+    try:
+        temporary_path.write_text(
+            json.dumps(payload, indent=2, sort_keys=True) + "\n",
+            encoding="utf-8",
+        )
+        os.replace(temporary_path, output_path)
+    finally:
+        try:
+            temporary_path.unlink()
+        except FileNotFoundError:
+            pass

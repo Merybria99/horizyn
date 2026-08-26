@@ -3,7 +3,30 @@ Simple in-memory caching utilities for fingerprint generation.
 """
 
 from functools import wraps
+import inspect
 from typing import Any, Callable, Dict, Hashable
+
+
+def _freeze_cache_value(value: Any) -> Hashable:
+    """Convert common containers to an immutable, collision-resistant cache key."""
+
+    if isinstance(value, dict):
+        return tuple(
+            sorted(
+                (_freeze_cache_value(key), _freeze_cache_value(item)) for key, item in value.items()
+            )
+        )
+    if isinstance(value, (list, tuple)):
+        return tuple(_freeze_cache_value(item) for item in value)
+    if isinstance(value, (set, frozenset)):
+        return frozenset(_freeze_cache_value(item) for item in value)
+    try:
+        hash(value)
+    except TypeError as error:
+        raise TypeError(
+            f"Cannot build a stable in-memory cache key for {type(value).__name__}"
+        ) from error
+    return value
 
 
 class InMemoryCache:
@@ -85,8 +108,8 @@ def cached_method(cache_attr: str = "_cache"):
     Decorator for caching method results in an instance attribute.
 
     This decorator caches the results of a method call in an InMemoryCache
-    stored as an instance attribute. The cache key is the first argument
-    to the method (typically an ID or key).
+    stored as an instance attribute. The cache key includes the method identity
+    and every argument after applying default values.
 
     Args:
         cache_attr: Name of the instance attribute containing the cache.
@@ -108,6 +131,8 @@ def cached_method(cache_attr: str = "_cache"):
     """
 
     def decorator(func: Callable) -> Callable:
+        signature = inspect.signature(func)
+
         @wraps(func)
         def wrapper(self, key: Hashable, *args, **kwargs):
             # Get cache from instance
@@ -118,13 +143,22 @@ def cached_method(cache_attr: str = "_cache"):
                     f"Ensure the instance has an InMemoryCache at '{cache_attr}'."
                 )
 
+            bound = signature.bind(self, key, *args, **kwargs)
+            bound.apply_defaults()
+            argument_key = tuple(
+                (name, _freeze_cache_value(value))
+                for name, value in bound.arguments.items()
+                if name != "self"
+            )
+            cache_key = (func.__module__, func.__qualname__, argument_key)
+
             # Check cache
-            if cache.has(key):
-                return cache.get(key)
+            if cache.has(cache_key):
+                return cache.get(cache_key)
 
             # Compute and cache
             result = func(self, key, *args, **kwargs)
-            cache.set(key, result)
+            cache.set(cache_key, result)
             return result
 
         return wrapper

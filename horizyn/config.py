@@ -5,6 +5,7 @@ This module provides a simple configuration system for loading and validating
 YAML config files. It supports dot-notation access and command-line overrides.
 """
 
+import copy
 import json
 from pathlib import Path
 from typing import Any, Dict, Optional
@@ -21,17 +22,45 @@ class DotDict(dict):
     """
 
     def __init__(self, *args, **kwargs):
-        """Initialize DotDict and recursively convert nested dicts."""
+        """Initialize without mutating caller-owned mappings."""
+        data: dict[str, Any] = {}
         for arg in args:
-            if isinstance(arg, dict):
-                for k, v in arg.items():
-                    if isinstance(v, dict):
-                        arg[k] = DotDict(v)
-                kwargs.update(arg)
-        for k, v in kwargs.items():
-            if isinstance(v, dict):
-                kwargs[k] = DotDict(v)
-        super().__init__(**kwargs)
+            if not isinstance(arg, dict):
+                raise TypeError(f"DotDict expected a mapping, got {type(arg).__name__}")
+            data.update(copy.deepcopy(arg))
+        data.update(copy.deepcopy(kwargs))
+        super().__init__()
+        for key, value in data.items():
+            super().__setitem__(key, self._convert(value))
+
+    @classmethod
+    def _convert(cls, value: Any) -> Any:
+        if isinstance(value, DotDict):
+            return DotDict(value)
+        if isinstance(value, dict):
+            return DotDict(value)
+        if isinstance(value, list):
+            return [cls._convert(item) for item in value]
+        if isinstance(value, tuple):
+            return tuple(cls._convert(item) for item in value)
+        return value
+
+    def __setitem__(self, key: str, value: Any) -> None:
+        super().__setitem__(key, self._convert(value))
+
+    def update(self, *args, **kwargs) -> None:
+        incoming = dict(*args, **kwargs)
+        for key, value in incoming.items():
+            self[key] = value
+
+    def setdefault(self, key: str, default: Any = None) -> Any:
+        if key not in self:
+            self[key] = default
+        return self[key]
+
+    def __ior__(self, other):
+        self.update(other)
+        return self
 
     def __setattr__(self, name: str, value: Any) -> None:
         """Set attribute using dot notation."""
@@ -125,24 +154,24 @@ def apply_overrides(config: DotDict, overrides: Dict[str, Any]) -> DotDict:
     Returns:
         Updated configuration.
     """
+    result = DotDict(config)
     for key, value in overrides.items():
         keys = key.split(".")
-        current = config
+        current = result
 
         # Navigate to the parent of the target key
         for k in keys[:-1]:
             if k not in current:
                 current[k] = DotDict()
             elif not isinstance(current[k], (dict, DotDict)):
-                raise ValueError(
-                    f"Cannot override '{key}': '{k}' is not a dict (got {type(current[k]).__name__})"
-                )
+                value_type = type(current[k]).__name__
+                raise ValueError(f"Cannot override '{key}': '{k}' is not a dict (got {value_type})")
             current = current[k]
 
         # Set the final value
         current[keys[-1]] = value
 
-    return config
+    return result
 
 
 def _has_any_config_value(config: DotDict, names: tuple[str, ...]) -> bool:
@@ -1024,9 +1053,7 @@ def validate_config(config: DotDict) -> None:
             raise ValueError("'training.reaction_residual_identity' must be a mapping")
         weight = reaction_residual_identity.get("weight", 0.0)
         if not _is_number(weight) or float(weight) < 0.0:
-            raise ValueError(
-                "'training.reaction_residual_identity.weight' must be non-negative"
-            )
+            raise ValueError("'training.reaction_residual_identity.weight' must be non-negative")
         if float(weight) > 0.0:
             if config.model.get("query_encoder_type") != "multimodal_reaction_attention":
                 raise ValueError(

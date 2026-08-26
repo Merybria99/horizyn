@@ -11,6 +11,37 @@ import torch
 from torch import Tensor
 
 
+def _validated_inputs(scores: Tensor, target_idx: Tensor, metric_name: str) -> Tensor:
+    """Validate canonical higher-is-better inputs and deduplicate positives."""
+
+    if scores.dim() != 1 or target_idx.dim() != 1:
+        raise ValueError(
+            f"{metric_name} expects 1D tensors. "
+            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
+        )
+    if scores.numel() == 0:
+        raise ValueError(f"{metric_name} requires at least one candidate score")
+    if not torch.isfinite(scores).all():
+        raise ValueError(f"{metric_name} scores must all be finite")
+    if target_idx.dtype != torch.long:
+        raise ValueError("target_idx must be dtype torch.long")
+    if bool((target_idx < -1).any()):
+        raise ValueError("target_idx may contain only candidate indices or -1 padding")
+    valid_targets = torch.unique(target_idx[target_idx >= 0], sorted=True)
+    if valid_targets.numel() and int(valid_targets.max().item()) >= scores.numel():
+        raise ValueError(
+            "target_idx contains out-of-range values: "
+            f"max={int(valid_targets.max().item())} >= num_items={scores.numel()}"
+        )
+    return valid_targets
+
+
+def _stable_descending_order(scores: Tensor) -> Tensor:
+    """Rank ties by original candidate order for deterministic evaluation."""
+
+    return torch.argsort(scores, descending=True, stable=True)
+
+
 class RetrievalMetric:
     """
     Wrapper class for retrieval metrics that handles both single-sample and batch processing.
@@ -167,34 +198,20 @@ def top_k_hit_rate(scores: Tensor, target_idx: Tensor, k: int = 100) -> Tensor:
         >>> top_k_hit_rate(scores, target_idx, k=2)
         tensor(0.)  # Index 2 is NOT in top-2 (indices 1, 3)
     """
-    if scores.dim() != 1 or target_idx.dim() != 1:
-        raise ValueError(
-            "top_k_hit_rate expects 1D tensors. "
-            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
-        )
-
-    # Filter out padding (-1)
-    valid_targets = target_idx[target_idx >= 0]
+    if k <= 0:
+        raise ValueError("k must be positive")
+    valid_targets = _validated_inputs(scores, target_idx, "top_k_hit_rate")
 
     if len(valid_targets) == 0:
         # No valid targets, return 0
         return torch.tensor(0.0, device=scores.device)
 
-    # Validate target index dtype and range
-    if valid_targets.numel() > 0:
-        if valid_targets.dtype != torch.long:
-            raise ValueError("target_idx must be dtype torch.long")
-
     # Clamp k to number of items
     num_items = scores.shape[0]
-    if valid_targets.numel() > 0 and int(valid_targets.max().item()) >= num_items:
-        raise ValueError(
-            f"target_idx contains out-of-range values: max={int(valid_targets.max().item())} >= num_items={num_items}"
-        )
     k_clamped = min(k, num_items)
 
-    # Get indices of top-K predictions
-    top_k_indices = torch.topk(scores, k=k_clamped, largest=True).indices
+    # Stable sorting makes the tie policy explicit and reproducible.
+    top_k_indices = _stable_descending_order(scores)[:k_clamped]
 
     # Check if any valid target is in top-K
     # torch.isin returns a boolean tensor indicating which targets are in top_k_indices
@@ -205,25 +222,11 @@ def top_k_hit_rate(scores: Tensor, target_idx: Tensor, k: int = 100) -> Tensor:
 
 def reciprocal_rank(scores: Tensor, target_idx: Tensor) -> Tensor:
     """Compute reciprocal rank of the highest-ranked relevant item."""
-    if scores.dim() != 1 or target_idx.dim() != 1:
-        raise ValueError(
-            "reciprocal_rank expects 1D tensors. "
-            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
-        )
-
-    valid_targets = target_idx[target_idx >= 0]
+    valid_targets = _validated_inputs(scores, target_idx, "reciprocal_rank")
     if len(valid_targets) == 0:
         return torch.tensor(0.0, device=scores.device)
-    if valid_targets.dtype != torch.long:
-        raise ValueError("target_idx must be dtype torch.long")
 
-    num_items = scores.shape[0]
-    if int(valid_targets.max().item()) >= num_items:
-        raise ValueError(
-            f"target_idx contains out-of-range values: max={int(valid_targets.max().item())} >= num_items={num_items}"
-        )
-
-    sorted_indices = torch.argsort(scores, descending=True)
+    sorted_indices = _stable_descending_order(scores)
     relevant_positions = torch.nonzero(torch.isin(sorted_indices, valid_targets), as_tuple=False)
     if relevant_positions.numel() == 0:
         return torch.tensor(0.0, device=scores.device)
@@ -238,28 +241,11 @@ def reactzyme_mean_reciprocal_rank(scores: Tensor, target_idx: Tensor) -> Tensor
     query. This differs from conventional reciprocal rank when a query has
     multiple positives, because conventional RR uses only the first positive.
     """
-    if scores.dim() != 1 or target_idx.dim() != 1:
-        raise ValueError(
-            "reactzyme_mean_reciprocal_rank expects 1D tensors. "
-            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
-        )
-
-    # ReactZyme uses a binary relevance matrix, so duplicate pair rows must not
-    # increase a target's contribution.
-    valid_targets = torch.unique(target_idx[target_idx >= 0])
+    valid_targets = _validated_inputs(scores, target_idx, "reactzyme_mean_reciprocal_rank")
     if len(valid_targets) == 0:
         return torch.tensor(0.0, device=scores.device)
-    if valid_targets.dtype != torch.long:
-        raise ValueError("target_idx must be dtype torch.long")
-
     num_items = scores.shape[0]
-    if int(valid_targets.max().item()) >= num_items:
-        raise ValueError(
-            "target_idx contains out-of-range values: "
-            f"max={int(valid_targets.max().item())} >= num_items={num_items}"
-        )
-
-    sorted_indices = torch.argsort(scores, descending=True)
+    sorted_indices = _stable_descending_order(scores)
     ranks = torch.empty(num_items, dtype=torch.long, device=scores.device)
     ranks[sorted_indices] = torch.arange(num_items, device=scores.device)
     positive_ranks = ranks[valid_targets].to(dtype=torch.float32) + 1.0
@@ -294,26 +280,12 @@ def r_precision(scores: Tensor, target_idx: Tensor) -> Tensor:
         # Actually top-2 by score are [1 (0.9), 3 (0.8)], neither is in [2, 4]
         # So R-precision = 0/2 = 0.0
     """
-    if scores.dim() != 1 or target_idx.dim() != 1:
-        raise ValueError(
-            "r_precision expects 1D tensors. "
-            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
-        )
-
-    # Filter out padding (-1)
-    valid_targets = target_idx[target_idx >= 0]
+    valid_targets = _validated_inputs(scores, target_idx, "r_precision")
 
     if len(valid_targets) == 0:
         return torch.tensor(0.0, device=scores.device)
 
-    if valid_targets.dtype != torch.long:
-        raise ValueError("target_idx must be dtype torch.long")
-
     num_items = scores.shape[0]
-    if int(valid_targets.max().item()) >= num_items:
-        raise ValueError(
-            f"target_idx contains out-of-range values: max={int(valid_targets.max().item())} >= num_items={num_items}"
-        )
 
     # R = number of relevant documents
     r = len(valid_targets)
@@ -322,7 +294,7 @@ def r_precision(scores: Tensor, target_idx: Tensor) -> Tensor:
     r_clamped = min(r, num_items)
 
     # Get indices of top-R predictions
-    top_r_indices = torch.topk(scores, k=r_clamped, largest=True).indices
+    top_r_indices = _stable_descending_order(scores)[:r_clamped]
 
     # Count how many relevant items are in top-R
     hits = torch.isin(top_r_indices, valid_targets).sum().float()
@@ -361,29 +333,15 @@ def average_precision(scores: Tensor, target_idx: Tensor) -> Tensor:
         >>> average_precision(scores, target_idx)
         tensor(1.0)  # Top-2 are [1, 3], both relevant: P@1=1, P@2=1 → AP=(1+1)/2=1.0
     """
-    if scores.dim() != 1 or target_idx.dim() != 1:
-        raise ValueError(
-            "average_precision expects 1D tensors. "
-            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
-        )
-
-    # Filter out padding (-1)
-    valid_targets = target_idx[target_idx >= 0]
+    valid_targets = _validated_inputs(scores, target_idx, "average_precision")
 
     if len(valid_targets) == 0:
         return torch.tensor(0.0, device=scores.device)
 
-    if valid_targets.dtype != torch.long:
-        raise ValueError("target_idx must be dtype torch.long")
-
     num_items = scores.shape[0]
-    if int(valid_targets.max().item()) >= num_items:
-        raise ValueError(
-            f"target_idx contains out-of-range values: max={int(valid_targets.max().item())} >= num_items={num_items}"
-        )
 
     # Get sorted indices (descending order of scores)
-    sorted_indices = torch.argsort(scores, descending=True)
+    sorted_indices = _stable_descending_order(scores)
 
     # Create a relevance mask for the sorted order
     # For each position in the ranked list, check if it's a relevant item
@@ -443,6 +401,8 @@ def create_retrieval_metrics(
     """
     if top_k is None:
         top_k = [1, 10, 100, 1000]
+    if not top_k or any(k <= 0 for k in top_k) or len(set(top_k)) != len(top_k):
+        raise ValueError("top_k must contain unique positive integers")
 
     metrics = {}
 
