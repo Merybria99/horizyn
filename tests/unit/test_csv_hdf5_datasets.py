@@ -3,8 +3,7 @@ Unit tests for CSV and HDF5 dataset classes.
 """
 
 import csv
-import tempfile
-from pathlib import Path
+import pickle
 
 import h5py
 import numpy as np
@@ -276,11 +275,37 @@ class TestEmbedDataset:
 
         assert dataset.in_memory is False
         assert dataset.data is None
-        assert dataset.file is not None  # File should be open
+        assert dataset.file is None  # File is opened lazily in the current process.
 
         # Should still be able to access data
         embed1 = dataset["prot1"]
         assert torch.allclose(embed1, torch.from_numpy(original_vectors[0]), atol=1e-5)
+        assert dataset.file is not None
+
+    def test_lazy_dataset_pickle_drops_open_hdf5_handle(self, sample_hdf5):
+        h5_path, original_vectors = sample_hdf5
+        dataset = EmbedDataset(file_path=str(h5_path), in_memory=False)
+        _ = dataset["prot1"]
+
+        restored = pickle.loads(pickle.dumps(dataset))
+
+        assert restored.file is None
+        assert restored._file_pid is None
+        assert torch.allclose(restored["prot2"], torch.from_numpy(original_vectors[1]), atol=1e-5)
+
+    def test_lazy_dataset_reopens_handle_after_process_change(self, sample_hdf5, monkeypatch):
+        h5_path, _ = sample_hdf5
+        dataset = EmbedDataset(file_path=str(h5_path), in_memory=False)
+        _ = dataset["prot1"]
+        original_handle = dataset.file
+        original_pid = dataset._file_pid
+        monkeypatch.setattr("horizyn.datasets.hdf5.os.getpid", lambda: original_pid + 1)
+
+        _ = dataset["prot2"]
+
+        assert original_handle is not None and not original_handle.id.valid
+        assert dataset.file is not original_handle
+        assert dataset._file_pid == original_pid + 1
 
     def test_dtype(self, sample_hdf5):
         """Test different data types."""

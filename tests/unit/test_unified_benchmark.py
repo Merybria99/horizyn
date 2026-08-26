@@ -1,16 +1,29 @@
 from pathlib import Path
 from types import SimpleNamespace
 
+import h5py
+import numpy as np
+import pytest
 import torch
 
 from horizyn.benchmarks.retrieval import (
+    BenchmarkTask,
+    evaluate_embedding_retrieval_direction,
+    evaluate_retrieval_direction,
     group_pairs,
+    l2_normalize_embeddings,
+    load_candidate_keys_from_residue,
     load_benchmark_suite,
     needs_score_residue_embeddings,
     rank_metrics_for_query,
     screening_metrics_for_query,
     select_score_residue_h5,
+    read_id_list,
+    run_benchmark_task,
+    validate_task_inputs,
 )
+from horizyn.datasets.base import BaseDataset
+from horizyn.datasets.residue_hdf5 import ResidueEmbedDataset
 
 
 def test_rank_metrics_for_query_multi_positive():
@@ -39,6 +52,183 @@ def test_screening_metrics_for_query_has_expected_keys():
     assert set(metrics) == {"bedroc_20", "ef_0_5"}
     assert metrics["ef_0_5"] == 2.0
     assert 0.0 <= metrics["bedroc_20"] <= 1.0
+
+
+def test_chunked_and_dense_retrieval_metrics_are_identical():
+    query_ids = ["q1", "q2", "q3"]
+    candidate_ids = ["p1", "p2", "p3", "p4"]
+    query_embeds = torch.tensor([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0]])
+    candidate_embeds = torch.tensor([[1.0, 0.0], [0.0, 1.0], [1.0, 1.0], [-1.0, 0.0]])
+    positives = {"q1": ["p1"], "q2": ["p2"], "q3": ["p1", "p3"]}
+    dense_scores = (
+        torch.nn.functional.normalize(query_embeds, dim=-1)
+        @ torch.nn.functional.normalize(candidate_embeds, dim=-1).T
+    )
+
+    dense = evaluate_retrieval_direction(
+        query_ids, candidate_ids, dense_scores, positives, [1, 2, 4]
+    )
+    chunked = evaluate_embedding_retrieval_direction(
+        query_ids,
+        candidate_ids,
+        query_embeds,
+        candidate_embeds,
+        positives,
+        [1, 2, 4],
+        scoring_mode="cosine",
+        query_batch_size=2,
+    )
+
+    assert chunked == dense
+
+
+def test_retrieval_ties_use_stable_candidate_order():
+    metrics = rank_metrics_for_query(torch.tensor([0.5, 0.5, 0.1]), [1], [1, 2])
+
+    assert metrics["top_1"] == 0.0
+    assert metrics["top_2"] == 1.0
+    assert metrics["mrr"] == 0.5
+
+
+def test_cosine_scoring_rejects_zero_norm_and_non_finite_embeddings():
+    with pytest.raises(ValueError, match="zero-norm"):
+        l2_normalize_embeddings(torch.tensor([[0.0, 0.0]]))
+    with pytest.raises(ValueError, match="non-finite"):
+        l2_normalize_embeddings(torch.tensor([[float("nan"), 1.0]]))
+
+
+def test_candidate_file_rejects_duplicate_ids(tmp_path):
+    candidate_path = tmp_path / "candidates.txt"
+    candidate_path.write_text("p1\np1\n", encoding="utf-8")
+
+    with pytest.raises(ValueError, match="duplicate IDs"):
+        read_id_list(candidate_path)
+
+
+def test_residue_candidate_alignment_survives_dropped_empty_row(tmp_path):
+    h5_path = tmp_path / "residue.h5"
+    with h5py.File(h5_path, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"empty", b"p1", b"p2"]))
+        h5_file.create_dataset("vectors", data=np.ones((3, 2), dtype=np.float32))
+        h5_file.create_dataset("offsets", data=np.array([0, 0, 1, 3], dtype=np.int64))
+    dataset = ResidueEmbedDataset(str(h5_path), drop_empty=True)
+    candidate_path = tmp_path / "candidates.txt"
+    candidate_path.write_text("p1\np2\n", encoding="utf-8")
+
+    keys, stats = load_candidate_keys_from_residue(dataset, candidate_path)
+
+    assert keys == ["p1", "p2"]
+    assert stats["zero_length_candidate_count"] == 0
+
+    candidate_path.write_text("empty\np1\n", encoding="utf-8")
+    with pytest.raises(ValueError, match="zero_length"):
+        load_candidate_keys_from_residue(dataset, candidate_path)
+
+
+def test_validation_fails_when_positive_is_outside_candidate_manifest(tmp_path):
+    task = BenchmarkTask(
+        name="strict",
+        task_type="retrieval",
+        dataset="toy",
+        task_label="toy",
+        split="test",
+        pairs=tmp_path / "pairs.csv",
+        reactions=tmp_path / "reactions.csv",
+    )
+    reaction_inputs = BaseDataset(keys=["r1"], array_data=torch.ones(1, 2), use_key_to_idx=True)
+
+    with pytest.raises(ValueError, match="outside the candidate manifest"):
+        validate_task_inputs(
+            task,
+            reaction_inputs,
+            ["p1"],
+            ["p1"],
+            [("r1", "missing")],
+            {},
+        )
+
+
+def test_validation_rejects_exact_train_evaluation_pair_leakage(tmp_path):
+    train_pairs = tmp_path / "train_pairs.csv"
+    train_pairs.write_text("reaction_id,protein_id\nr1,p1\n", encoding="utf-8")
+    task = BenchmarkTask(
+        name="strict",
+        task_type="retrieval",
+        dataset="toy",
+        task_label="toy",
+        split="test",
+        pairs=tmp_path / "pairs.csv",
+        reactions=tmp_path / "reactions.csv",
+        train_pairs=train_pairs,
+    )
+    reaction_inputs = BaseDataset(keys=["r1"], array_data=torch.ones(1, 2), use_key_to_idx=True)
+
+    with pytest.raises(ValueError, match="leaks 1 exact positive pair"):
+        validate_task_inputs(
+            task,
+            reaction_inputs,
+            ["p1"],
+            ["p1"],
+            [("r1", "p1")],
+            {},
+        )
+
+
+def test_validate_only_benchmark_emits_v2_provenance_end_to_end(tmp_path):
+    pairs_path = tmp_path / "pairs.csv"
+    reactions_path = tmp_path / "reactions.csv"
+    embeddings_path = tmp_path / "proteins.h5"
+    checkpoint_path = tmp_path / "model.ckpt"
+    config_path = tmp_path / "config.yaml"
+    pairs_path.write_text("reaction_id,protein_id\nr1,p1\n", encoding="utf-8")
+    reactions_path.write_text("reaction_id,reaction_smiles\nr1,CCO>>CC=O\n", encoding="utf-8")
+    with h5py.File(embeddings_path, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"p1"]))
+        h5_file.create_dataset("vectors", data=np.ones((1, 4), dtype=np.float32))
+    checkpoint_path.write_bytes(b"validate-only checkpoint identity")
+    config_path.write_text(
+        f"""
+data:
+  train_pairs_path: {pairs_path}
+  test_pairs_path: {pairs_path}
+  train_reactions_path: {reactions_path}
+  test_reactions_path: {reactions_path}
+  protein_embeds_path: {embeddings_path}
+model:
+  name: DualContrastiveModel
+  query_encoder_dims: [2048, 8, 4]
+  target_encoder_dims: [4, 8, 4]
+  embedding_dim: 4
+training:
+  max_epochs: 1
+""",
+        encoding="utf-8",
+    )
+    task = BenchmarkTask(
+        name="strict_e2e",
+        task_type="retrieval",
+        dataset="toy",
+        task_label="toy",
+        split="test",
+        pairs=pairs_path,
+        reactions=reactions_path,
+        candidate_embedding_h5=embeddings_path,
+        directions=("reaction_to_enzyme",),
+    )
+
+    result = run_benchmark_task(
+        task,
+        checkpoint_path,
+        config_path,
+        device="cpu",
+        validate_only=True,
+    )
+
+    assert result["schema_version"] == 2
+    assert result["metric_schema_version"] == 2
+    assert result["validation"]["split_manifest"]["schema_version"] == 2
+    assert result["artifact_manifest"]["artifact_type"] == "benchmark_validation"
+    assert result["artifact_manifest"]["candidate_ids_sha256"]
 
 
 def test_group_pairs_filters_allowed_sets():

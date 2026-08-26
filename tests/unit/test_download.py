@@ -66,9 +66,9 @@ class TestDownloadScript:
             # Check required fields
             assert "name" in config
             assert "version" in config
-            assert "url" in config
+            assert "doi" in config
             assert "size_gb" in config
-            assert "checksum" in config
+            assert "file_checksums" in config
             assert "files" in config
 
             # Check files list
@@ -137,8 +137,8 @@ class TestDownloadScript:
         finally:
             sys.path.pop(0)
 
-    def test_verify_checksum_placeholder(self, tmp_path):
-        """Test that placeholder checksum is skipped."""
+    def test_verify_checksum_placeholder_is_rejected(self, tmp_path):
+        """Placeholder checksums must never be accepted as verified data."""
         import sys
         from pathlib import Path
 
@@ -155,9 +155,9 @@ class TestDownloadScript:
             # Use placeholder checksum
             placeholder_checksum = "sha256:XXXXX"
 
-            # Verify (should skip and return True)
+            # Placeholder values are not valid digests.
             result = download_data.verify_checksum(test_file, placeholder_checksum)
-            assert result is True
+            assert result is False
 
         finally:
             sys.path.pop(0)
@@ -225,26 +225,12 @@ class TestDownloadScript:
         assert "--skip_checksum" in result.stdout
         assert "--force" in result.stdout
 
-    @patch("sys.argv", ["download_data.py", "--output-dir", "data/"])
-    def test_download_with_placeholder_url(self):
-        """Test that placeholder URL produces helpful error."""
-        import sys
-        from pathlib import Path
+    def test_download_sources_are_pinned_to_zenodo_record(self):
+        import download_data
 
-        scripts_dir = Path("scripts").resolve()
-        sys.path.insert(0, str(scripts_dir))
-
-        try:
-            import download_data
-
-            # Should exit with error for placeholder URL
-            with pytest.raises(SystemExit) as exc_info:
-                download_data.main()
-
-            assert exc_info.value.code == 1
-
-        finally:
-            sys.path.pop(0)
+        assert str(download_data.ZENODO_RECORD_ID) in download_data.ZENODO_API_BASE
+        assert download_data.DATASET_FILES
+        assert all("XXXXX" not in checksum for _, checksum in download_data.DATASET_FILES.values())
 
     def test_download_script_has_correct_expected_files(self):
         """Test that expected files match SOTA config requirements."""

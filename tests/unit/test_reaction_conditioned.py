@@ -18,6 +18,7 @@ from horizyn.model import (
 )
 from horizyn.protein_pooling_lightning_module import ProteinPooledLitModule
 from horizyn.reaction_conditioned_data_module import (
+    DirectionalHardNegativeBatchSampler,
     ReactionConditionedDataModule,
     ReactionDegreeBalancedBatchSampler,
 )
@@ -71,6 +72,21 @@ def test_residue_hdf5_loader_reads_ragged_vectors(tmp_path):
     assert dataset.vec_dim == 3
     assert torch.equal(dataset["p1"]["residue_embeddings"], torch.from_numpy(vectors[:2]))
     assert torch.equal(dataset["p2"]["residue_embeddings"], torch.from_numpy(vectors[2:]))
+
+
+def test_residue_hdf5_drop_empty_preserves_source_lengths(tmp_path):
+    h5_path = tmp_path / "residues_with_empty.h5"
+    vectors = np.arange(6, dtype=np.float32).reshape(3, 2)
+    with h5py.File(h5_path, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"empty", b"p1", b"p2"]))
+        h5_file.create_dataset("vectors", data=vectors)
+        h5_file.create_dataset("offsets", data=np.array([0, 0, 1, 3], dtype=np.int64))
+
+    dataset = ResidueEmbedDataset(str(h5_path), in_memory=False, drop_empty=True)
+
+    assert dataset.keys == ["p1", "p2"]
+    assert dataset.lengths.tolist() == [1, 2]
+    assert dataset.length_by_key == {"empty": 0, "p1": 1, "p2": 2}
 
 
 def test_truncate_residue_embeddings_ends_center():
@@ -133,6 +149,19 @@ def _sampler_tuple_dataset():
     )
 
 
+def test_hard_negative_sampler_rejects_impossible_unique_batch(tmp_path):
+    dataset = _sampler_tuple_dataset()
+    pool_path = tmp_path / "hard_negatives.json"
+    pool_path.write_text('{"anchor_to_negatives": {"r0": ["p4"]}}', encoding="utf-8")
+
+    with pytest.raises(ValueError, match="cannot exceed"):
+        DirectionalHardNegativeBatchSampler(
+            dataset,
+            batch_size=len(dataset) + 1,
+            hard_negative_pools_path=pool_path,
+        )
+
+
 def test_reaction_degree_balanced_sampler_shards_one_global_batch_without_overlap():
     dataset = _sampler_tuple_dataset()
     rank0 = ReactionDegreeBalancedBatchSampler(
@@ -154,12 +183,8 @@ def test_reaction_degree_balanced_sampler_shards_one_global_batch_without_overla
 
     batch0 = next(iter(rank0))
     batch1 = next(iter(rank1))
-    queries0 = {
-        dataset.tuple_dataset[dataset.keys[index]]["query_id"] for index in batch0
-    }
-    queries1 = {
-        dataset.tuple_dataset[dataset.keys[index]]["query_id"] for index in batch1
-    }
+    queries0 = {dataset.tuple_dataset[dataset.keys[index]]["query_id"] for index in batch0}
+    queries1 = {dataset.tuple_dataset[dataset.keys[index]]["query_id"] for index in batch1}
 
     assert len(batch0) == len(batch1) == 3
     assert queries0.isdisjoint(queries1)
@@ -510,9 +535,7 @@ def test_reaction_conditioned_low_rank_attention_pooling_matches_manual_softmax(
         pooling.reaction_projection.weight.copy_(
             torch.tensor([[1.0, 0.0, 0.0, 0.0], [0.0, 1.0, 0.0, 0.0]])
         )
-        pooling.residue_projection.weight.copy_(
-            torch.tensor([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]])
-        )
+        pooling.residue_projection.weight.copy_(torch.tensor([[1.0, 0.0, 0.0], [0.0, 1.0, 0.0]]))
 
     reaction = torch.tensor([[1.0, 0.0, 0.0, 0.0]])
     residues = torch.tensor([[[1.0, 0.0, 7.0], [0.0, 2.0, 8.0]]])
@@ -960,8 +983,7 @@ def test_protein_pooled_lightning_sleec_with_external_score_embeddings(tmp_path)
     assert loss.dim() == 0
     assert torch.isfinite(loss)
     assert all(
-        not parameter.requires_grad
-        for parameter in module.model.pooling.scorer.parameters()
+        not parameter.requires_grad for parameter in module.model.pooling.scorer.parameters()
     )
 
 

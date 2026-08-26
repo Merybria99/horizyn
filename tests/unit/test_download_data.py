@@ -2,9 +2,8 @@
 
 import hashlib
 import sys
-import tarfile
 from pathlib import Path
-from unittest.mock import MagicMock, Mock, patch
+from unittest.mock import Mock, patch
 
 import pytest
 
@@ -14,7 +13,6 @@ sys.path.insert(0, str(Path(__file__).parent.parent.parent / "scripts"))
 from download_data import (
     DATASET_CONFIG,
     download_file,
-    extract_archive,
     verify_checksum,
     verify_dataset_files,
 )
@@ -125,13 +123,12 @@ class TestVerifyChecksum:
 
         assert not verify_checksum(test_file, "md5:wronghash123")
 
-    def test_checksum_placeholder(self, tmp_path):
-        """Test checksum verification skips placeholder values."""
+    def test_checksum_placeholder_is_rejected(self, tmp_path):
+        """Test checksum verification rejects placeholder values."""
         test_file = tmp_path / "test.txt"
         test_file.write_bytes(b"test content")
 
-        # Should return True and skip verification
-        assert verify_checksum(test_file, "md5:XXXXX")
+        assert not verify_checksum(test_file, "md5:XXXXX")
 
     def test_unsupported_algorithm(self, tmp_path):
         """Test unsupported hash algorithm raises error."""
@@ -140,52 +137,6 @@ class TestVerifyChecksum:
 
         with pytest.raises(ValueError, match="Unsupported hash algorithm"):
             verify_checksum(test_file, "sha512:somehash")
-
-
-class TestExtractArchive:
-    """Tests for extract_archive function."""
-
-    def test_extract_tar_gz(self, tmp_path):
-        """Test extraction of tar.gz archive."""
-        # Create a test archive
-        archive_path = tmp_path / "test.tar.gz"
-        extract_dir = tmp_path / "extracted"
-        extract_dir.mkdir()
-
-        # Create test content
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test content")
-
-        # Create archive
-        with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(test_file, arcname="test.txt")
-
-        # Extract
-        with patch("download_data.tqdm", side_effect=lambda x, **kwargs: x):
-            extract_archive(archive_path, extract_dir)
-
-        # Verify extraction
-        extracted_file = extract_dir / "test.txt"
-        assert extracted_file.exists()
-        assert extracted_file.read_text() == "test content"
-
-    def test_extract_creates_directory(self, tmp_path):
-        """Test extraction creates output directory if needed."""
-        archive_path = tmp_path / "test.tar.gz"
-        extract_dir = tmp_path / "new_dir" / "extracted"
-
-        # Create minimal archive
-        test_file = tmp_path / "test.txt"
-        test_file.write_text("test")
-        with tarfile.open(archive_path, "w:gz") as tar:
-            tar.add(test_file, arcname="test.txt")
-
-        # Extract (should create directory)
-        with patch("download_data.tqdm", side_effect=lambda x, **kwargs: x):
-            extract_archive(archive_path, extract_dir)
-
-        assert extract_dir.exists()
-        assert (extract_dir / "test.txt").exists()
 
 
 class TestVerifyDatasetFiles:
@@ -222,8 +173,8 @@ class TestDatasetConfig:
         """Test config contains all required fields."""
         assert "name" in DATASET_CONFIG
         assert "version" in DATASET_CONFIG
-        assert "url" in DATASET_CONFIG
-        assert "checksum" in DATASET_CONFIG
+        assert "doi" in DATASET_CONFIG
+        assert "size_gb" in DATASET_CONFIG
         assert "files" in DATASET_CONFIG
         assert "file_checksums" in DATASET_CONFIG
 
@@ -233,9 +184,9 @@ class TestDatasetConfig:
         checksum_files = set(DATASET_CONFIG["file_checksums"].keys())
         assert expected_files == checksum_files
 
-    def test_config_has_five_files(self):
-        """Test config specifies exactly 5 expected files."""
-        assert len(DATASET_CONFIG["files"]) == 5
+    def test_config_has_six_files(self):
+        """Test config specifies five training inputs plus the reference FASTA."""
+        assert len(DATASET_CONFIG["files"]) == 6
 
     def test_config_file_names(self):
         """Test config has correct file names."""
@@ -245,6 +196,7 @@ class TestDatasetConfig:
             "train_rxns.csv",
             "test_rxns.csv",
             "prots_t5.h5",
+            "prots.fasta",
         ]
         assert set(DATASET_CONFIG["files"]) == set(expected)
 
@@ -270,42 +222,29 @@ class TestMainFunction:
 
         with patch("sys.argv", ["download_data.py", "--output-dir", str(tmp_path)]):
             with patch("download_data.verify_dataset_files", return_value=True):
-                with patch("download_data.download_file") as mock_download:
+                with patch("download_data.verify_file_checksums", return_value=True):
+                    with patch("download_data.download_file") as mock_download:
+                        from download_data import main
+
+                        main()
+
+                        # Should not attempt download
+                        mock_download.assert_not_called()
+
+    def test_download_failure_exits(self, tmp_path):
+        """Test exits gracefully when a source download fails."""
+        with patch("sys.argv", ["download_data.py", "--output-dir", str(tmp_path), "--force"]):
+            with patch("download_data.download_file", side_effect=RuntimeError("offline")):
+                with pytest.raises(SystemExit) as exc_info:
                     from download_data import main
 
                     main()
-
-                    # Should not attempt download
-                    mock_download.assert_not_called()
-
-    def test_placeholder_url_exits(self, tmp_path):
-        """Test exits gracefully when URL is placeholder."""
-        with patch("sys.argv", ["download_data.py", "--output-dir", str(tmp_path), "--force"]):
-            with pytest.raises(SystemExit) as exc_info:
-                from download_data import main
-
-                main()
 
             assert exc_info.value.code == 1
 
     def test_default_output_directory(self):
         """Test default output directory is data/sota."""
-        with patch("sys.argv", ["download_data.py"]):
-            with patch("download_data.Path.mkdir"):
-                with patch("download_data.verify_dataset_files", return_value=True):
-                    with patch("sys.exit"):  # Prevent actual exit
-                        from download_data import main
-
-                        try:
-                            main()
-                        except SystemExit:
-                            pass
-
-        # Verify it would use data/sota by checking the config message
-        # (indirect test since we can't easily capture the parsed args)
-        import argparse
-
-        parser = argparse.ArgumentParser()
-        parser.add_argument("--output-dir", type=str, default="data/sota")
-        args = parser.parse_args([])
-        assert args.output_dir == "data/sota"
+        source = (Path(__file__).parents[2] / "scripts" / "download_data.py").read_text(
+            encoding="utf-8"
+        )
+        assert 'default="data/sota"' in source

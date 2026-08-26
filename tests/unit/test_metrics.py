@@ -88,6 +88,24 @@ class TestTopKHitRate:
         with pytest.raises(ValueError, match="out-of-range"):
             top_k_hit_rate(scores, target_idx, k=3)
 
+    def test_duplicate_targets_are_counted_once(self):
+        scores = torch.tensor([0.9, 0.8, 0.1])
+        duplicated = torch.tensor([1, 1, -1])
+        unique = torch.tensor([1, -1, -1])
+
+        assert top_k_hit_rate(scores, duplicated, k=2) == top_k_hit_rate(scores, unique, k=2)
+
+    def test_ties_are_broken_by_original_candidate_order(self):
+        scores = torch.tensor([0.5, 0.5, 0.1])
+
+        assert top_k_hit_rate(scores, torch.tensor([0]), k=1) == 1.0
+        assert top_k_hit_rate(scores, torch.tensor([1]), k=1) == 0.0
+
+    @pytest.mark.parametrize("bad_value", [float("nan"), float("inf"), float("-inf")])
+    def test_non_finite_scores_raise(self, bad_value):
+        with pytest.raises(ValueError, match="finite"):
+            top_k_hit_rate(torch.tensor([0.1, bad_value]), torch.tensor([0]), k=1)
+
     def test_wrong_dtype_target_raises(self):
         """Non-long dtype for target indices should raise an error."""
         scores = torch.tensor([0.1, 0.9, 0.3])

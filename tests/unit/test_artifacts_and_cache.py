@@ -1,0 +1,127 @@
+import json
+
+import pytest
+import torch
+
+from horizyn.artifacts import ArtifactManifestV2, sha256_strings, write_manifest
+from horizyn.benchmarks.retrieval import (
+    _target_cache_base_metadata,
+    _target_cache_paths,
+    prepare_target_embedding_cache,
+    release_target_embedding_cache_lock,
+    write_target_embedding_cache,
+)
+
+
+def _write_source_files(tmp_path):
+    tmp_path.mkdir(parents=True, exist_ok=True)
+    checkpoint = tmp_path / "model.ckpt"
+    config = tmp_path / "config.yaml"
+    embeddings = tmp_path / "embeddings.h5"
+    checkpoint.write_bytes(b"checkpoint")
+    config.write_text("model: {}\n", encoding="utf-8")
+    embeddings.write_bytes(b"embedding-store")
+    return checkpoint, config, embeddings
+
+
+def _cache_metadata(tmp_path, *, direction):
+    checkpoint, config, embeddings = _write_source_files(tmp_path)
+    return _target_cache_base_metadata(
+        kind="pooled",
+        checkpoint=checkpoint,
+        config_path=config,
+        protein_embedding="prott5",
+        score_protein_embedding="esm2",
+        candidate_embedding_h5=embeddings,
+        retrieval_direction=direction,
+    )
+
+
+def test_artifact_manifest_round_trip_and_atomic_write(tmp_path):
+    digest = sha256_strings(["config"])
+    manifest = ArtifactManifestV2(
+        artifact_type="test",
+        role="unit_test",
+        direction="not_applicable",
+        inputs={"source": "synthetic"},
+        code_revision="abc123",
+        config_sha256=digest,
+    )
+    path = tmp_path / "manifest.json"
+
+    write_manifest(path, manifest)
+
+    payload = json.loads(path.read_text(encoding="utf-8"))
+    assert ArtifactManifestV2.from_dict(payload) == manifest
+    assert not list(tmp_path.glob(".*.tmp"))
+
+
+def test_artifact_manifest_rejects_non_hex_digest():
+    manifest = ArtifactManifestV2(
+        artifact_type="test",
+        role="unit_test",
+        direction="not_applicable",
+        inputs={},
+        code_revision="abc123",
+        config_sha256="z" * 64,
+    )
+
+    with pytest.raises(ValueError, match="SHA-256"):
+        manifest.validate()
+
+
+def test_target_cache_identity_includes_retrieval_direction(tmp_path):
+    r2e = _cache_metadata(tmp_path / "r2e", direction="reaction_to_enzyme")
+    e2r = _cache_metadata(tmp_path / "e2r", direction="enzyme_to_reaction")
+    keys = ["p1", "p2"]
+
+    r2e_key = _target_cache_paths(tmp_path, r2e, keys)[0]
+    e2r_key = _target_cache_paths(tmp_path, e2r, keys)[0]
+
+    assert r2e_key != e2r_key
+
+
+def test_target_cache_rejects_tampered_tensor(tmp_path):
+    sources = tmp_path / "sources"
+    sources.mkdir()
+    base_metadata = _cache_metadata(sources, direction="reaction_to_enzyme")
+    cache_dir = tmp_path / "cache"
+    keys = ["p1", "p2"]
+    embeddings = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+
+    cached, cache_info = prepare_target_embedding_cache(
+        cache_dir,
+        base_metadata,
+        keys,
+        device="cpu",
+        store_on_device=False,
+    )
+    assert cached is None and cache_info["status"] == "miss_encode"
+    write_target_embedding_cache(cache_info, base_metadata, keys, embeddings)
+
+    cached, hit_info = prepare_target_embedding_cache(
+        cache_dir,
+        base_metadata,
+        keys,
+        device="cpu",
+        store_on_device=False,
+    )
+    assert hit_info["status"] == "hit_exact"
+    assert torch.equal(cached, embeddings)
+
+    tensor_path = next(cache_dir.glob("*.pt"))
+    with tensor_path.open("ab") as handle:
+        handle.write(b"tampered")
+
+    cached, miss_info = prepare_target_embedding_cache(
+        cache_dir,
+        base_metadata,
+        keys,
+        device="cpu",
+        store_on_device=False,
+    )
+    try:
+        assert cached is None
+        assert miss_info["status"] == "miss_encode"
+    finally:
+        release_target_embedding_cache_lock(miss_info)

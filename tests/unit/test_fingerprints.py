@@ -2,6 +2,8 @@
 Unit tests for fingerprint generation datasets.
 """
 
+from pathlib import Path
+
 import pytest
 import torch
 
@@ -657,6 +659,8 @@ class TestMorganFingerprintRadius:
         from horizyn.config import load_config
         from horizyn.data_module import HorizynDataModule
 
+        if not Path("data/nanodata/train_pairs.csv").is_file():
+            pytest.skip("optional nanodata fixture is not available")
         config = load_config("configs/nano.yaml")
         dm = HorizynDataModule(**config.data)
         dm.setup("fit")

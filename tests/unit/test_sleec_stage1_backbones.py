@@ -42,7 +42,9 @@ def test_stage1_training_infers_input_dim_from_residue_hdf5(tmp_path):
 
 
 def test_esmc_hidden_state_selection_supports_final_and_indexed_layers():
-    esmc = load_script("extract_esmc_residue_embeddings_for_test", "extract_esmc_residue_embeddings.py")
+    esmc = load_script(
+        "extract_esmc_residue_embeddings_for_test", "extract_esmc_residue_embeddings.py"
+    )
     hidden0 = torch.zeros(2, 4, 3)
     hidden1 = torch.ones(2, 4, 3)
     output = argparse.Namespace(hidden_states=(hidden0, hidden1))
@@ -57,7 +59,9 @@ def test_esmc_hidden_state_selection_supports_final_and_indexed_layers():
 
 
 def test_esmc_embedding_attrs_mark_esmc_backend(tmp_path):
-    esmc = load_script("extract_esmc_residue_embeddings_attrs_for_test", "extract_esmc_residue_embeddings.py")
+    esmc = load_script(
+        "extract_esmc_residue_embeddings_attrs_for_test", "extract_esmc_residue_embeddings.py"
+    )
     h5_path = tmp_path / "attrs.h5"
     args = argparse.Namespace(
         model_name="Biohub/ESMC-6B",
@@ -66,6 +70,7 @@ def test_esmc_embedding_attrs_mark_esmc_backend(tmp_path):
         max_sequence_length=1022,
         sequence_truncation="ends_center",
         hidden_layer=-1,
+        backend="biohub",
     )
 
     with h5py.File(h5_path, "w") as h5_file:
@@ -73,6 +78,6 @@ def test_esmc_embedding_attrs_mark_esmc_backend(tmp_path):
 
     with h5py.File(h5_path, "r") as h5_file:
         assert h5_file.attrs["embedding_model_type"] == "esmc"
-        assert h5_file.attrs["embedding_backend"] == "biohub_huggingface_transformers"
+        assert h5_file.attrs["embedding_backend"] == "biohub"
         assert h5_file.attrs["model_name"] == "Biohub/ESMC-6B"
         assert int(h5_file.attrs["residue_dim"]) == 2560

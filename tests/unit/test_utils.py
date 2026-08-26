@@ -159,7 +159,7 @@ class TestCachedMethod:
         obj = CustomClass()
         result = obj.method("test")
         assert result == "TEST"
-        assert "test" in obj.my_custom_cache
+        assert len(obj.my_custom_cache) == 1
 
     def test_missing_cache_attribute(self):
         """Test error when cache attribute doesn't exist."""
@@ -186,13 +186,18 @@ class TestCachedMethod:
 
         calc = Calculator()
 
-        # Cache is based only on first argument (key)
+        # Every effective argument is part of the cache identity.
         result1 = calc.compute(5, multiplier=2)
         assert result1 == 10
 
-        # Same key returns cached result, even with different multiplier
+        # A different multiplier must not reuse a stale result.
         result2 = calc.compute(5, multiplier=3)
-        assert result2 == 10  # Cached value, not 15
+        assert result2 == 15
+
+        # Positional and keyword spellings of the same call share an entry.
+        result3 = calc.compute(5, 3)
+        assert result3 == 15
+        assert len(calc._cache) == 2
 
 
 class TestCollation:

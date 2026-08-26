@@ -33,6 +33,24 @@ class TestDotDict:
         assert config["key2"]["nested"] == "value2"
         assert isinstance(config["key2"], DotDict)
 
+    def test_initialization_does_not_mutate_or_alias_input(self):
+        data = {"model": {"layers": [32, {"width": 64}]}}
+
+        config = DotDict(data)
+        config.model.layers[1].width = 128
+
+        assert data == {"model": {"layers": [32, {"width": 64}]}}
+
+    def test_mutating_methods_recursively_convert_mappings(self):
+        config = DotDict()
+        config.update({"model": {"width": 64}})
+        training = config.setdefault("training", {"epochs": 5})
+        config |= {"data": {"workers": 2}}
+
+        assert isinstance(config.model, DotDict)
+        assert isinstance(training, DotDict)
+        assert isinstance(config.data, DotDict)
+
     def test_dot_notation_access(self):
         """Test accessing values using dot notation."""
         config = DotDict({"model": {"layers": 3, "dim": 512}})
@@ -145,6 +163,15 @@ class TestApplyOverrides:
         overrides = {"key1": "new_value"}
         result = apply_overrides(config, overrides)
         assert result.key1 == "new_value"
+
+    def test_apply_overrides_does_not_mutate_source_config(self):
+        config = DotDict({"training": {"max_epochs": 100}})
+
+        result = apply_overrides(config, {"training.max_epochs": 50})
+
+        assert config.training.max_epochs == 100
+        assert result.training.max_epochs == 50
+        assert result is not config
 
     def test_apply_nested_override(self):
         """Test applying nested overrides with dot notation."""
@@ -873,7 +900,9 @@ class TestLoadConfig:
 
     def test_load_hybrid_fgw_config(self):
         """Test loading the hybrid FGW loss config."""
-        config = load_config("configs/hybrid_reaction_fgw_meanpool_unimol2_prott5_attention_sota.yaml")
+        config = load_config(
+            "configs/hybrid_reaction_fgw_meanpool_unimol2_prott5_attention_sota.yaml"
+        )
 
         assert config.training.loss.name == "HorizynFGWLoss"
         assert config.training.loss.lambda_r == 0.05
