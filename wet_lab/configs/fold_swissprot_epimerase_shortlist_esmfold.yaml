@@ -1,0 +1,27 @@
+ranking:
+  results: wet_lab/runs/swissprot/tagatose_4_epimerase_2553e3057c19/results.json
+  candidate_fasta: wet_lab/databases/swissprot/current/proteins.fasta
+  protein_ids:
+    - Q9WYP7
+    - A8RG82
+    - A9CH28
+    - B8I944
+    - P73599
+    - Q83JB2
+    - C1KKR1
+    - O50580
+
+backend:
+  name: esmfold
+  model: facebook/esmfold_v1
+  device: cuda
+  cache_dir: wet_lab/cache/esmfold
+  esm_half_precision: true
+  low_cpu_mem_usage: true
+  chunk_size: 64
+  max_sequence_length: 1024
+  long_sequence_policy: error
+  model_seeds: [1]
+
+output:
+  directory: wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist

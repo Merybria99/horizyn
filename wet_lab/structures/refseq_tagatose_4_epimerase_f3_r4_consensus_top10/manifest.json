@@ -1,0 +1,242 @@
+{
+  "schema_version": "horizyn_wet_lab_folding_v1",
+  "configuration": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/configs/fold_refseq_tagatose_f3_r4_consensus_top10_esmfold.yaml",
+  "ranking_results": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/reports/refseq/tagatose_4_epimerase_f3_r4_consensus/results.json",
+  "candidate_fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/proteins.fasta",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]"
+  },
+  "top_k": 10,
+  "backend": "esmfold",
+  "input_artifacts": {
+    "fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/top_10.fasta",
+    "alphafold3_input_dir": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3",
+    "alphafold3_jobs": [
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/01_WP_396611346.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/02_WP_069281360.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/03_WP_014512387.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/04_WP_029368532.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/05_WP_306052134.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/06_WP_081985438.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/07_WP_252487940.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/08_WP_020962524.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/09_WP_424740917.1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/inputs/alphafold3/10_WP_273433069.1.json"
+    ]
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "protein_id": "WP_396611346.1",
+      "score": 0.03278688524590164,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 668,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 2,
+      "protein_id": "WP_069281360.1",
+      "score": 0.03076923076923077,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 603,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 3,
+      "protein_id": "WP_014512387.1",
+      "score": 0.029827662395050816,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 604,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 4,
+      "protein_id": "WP_029368532.1",
+      "score": 0.02976190476190476,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 604,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 5,
+      "protein_id": "WP_306052134.1",
+      "score": 0.029513888888888888,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 657,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 6,
+      "protein_id": "WP_081985438.1",
+      "score": 0.02878726010616578,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 657,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 7,
+      "protein_id": "WP_252487940.1",
+      "score": 0.02792120864410021,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 657,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 8,
+      "protein_id": "WP_020962524.1",
+      "score": 0.02684684684684685,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 596,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 9,
+      "protein_id": "WP_424740917.1",
+      "score": 0.026830135039090264,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 596,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 10,
+      "protein_id": "WP_273433069.1",
+      "score": 0.026540946394272742,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 596,
+      "selenocysteine_positions": []
+    }
+  ],
+  "statuses": [
+    {
+      "rank": 1,
+      "protein_id": "WP_396611346.1",
+      "sequence_length": 668,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.03278688524590164,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/01_WP_396611346.1.pdb",
+      "mean_plddt": 70.94037628173828,
+      "ptm": 0.7861253619194031,
+      "elapsed_seconds": 15.851025309413671,
+      "message": ""
+    },
+    {
+      "rank": 2,
+      "protein_id": "WP_069281360.1",
+      "sequence_length": 603,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.03076923076923077,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/02_WP_069281360.1.pdb",
+      "mean_plddt": 67.9825668334961,
+      "ptm": 0.817420244216919,
+      "elapsed_seconds": 11.582735178992152,
+      "message": ""
+    },
+    {
+      "rank": 3,
+      "protein_id": "WP_014512387.1",
+      "sequence_length": 604,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.029827662395050816,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/03_WP_014512387.1.pdb",
+      "mean_plddt": 71.23921966552734,
+      "ptm": 0.8393088579177856,
+      "elapsed_seconds": 11.623248275369406,
+      "message": ""
+    },
+    {
+      "rank": 4,
+      "protein_id": "WP_029368532.1",
+      "sequence_length": 604,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.02976190476190476,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/04_WP_029368532.1.pdb",
+      "mean_plddt": 71.6816177368164,
+      "ptm": 0.8408467769622803,
+      "elapsed_seconds": 11.610882349312305,
+      "message": ""
+    },
+    {
+      "rank": 5,
+      "protein_id": "WP_306052134.1",
+      "sequence_length": 657,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.029513888888888888,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/05_WP_306052134.1.pdb",
+      "mean_plddt": 71.55777740478516,
+      "ptm": 0.8000237941741943,
+      "elapsed_seconds": 14.523081934079528,
+      "message": ""
+    },
+    {
+      "rank": 6,
+      "protein_id": "WP_081985438.1",
+      "sequence_length": 657,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.02878726010616578,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/06_WP_081985438.1.pdb",
+      "mean_plddt": 71.34192657470703,
+      "ptm": 0.8006796836853027,
+      "elapsed_seconds": 14.541239470243454,
+      "message": ""
+    },
+    {
+      "rank": 7,
+      "protein_id": "WP_252487940.1",
+      "sequence_length": 657,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.02792120864410021,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/07_WP_252487940.1.pdb",
+      "mean_plddt": 72.31120300292969,
+      "ptm": 0.8091846108436584,
+      "elapsed_seconds": 14.512351784855127,
+      "message": ""
+    },
+    {
+      "rank": 8,
+      "protein_id": "WP_020962524.1",
+      "sequence_length": 596,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.02684684684684685,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/08_WP_020962524.1.pdb",
+      "mean_plddt": 76.13971710205078,
+      "ptm": 0.8933258056640625,
+      "elapsed_seconds": 11.24176527839154,
+      "message": ""
+    },
+    {
+      "rank": 9,
+      "protein_id": "WP_424740917.1",
+      "sequence_length": 596,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.026830135039090264,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/09_WP_424740917.1.pdb",
+      "mean_plddt": 74.14482879638672,
+      "ptm": 0.8695999383926392,
+      "elapsed_seconds": 11.230657262727618,
+      "message": ""
+    },
+    {
+      "rank": 10,
+      "protein_id": "WP_273433069.1",
+      "sequence_length": 596,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.026540946394272742,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_f3_r4_consensus_top10/structures/esmfold/10_WP_273433069.1.pdb",
+      "mean_plddt": 74.30766296386719,
+      "ptm": 0.8693057894706726,
+      "elapsed_seconds": 11.241784716024995,
+      "message": ""
+    }
+  ]
+}

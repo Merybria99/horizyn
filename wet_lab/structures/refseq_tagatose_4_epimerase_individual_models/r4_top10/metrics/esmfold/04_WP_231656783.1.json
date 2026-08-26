@@ -1,0 +1,13 @@
+{
+  "protein_id": "WP_231656783.1",
+  "rank": 4,
+  "sequence_length": 628,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 72.37474822998047,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.8549803495407104,
+  "elapsed_seconds": 12.487695764750242,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/refseq_tagatose_4_epimerase_individual_models/r4_top10/structures/esmfold/04_WP_231656783.1.pdb"
+}

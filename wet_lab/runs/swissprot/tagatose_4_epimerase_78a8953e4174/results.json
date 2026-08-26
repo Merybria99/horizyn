@@ -1,0 +1,764 @@
+{
+  "schema_version": "horizyn_wet_lab_query_v1",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]",
+    "warnings": []
+  },
+  "model": {
+    "name": "F4 Horizyn in-domain, epoch 29",
+    "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/horizyn_f4_in_domain_v1/checkpoints/protein-pooling-epoch=29.ckpt",
+    "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/configs/horizyn_f4_test.yaml"
+  },
+  "scoring": {
+    "type": "cosine_similarity",
+    "calibrated_probability": false,
+    "top_k": [
+      1,
+      5,
+      10,
+      20,
+      50,
+      100
+    ]
+  },
+  "candidate_pool": {
+    "requested_candidate_count": 575503,
+    "candidate_count": 575503,
+    "missing_candidate_id_count": 0,
+    "zero_length_candidate_count": 0,
+    "encoding_order": "local_length_bucket",
+    "encoding_batch_size": 512,
+    "encoding_length_bucket_window": 8192,
+    "encoding_actual_token_count": 198156259,
+    "encoding_padded_token_count_before": 542458338,
+    "encoding_padded_token_count": 215848418,
+    "encoding_padding_factor_before": 2.7375281544853953,
+    "encoding_padding_factor": 1.089283876720745,
+    "ids": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/candidate_ids_prott5_order.txt",
+    "residue_embeddings": "/var/local/horizyn-swissprot/proteins_prott5_residue.h5",
+    "target_embedding_cache": {
+      "status": "miss_encode",
+      "cache_key": "e367fbd114f6e98e0d5699a86d5baaf70d6626b7496356c986447953a66ac07c",
+      "cache_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/cache/swissprot/f4_horizyn/e367fbd114f6e98e0d5699a86d5baaf70d6626b7496356c986447953a66ac07c.pt",
+      "sidecar_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/cache/swissprot/f4_horizyn/e367fbd114f6e98e0d5699a86d5baaf70d6626b7496356c986447953a66ac07c.json",
+      "lock_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/cache/swissprot/f4_horizyn/e367fbd114f6e98e0d5699a86d5baaf70d6626b7496356c986447953a66ac07c.lock",
+      "num_targets": 575503
+    }
+  },
+  "rankings": [
+    {
+      "rank": 1,
+      "protein_id": "D4GPW5",
+      "cosine_similarity": 0.46332940459251404,
+      "sequence_length": "391",
+      "entry_name": "TSGAD_HALVD"
+    },
+    {
+      "rank": 2,
+      "protein_id": "D4GQ16",
+      "cosine_similarity": 0.4292236268520355,
+      "sequence_length": "305",
+      "entry_name": "MOBDB_HALVD"
+    },
+    {
+      "rank": 3,
+      "protein_id": "P57911",
+      "cosine_similarity": 0.42195358872413635,
+      "sequence_length": "241",
+      "entry_name": "Y1146_PASMU"
+    },
+    {
+      "rank": 4,
+      "protein_id": "B0R5Y3",
+      "cosine_similarity": 0.4206104576587677,
+      "sequence_length": "309",
+      "entry_name": "Y3270_HALS3"
+    },
+    {
+      "rank": 5,
+      "protein_id": "Q9HPK2",
+      "cosine_similarity": 0.42054086923599243,
+      "sequence_length": "309",
+      "entry_name": "Y1595_HALSA"
+    },
+    {
+      "rank": 6,
+      "protein_id": "P78562",
+      "cosine_similarity": 0.4186228811740875,
+      "sequence_length": "749",
+      "entry_name": "PHEX_HUMAN"
+    },
+    {
+      "rank": 7,
+      "protein_id": "P70669",
+      "cosine_similarity": 0.4176400899887085,
+      "sequence_length": "749",
+      "entry_name": "PHEX_MOUSE"
+    },
+    {
+      "rank": 8,
+      "protein_id": "P0C0J8",
+      "cosine_similarity": 0.41435182094573975,
+      "sequence_length": "416",
+      "entry_name": "P46_MESHJ"
+    },
+    {
+      "rank": 9,
+      "protein_id": "P0C0J7",
+      "cosine_similarity": 0.4143347144126892,
+      "sequence_length": "416",
+      "entry_name": "P46_MESH2"
+    },
+    {
+      "rank": 10,
+      "protein_id": "B2RQR8",
+      "cosine_similarity": 0.4136311113834381,
+      "sequence_length": "763",
+      "entry_name": "ECE2_MOUSE"
+    },
+    {
+      "rank": 11,
+      "protein_id": "F1N476",
+      "cosine_similarity": 0.41296836733818054,
+      "sequence_length": "765",
+      "entry_name": "ECE2_BOVIN"
+    },
+    {
+      "rank": 12,
+      "protein_id": "A0A0B4K692",
+      "cosine_similarity": 0.41204220056533813,
+      "sequence_length": "774",
+      "entry_name": "NEP2_DROME"
+    },
+    {
+      "rank": 13,
+      "protein_id": "Q7LYW7",
+      "cosine_similarity": 0.4115878641605377,
+      "sequence_length": "450",
+      "entry_name": "MALE_THELN"
+    },
+    {
+      "rank": 14,
+      "protein_id": "O59403",
+      "cosine_similarity": 0.411522775888443,
+      "sequence_length": "405",
+      "entry_name": "Y1714_PYRHO"
+    },
+    {
+      "rank": 15,
+      "protein_id": "O30142",
+      "cosine_similarity": 0.4113004505634308,
+      "sequence_length": "342",
+      "entry_name": "WTPA_ARCFU"
+    },
+    {
+      "rank": 16,
+      "protein_id": "P42893",
+      "cosine_similarity": 0.4102526605129242,
+      "sequence_length": "762",
+      "entry_name": "ECE1_RAT"
+    },
+    {
+      "rank": 17,
+      "protein_id": "Q9EQF2",
+      "cosine_similarity": 0.41009703278541565,
+      "sequence_length": "713",
+      "entry_name": "KELL_MOUSE"
+    },
+    {
+      "rank": 18,
+      "protein_id": "P42892",
+      "cosine_similarity": 0.4079728126525879,
+      "sequence_length": "770",
+      "entry_name": "ECE1_HUMAN"
+    },
+    {
+      "rank": 19,
+      "protein_id": "P0DPD9",
+      "cosine_similarity": 0.4079360067844391,
+      "sequence_length": "881",
+      "entry_name": "EFCE2_MOUSE"
+    },
+    {
+      "rank": 20,
+      "protein_id": "P0DPD8",
+      "cosine_similarity": 0.4079357087612152,
+      "sequence_length": "883",
+      "entry_name": "EFCE2_HUMAN"
+    },
+    {
+      "rank": 21,
+      "protein_id": "Q4PZA2",
+      "cosine_similarity": 0.40778517723083496,
+      "sequence_length": "769",
+      "entry_name": "ECE1_MOUSE"
+    },
+    {
+      "rank": 22,
+      "protein_id": "P08473",
+      "cosine_similarity": 0.4077576696872711,
+      "sequence_length": "750",
+      "entry_name": "NEP_HUMAN"
+    },
+    {
+      "rank": 23,
+      "protein_id": "Q5RE69",
+      "cosine_similarity": 0.4076615869998932,
+      "sequence_length": "750",
+      "entry_name": "NEP_PONAB"
+    },
+    {
+      "rank": 24,
+      "protein_id": "P21175",
+      "cosine_similarity": 0.40757253766059875,
+      "sequence_length": "373",
+      "entry_name": "BRAC_PSEAE"
+    },
+    {
+      "rank": 25,
+      "protein_id": "Q9V1H5",
+      "cosine_similarity": 0.4073432385921478,
+      "sequence_length": "404",
+      "entry_name": "Y452_PYRAB"
+    },
+    {
+      "rank": 26,
+      "protein_id": "P08049",
+      "cosine_similarity": 0.4064503610134125,
+      "sequence_length": "750",
+      "entry_name": "NEP_RABIT"
+    },
+    {
+      "rank": 27,
+      "protein_id": "P0DPE2",
+      "cosine_similarity": 0.4063067138195038,
+      "sequence_length": "883",
+      "entry_name": "EFCE2_BOVIN"
+    },
+    {
+      "rank": 28,
+      "protein_id": "P97739",
+      "cosine_similarity": 0.4061073064804077,
+      "sequence_length": "754",
+      "entry_name": "ECE1_CAVPO"
+    },
+    {
+      "rank": 29,
+      "protein_id": "Q61391",
+      "cosine_similarity": 0.40590018033981323,
+      "sequence_length": "750",
+      "entry_name": "NEP_MOUSE"
+    },
+    {
+      "rank": 30,
+      "protein_id": "Q9GLN7",
+      "cosine_similarity": 0.40522924065589905,
+      "sequence_length": "1304",
+      "entry_name": "ACE_PANTR"
+    },
+    {
+      "rank": 31,
+      "protein_id": "P0DPD6",
+      "cosine_similarity": 0.4049462378025055,
+      "sequence_length": "811",
+      "entry_name": "ECE2_HUMAN"
+    },
+    {
+      "rank": 32,
+      "protein_id": "P07861",
+      "cosine_similarity": 0.40482258796691895,
+      "sequence_length": "750",
+      "entry_name": "NEP_RAT"
+    },
+    {
+      "rank": 33,
+      "protein_id": "Q495T6",
+      "cosine_similarity": 0.40454038977622986,
+      "sequence_length": "779",
+      "entry_name": "MMEL1_HUMAN"
+    },
+    {
+      "rank": 34,
+      "protein_id": "Q9BYF1",
+      "cosine_similarity": 0.40421178936958313,
+      "sequence_length": "805",
+      "entry_name": "ACE2_HUMAN"
+    },
+    {
+      "rank": 35,
+      "protein_id": "Q2YKI6",
+      "cosine_similarity": 0.4036630094051361,
+      "sequence_length": "350",
+      "entry_name": "PBP_BRUA2"
+    },
+    {
+      "rank": 36,
+      "protein_id": "Q5RFN1",
+      "cosine_similarity": 0.40364694595336914,
+      "sequence_length": "805",
+      "entry_name": "ACE2_PONAB"
+    },
+    {
+      "rank": 37,
+      "protein_id": "P12821",
+      "cosine_similarity": 0.40298378467559814,
+      "sequence_length": "1306",
+      "entry_name": "ACE_HUMAN"
+    },
+    {
+      "rank": 38,
+      "protein_id": "P47820",
+      "cosine_similarity": 0.4025687575340271,
+      "sequence_length": "1313",
+      "entry_name": "ACE_RAT"
+    },
+    {
+      "rank": 39,
+      "protein_id": "P42891",
+      "cosine_similarity": 0.4021838307380676,
+      "sequence_length": "754",
+      "entry_name": "ECE1_BOVIN"
+    },
+    {
+      "rank": 40,
+      "protein_id": "P09470",
+      "cosine_similarity": 0.40215933322906494,
+      "sequence_length": "1312",
+      "entry_name": "ACE_MOUSE"
+    },
+    {
+      "rank": 41,
+      "protein_id": "Q56NL1",
+      "cosine_similarity": 0.4016604423522949,
+      "sequence_length": "805",
+      "entry_name": "ACE2_PAGLA"
+    },
+    {
+      "rank": 42,
+      "protein_id": "Q8R0I0",
+      "cosine_similarity": 0.4016358554363251,
+      "sequence_length": "805",
+      "entry_name": "ACE2_MOUSE"
+    },
+    {
+      "rank": 43,
+      "protein_id": "Q5EGZ1",
+      "cosine_similarity": 0.40154150128364563,
+      "sequence_length": "805",
+      "entry_name": "ACE2_RAT"
+    },
+    {
+      "rank": 44,
+      "protein_id": "Q9W5Y0",
+      "cosine_similarity": 0.4014992117881775,
+      "sequence_length": "786",
+      "entry_name": "NEP3_DROME"
+    },
+    {
+      "rank": 45,
+      "protein_id": "Q9JLI3",
+      "cosine_similarity": 0.40131306648254395,
+      "sequence_length": "765",
+      "entry_name": "MMEL1_MOUSE"
+    },
+    {
+      "rank": 46,
+      "protein_id": "P23276",
+      "cosine_similarity": 0.40081265568733215,
+      "sequence_length": "732",
+      "entry_name": "KELL_HUMAN"
+    },
+    {
+      "rank": 47,
+      "protein_id": "P0C1T0",
+      "cosine_similarity": 0.40070241689682007,
+      "sequence_length": "774",
+      "entry_name": "MMEL1_RAT"
+    },
+    {
+      "rank": 48,
+      "protein_id": "Q56H28",
+      "cosine_similarity": 0.4006178081035614,
+      "sequence_length": "805",
+      "entry_name": "ACE2_FELCA"
+    },
+    {
+      "rank": 49,
+      "protein_id": "Q9JMI0",
+      "cosine_similarity": 0.40015897154808044,
+      "sequence_length": "775",
+      "entry_name": "ECEL1_MOUSE"
+    },
+    {
+      "rank": 50,
+      "protein_id": "Q9JHL3",
+      "cosine_similarity": 0.400068998336792,
+      "sequence_length": "775",
+      "entry_name": "ECEL1_RAT"
+    },
+    {
+      "rank": 51,
+      "protein_id": "Q6FRJ6",
+      "cosine_similarity": 0.4000227749347687,
+      "sequence_length": "453",
+      "entry_name": "RT106_CANGA"
+    },
+    {
+      "rank": 52,
+      "protein_id": "Q58DD0",
+      "cosine_similarity": 0.3995973467826843,
+      "sequence_length": "804",
+      "entry_name": "ACE2_BOVIN"
+    },
+    {
+      "rank": 53,
+      "protein_id": "Q58586",
+      "cosine_similarity": 0.3992278277873993,
+      "sequence_length": "346",
+      "entry_name": "WTPA_METJA"
+    },
+    {
+      "rank": 54,
+      "protein_id": "O95672",
+      "cosine_similarity": 0.39868679642677307,
+      "sequence_length": "775",
+      "entry_name": "ECEL1_HUMAN"
+    },
+    {
+      "rank": 55,
+      "protein_id": "F1RRW5",
+      "cosine_similarity": 0.3985152244567871,
+      "sequence_length": "1309",
+      "entry_name": "ACE_PIG"
+    },
+    {
+      "rank": 56,
+      "protein_id": "Q8U0A4",
+      "cosine_similarity": 0.3980177640914917,
+      "sequence_length": "398",
+      "entry_name": "Y1695_PYRFU"
+    },
+    {
+      "rank": 57,
+      "protein_id": "P54082",
+      "cosine_similarity": 0.3971230983734131,
+      "sequence_length": "354",
+      "entry_name": "CHVE_AGRTU"
+    },
+    {
+      "rank": 58,
+      "protein_id": "Q8U4K5",
+      "cosine_similarity": 0.39671969413757324,
+      "sequence_length": "345",
+      "entry_name": "WTPA_PYRFU"
+    },
+    {
+      "rank": 59,
+      "protein_id": "P12820",
+      "cosine_similarity": 0.39637506008148193,
+      "sequence_length": "1306",
+      "entry_name": "ACE_BOVIN"
+    },
+    {
+      "rank": 60,
+      "protein_id": "O44857",
+      "cosine_similarity": 0.3948335349559784,
+      "sequence_length": "736",
+      "entry_name": "NEPL2_CAEEL"
+    },
+    {
+      "rank": 61,
+      "protein_id": "Q8IS64",
+      "cosine_similarity": 0.3946807384490967,
+      "sequence_length": "727",
+      "entry_name": "ECE_LOCMI"
+    },
+    {
+      "rank": 62,
+      "protein_id": "O57890",
+      "cosine_similarity": 0.3943016529083252,
+      "sequence_length": "340",
+      "entry_name": "WTPA_PYRHO"
+    },
+    {
+      "rank": 63,
+      "protein_id": "Q48754",
+      "cosine_similarity": 0.3941270112991333,
+      "sequence_length": "357",
+      "entry_name": "TCSA_LISMO"
+    },
+    {
+      "rank": 64,
+      "protein_id": "P54083",
+      "cosine_similarity": 0.39404532313346863,
+      "sequence_length": "357",
+      "entry_name": "SBPA_AZOBR"
+    },
+    {
+      "rank": 65,
+      "protein_id": "Q50JE5",
+      "cosine_similarity": 0.3935837745666504,
+      "sequence_length": "1314",
+      "entry_name": "ACE_MESAU"
+    },
+    {
+      "rank": 66,
+      "protein_id": "Q9V2C4",
+      "cosine_similarity": 0.3929155766963959,
+      "sequence_length": "344",
+      "entry_name": "WTPA_PYRAB"
+    },
+    {
+      "rank": 67,
+      "protein_id": "Q92BW7",
+      "cosine_similarity": 0.39208194613456726,
+      "sequence_length": "357",
+      "entry_name": "TCSA_LISIN"
+    },
+    {
+      "rank": 68,
+      "protein_id": "P25548",
+      "cosine_similarity": 0.3917784094810486,
+      "sequence_length": "354",
+      "entry_name": "CHVE_AGRFC"
+    },
+    {
+      "rank": 69,
+      "protein_id": "P25399",
+      "cosine_similarity": 0.3902192711830139,
+      "sequence_length": "367",
+      "entry_name": "LIVJ_CITFR"
+    },
+    {
+      "rank": 70,
+      "protein_id": "Q6CQ86",
+      "cosine_similarity": 0.3887687623500824,
+      "sequence_length": "459",
+      "entry_name": "RT106_KLULA"
+    },
+    {
+      "rank": 71,
+      "protein_id": "P40161",
+      "cosine_similarity": 0.3863447308540344,
+      "sequence_length": "455",
+      "entry_name": "RT106_YEAST"
+    },
+    {
+      "rank": 72,
+      "protein_id": "A7TRU5",
+      "cosine_similarity": 0.3861234486103058,
+      "sequence_length": "459",
+      "entry_name": "RT106_VANPO"
+    },
+    {
+      "rank": 73,
+      "protein_id": "A6ZRN4",
+      "cosine_similarity": 0.38593313097953796,
+      "sequence_length": "455",
+      "entry_name": "RT106_YEAS7"
+    },
+    {
+      "rank": 74,
+      "protein_id": "A6UX24",
+      "cosine_similarity": 0.3851279616355896,
+      "sequence_length": "349",
+      "entry_name": "Y1470_META3"
+    },
+    {
+      "rank": 75,
+      "protein_id": "Q9FJT9",
+      "cosine_similarity": 0.38491132855415344,
+      "sequence_length": "956",
+      "entry_name": "PQQL_ARATH"
+    },
+    {
+      "rank": 76,
+      "protein_id": "P17215",
+      "cosine_similarity": 0.3848660886287689,
+      "sequence_length": "365",
+      "entry_name": "LIVJ_SALTY"
+    },
+    {
+      "rank": 77,
+      "protein_id": "Q5JEB6",
+      "cosine_similarity": 0.38445574045181274,
+      "sequence_length": "354",
+      "entry_name": "WTPA_THEKO"
+    },
+    {
+      "rank": 78,
+      "protein_id": "P0AD98",
+      "cosine_similarity": 0.38401877880096436,
+      "sequence_length": "367",
+      "entry_name": "LIVJ_ECO57"
+    },
+    {
+      "rank": 79,
+      "protein_id": "P0AD97",
+      "cosine_similarity": 0.3839758336544037,
+      "sequence_length": "367",
+      "entry_name": "LIVJ_ECOL6"
+    },
+    {
+      "rank": 80,
+      "protein_id": "P0AD96",
+      "cosine_similarity": 0.3839758336544037,
+      "sequence_length": "367",
+      "entry_name": "LIVJ_ECOLI"
+    },
+    {
+      "rank": 81,
+      "protein_id": "Q18673",
+      "cosine_similarity": 0.38154780864715576,
+      "sequence_length": "754",
+      "entry_name": "NEPL1_CAEEL"
+    },
+    {
+      "rank": 82,
+      "protein_id": "P24171",
+      "cosine_similarity": 0.380314439535141,
+      "sequence_length": "681",
+      "entry_name": "DCP_ECOLI"
+    },
+    {
+      "rank": 83,
+      "protein_id": "Q9RUE8",
+      "cosine_similarity": 0.37924668192863464,
+      "sequence_length": "420",
+      "entry_name": "UE38_DEIRA"
+    },
+    {
+      "rank": 84,
+      "protein_id": "P12822",
+      "cosine_similarity": 0.37880420684814453,
+      "sequence_length": "1310",
+      "entry_name": "ACE_RABIT"
+    },
+    {
+      "rank": 85,
+      "protein_id": "Q9W436",
+      "cosine_similarity": 0.3786819875240326,
+      "sequence_length": "849",
+      "entry_name": "NEP_DROME"
+    },
+    {
+      "rank": 86,
+      "protein_id": "P48242",
+      "cosine_similarity": 0.3778659403324127,
+      "sequence_length": "295",
+      "entry_name": "GLUB_CORGL"
+    },
+    {
+      "rank": 87,
+      "protein_id": "O16796",
+      "cosine_similarity": 0.3773094117641449,
+      "sequence_length": "848",
+      "entry_name": "NPL11_CAEEL"
+    },
+    {
+      "rank": 88,
+      "protein_id": "A6UQT5",
+      "cosine_similarity": 0.37707942724227905,
+      "sequence_length": "330",
+      "entry_name": "Y954_METVS"
+    },
+    {
+      "rank": 89,
+      "protein_id": "Q08383",
+      "cosine_similarity": 0.37675920128822327,
+      "sequence_length": "252",
+      "entry_name": "MODA_RHOCA"
+    },
+    {
+      "rank": 90,
+      "protein_id": "A3PDP9",
+      "cosine_similarity": 0.3766903579235077,
+      "sequence_length": "292",
+      "entry_name": "PHND2_PROM0"
+    },
+    {
+      "rank": 91,
+      "protein_id": "Q75E35",
+      "cosine_similarity": 0.37629157304763794,
+      "sequence_length": "421",
+      "entry_name": "RT106_EREGS"
+    },
+    {
+      "rank": 92,
+      "protein_id": "Q8RQL6",
+      "cosine_similarity": 0.3762200176715851,
+      "sequence_length": "294",
+      "entry_name": "GLUB_COREF"
+    },
+    {
+      "rank": 93,
+      "protein_id": "P58300",
+      "cosine_similarity": 0.37597858905792236,
+      "sequence_length": "434",
+      "entry_name": "MALE_PYRFU"
+    },
+    {
+      "rank": 94,
+      "protein_id": "Q9V297",
+      "cosine_similarity": 0.3758266568183899,
+      "sequence_length": "453",
+      "entry_name": "MALE_PYRAB"
+    },
+    {
+      "rank": 95,
+      "protein_id": "Q8TTZ5",
+      "cosine_similarity": 0.3757249116897583,
+      "sequence_length": "352",
+      "entry_name": "Y280_METAC"
+    },
+    {
+      "rank": 96,
+      "protein_id": "Q8G3D4",
+      "cosine_similarity": 0.3754144608974457,
+      "sequence_length": "368",
+      "entry_name": "LIVB3_BRUSU"
+    },
+    {
+      "rank": 97,
+      "protein_id": "A4G0R9",
+      "cosine_similarity": 0.3751947581768036,
+      "sequence_length": "347",
+      "entry_name": "Y1756_METM5"
+    },
+    {
+      "rank": 98,
+      "protein_id": "Q10MJ1",
+      "cosine_similarity": 0.3746391236782074,
+      "sequence_length": "938",
+      "entry_name": "CGEP_ORYSJ"
+    },
+    {
+      "rank": 99,
+      "protein_id": "A5E4Y7",
+      "cosine_similarity": 0.37420013546943665,
+      "sequence_length": "492",
+      "entry_name": "RT106_LODEL"
+    },
+    {
+      "rank": 100,
+      "protein_id": "P37387",
+      "cosine_similarity": 0.3739205300807953,
+      "sequence_length": "330",
+      "entry_name": "XYLF_ECOLI"
+    }
+  ],
+  "artifacts": {
+    "rankings_csv": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/rankings.csv",
+    "top_k_csv": {
+      "1": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_1.csv",
+      "5": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_5.csv",
+      "10": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_10.csv",
+      "20": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_20.csv",
+      "50": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_50.csv",
+      "100": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_100.csv"
+    },
+    "fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/top_100.fasta",
+    "feature_manifest": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/feature_manifest.json"
+  }
+}

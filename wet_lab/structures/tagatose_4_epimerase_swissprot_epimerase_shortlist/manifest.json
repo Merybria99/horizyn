@@ -1,0 +1,199 @@
+{
+  "schema_version": "horizyn_wet_lab_folding_v1",
+  "configuration": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/configs/fold_swissprot_epimerase_shortlist_esmfold.yaml",
+  "ranking_results": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_2553e3057c19/results.json",
+  "candidate_fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/proteins.fasta",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]",
+    "warnings": []
+  },
+  "top_k": 8,
+  "backend": "esmfold",
+  "input_artifacts": {
+    "fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/top_8.fasta",
+    "alphafold3_input_dir": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3",
+    "alphafold3_jobs": [
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/01_Q9WYP7.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/02_A8RG82.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/03_A9CH28.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/04_B8I944.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/05_P73599.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/08_Q83JB2.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/13_C1KKR1.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/inputs/alphafold3/16_O50580.json"
+    ]
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "protein_id": "Q9WYP7",
+      "score": 0.38524913787841797,
+      "score_type": "cosine_similarity",
+      "sequence_length": 270,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 2,
+      "protein_id": "A8RG82",
+      "score": 0.3724607825279236,
+      "score_type": "cosine_similarity",
+      "sequence_length": 301,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 3,
+      "protein_id": "A9CH28",
+      "score": 0.3603963851928711,
+      "score_type": "cosine_similarity",
+      "sequence_length": 289,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 4,
+      "protein_id": "B8I944",
+      "score": 0.35834017395973206,
+      "score_type": "cosine_similarity",
+      "sequence_length": 293,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 5,
+      "protein_id": "P73599",
+      "score": 0.3576686978340149,
+      "score_type": "cosine_similarity",
+      "sequence_length": 287,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 8,
+      "protein_id": "Q83JB2",
+      "score": 0.35432058572769165,
+      "score_type": "cosine_similarity",
+      "sequence_length": 276,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 13,
+      "protein_id": "C1KKR1",
+      "score": 0.34614452719688416,
+      "score_type": "cosine_similarity",
+      "sequence_length": 295,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 16,
+      "protein_id": "O50580",
+      "score": 0.3446332812309265,
+      "score_type": "cosine_similarity",
+      "sequence_length": 290,
+      "selenocysteine_positions": []
+    }
+  ],
+  "statuses": [
+    {
+      "rank": 1,
+      "protein_id": "Q9WYP7",
+      "sequence_length": 270,
+      "score_type": "cosine_similarity",
+      "score": 0.38524913787841797,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/01_Q9WYP7.pdb",
+      "mean_plddt": 88.42061614990234,
+      "ptm": 0.9291364550590515,
+      "elapsed_seconds": 6.367405385244638,
+      "message": ""
+    },
+    {
+      "rank": 2,
+      "protein_id": "A8RG82",
+      "sequence_length": 301,
+      "score_type": "cosine_similarity",
+      "score": 0.3724607825279236,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/02_A8RG82.pdb",
+      "mean_plddt": 87.64142608642578,
+      "ptm": 0.9359431266784668,
+      "elapsed_seconds": 2.609697292558849,
+      "message": ""
+    },
+    {
+      "rank": 3,
+      "protein_id": "A9CH28",
+      "sequence_length": 289,
+      "score_type": "cosine_similarity",
+      "score": 0.3603963851928711,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/03_A9CH28.pdb",
+      "mean_plddt": 87.34501647949219,
+      "ptm": 0.922441303730011,
+      "elapsed_seconds": 2.333537309896201,
+      "message": ""
+    },
+    {
+      "rank": 4,
+      "protein_id": "B8I944",
+      "sequence_length": 293,
+      "score_type": "cosine_similarity",
+      "score": 0.35834017395973206,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/04_B8I944.pdb",
+      "mean_plddt": 88.52572631835938,
+      "ptm": 0.9254239797592163,
+      "elapsed_seconds": 2.4498293311335146,
+      "message": ""
+    },
+    {
+      "rank": 5,
+      "protein_id": "P73599",
+      "sequence_length": 287,
+      "score_type": "cosine_similarity",
+      "score": 0.3576686978340149,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/05_P73599.pdb",
+      "mean_plddt": 87.91459655761719,
+      "ptm": 0.932183563709259,
+      "elapsed_seconds": 2.3028236189857125,
+      "message": ""
+    },
+    {
+      "rank": 8,
+      "protein_id": "Q83JB2",
+      "sequence_length": 276,
+      "score_type": "cosine_similarity",
+      "score": 0.35432058572769165,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/08_Q83JB2.pdb",
+      "mean_plddt": 86.46165466308594,
+      "ptm": 0.9018949270248413,
+      "elapsed_seconds": 2.2041982039809227,
+      "message": ""
+    },
+    {
+      "rank": 13,
+      "protein_id": "C1KKR1",
+      "sequence_length": 295,
+      "score_type": "cosine_similarity",
+      "score": 0.34614452719688416,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/13_C1KKR1.pdb",
+      "mean_plddt": 88.0411148071289,
+      "ptm": 0.9451975226402283,
+      "elapsed_seconds": 2.470807129982859,
+      "message": ""
+    },
+    {
+      "rank": 16,
+      "protein_id": "O50580",
+      "sequence_length": 290,
+      "score_type": "cosine_similarity",
+      "score": 0.3446332812309265,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/16_O50580.pdb",
+      "mean_plddt": 89.44650268554688,
+      "ptm": 0.9273648858070374,
+      "elapsed_seconds": 2.344203056767583,
+      "message": ""
+    }
+  ]
+}

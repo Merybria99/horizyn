@@ -1,0 +1,19 @@
+ranking:
+  results: wet_lab/reports/tagatose_4_epimerase_all_f4/results.json
+  candidate_fasta: data/sota/prots.fasta
+  top_k: 10
+
+backend:
+  name: esmfold
+  model: facebook/esmfold_v1
+  device: cuda
+  cache_dir: wet_lab/cache/esmfold
+  esm_half_precision: true
+  low_cpu_mem_usage: true
+  chunk_size: 64
+  max_sequence_length: 1024
+  long_sequence_policy: skip
+  model_seeds: [1]
+
+output:
+  directory: wet_lab/structures/tagatose_4_epimerase_all_f4_top10

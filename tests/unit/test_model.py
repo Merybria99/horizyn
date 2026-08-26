@@ -3,8 +3,16 @@
 import pytest
 import torch
 import torch.nn as nn
+import torch.nn.functional as F
 
-from horizyn.model import MLP, BaseModel, DualContrastiveModel, NormalizeLayer
+from horizyn.model import (
+    MLP,
+    BaseModel,
+    DualContrastiveModel,
+    NormalizeLayer,
+    ProteinPooledDualModel,
+    TigerTextGatedFusion,
+)
 
 
 class TestNormalizeLayer:
@@ -589,3 +597,564 @@ class TestDualContrastiveModel:
         # Total: 70500
         expected_params = 30250 + 40250
         assert model.num_parameters == expected_params
+
+
+class TestProteinPooledDualModelHybridEnzymeInput:
+    """Tests for hybrid raw ProT5 plus hyperbolic enzyme input wiring."""
+
+    def test_hybrid_mode_requires_hyperbolic_checkpoint(self):
+        with pytest.raises(ValueError, match="requires hyperbolic_checkpoint_path"):
+            ProteinPooledDualModel(
+                query_encoder_kwargs={
+                    "input_dim": 3,
+                    "output_dim": 2,
+                    "normalise_output": True,
+                },
+                target_encoder_kwargs={
+                    "input_dim": 6,
+                    "output_dim": 2,
+                    "normalise_output": True,
+                },
+                residue_dim=4,
+                pooling="mean",
+                enzyme_input_mode="raw_sleec_hyperbolic_concat",
+            )
+
+    def test_hybrid_target_input_concatenates_raw_pool_and_tangent(self, device):
+        class FakeProjector(nn.Module):
+            def forward(self, pooled):
+                z_hyp = torch.full(
+                    (pooled.shape[0], 3),
+                    2.0,
+                    dtype=pooled.dtype,
+                    device=pooled.device,
+                )
+                z_tangent = pooled[:, :2] + 10.0
+                return z_hyp, z_tangent
+
+        class CaptureEncoder(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.last_input = None
+
+            def forward(self, target_input):
+                self.last_input = target_input.detach()
+                return F.normalize(target_input[:, :2], dim=-1)
+
+        model = ProteinPooledDualModel(
+            query_encoder_kwargs={
+                "input_dim": 3,
+                "output_dim": 2,
+                "normalise_output": True,
+            },
+            target_encoder_kwargs={
+                "input_dim": 4,
+                "output_dim": 2,
+                "normalise_output": True,
+            },
+            residue_dim=4,
+            pooling="mean",
+        ).to(device)
+        model.enzyme_input_mode = "raw_sleec_hyperbolic_concat"
+        model.hyperbolic_use_tangent = True
+        model.hyperbolic_projector = FakeProjector().to(device)
+        capture_encoder = CaptureEncoder().to(device)
+        model.target_encoder = capture_encoder
+
+        residues = torch.tensor(
+            [
+                [[1.0, 2.0, 3.0, 4.0], [3.0, 4.0, 5.0, 6.0]],
+                [[2.0, 4.0, 6.0, 8.0], [0.0, 0.0, 0.0, 0.0]],
+            ],
+            device=device,
+        )
+        padding_mask = torch.tensor(
+            [[False, False], [False, True]],
+            dtype=torch.bool,
+            device=device,
+        )
+
+        output = model.encode_targets(residues, residue_padding_mask=padding_mask)
+
+        expected_raw = torch.tensor(
+            [[2.0, 3.0, 4.0, 5.0], [2.0, 4.0, 6.0, 8.0]],
+            device=device,
+        )
+        expected_tangent = expected_raw[:, :2] + 10.0
+        expected_input = torch.cat([expected_raw, expected_tangent], dim=-1)
+
+        assert output.shape == (2, 2)
+        assert capture_encoder.last_input is not None
+        assert capture_encoder.last_input.shape == (2, 6)
+        assert torch.allclose(capture_encoder.last_input, expected_input)
+
+    def test_gated_hybrid_receives_raw_pool_and_tangent(self, device):
+        class FixedPool(nn.Module):
+            def forward(self, residues, attention_mask=None, return_attention=False):
+                pooled = residues[:, 0, :] + 100.0
+                if return_attention:
+                    weights = torch.zeros(residues.shape[:2], device=residues.device)
+                    weights[:, 0] = 1.0
+                    return pooled, weights
+                return pooled
+
+        class RawMeanPool(nn.Module):
+            def forward(self, residues, attention_mask=None):
+                valid = attention_mask.to(dtype=residues.dtype, device=residues.device)
+                denom = valid.sum(dim=1, keepdim=True).clamp_min(1.0)
+                return (residues * valid.unsqueeze(-1)).sum(dim=1) / denom
+
+        class FakeProjector(nn.Module):
+            def forward(self, pooled):
+                z_hyp = torch.zeros(
+                    (pooled.shape[0], 3),
+                    dtype=pooled.dtype,
+                    device=pooled.device,
+                )
+                z_tangent = pooled[:, :3] - 50.0
+                return z_hyp, z_tangent
+
+        class CaptureFusion(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.last_raw_mean = None
+                self.last_pooled = None
+                self.last_tangent = None
+
+            def forward(
+                self,
+                raw_mean,
+                pooled,
+                hyperbolic_tangent,
+                capability_vector=None,
+                capability_mask=None,
+                return_gates=False,
+            ):
+                self.last_raw_mean = raw_mean.detach()
+                self.last_pooled = pooled.detach()
+                self.last_tangent = hyperbolic_tangent.detach()
+                fused = raw_mean + pooled
+                if return_gates:
+                    gates = torch.tensor(
+                        [[0.2, 0.3, 0.5], [0.1, 0.6, 0.3]],
+                        dtype=raw_mean.dtype,
+                        device=raw_mean.device,
+                    )
+                    return fused, gates
+                return fused
+
+        class CaptureEncoder(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.last_input = None
+
+            def forward(self, target_input):
+                self.last_input = target_input.detach()
+                return F.normalize(target_input[:, :2], dim=-1)
+
+        model = ProteinPooledDualModel(
+            query_encoder_kwargs={
+                "input_dim": 3,
+                "output_dim": 2,
+                "normalise_output": True,
+            },
+            target_encoder_kwargs={
+                "input_dim": 4,
+                "output_dim": 2,
+                "normalise_output": True,
+            },
+            residue_dim=4,
+            pooling="mean",
+        ).to(device)
+        model.pooling = FixedPool().to(device)
+        model.enzyme_input_mode = "raw_mean_sleec_hyperbolic_gated"
+        model.hyperbolic_use_tangent = True
+        model.hyperbolic_projector = FakeProjector().to(device)
+        model.raw_mean_pooling = RawMeanPool().to(device)
+        capture_fusion = CaptureFusion().to(device)
+        model.enzyme_feature_fusion = capture_fusion
+        capture_encoder = CaptureEncoder().to(device)
+        model.target_encoder = capture_encoder
+
+        residues = torch.tensor(
+            [
+                [[1.0, 2.0, 3.0, 4.0], [3.0, 4.0, 5.0, 6.0]],
+                [[2.0, 4.0, 6.0, 8.0], [0.0, 0.0, 0.0, 0.0]],
+            ],
+            device=device,
+        )
+        padding_mask = torch.tensor(
+            [[False, False], [False, True]],
+            dtype=torch.bool,
+            device=device,
+        )
+
+        output, details = model.encode_targets(
+            residues,
+            residue_padding_mask=padding_mask,
+            return_pooling_details=True,
+        )
+
+        expected_raw = torch.tensor(
+            [[2.0, 3.0, 4.0, 5.0], [2.0, 4.0, 6.0, 8.0]],
+            device=device,
+        )
+        expected_pooled = torch.tensor(
+            [[101.0, 102.0, 103.0, 104.0], [102.0, 104.0, 106.0, 108.0]],
+            device=device,
+        )
+        expected_tangent = expected_pooled[:, :3] - 50.0
+
+        assert output.shape == (2, 2)
+        assert torch.allclose(capture_fusion.last_raw_mean, expected_raw)
+        assert torch.allclose(capture_fusion.last_pooled, expected_pooled)
+        assert torch.allclose(capture_fusion.last_tangent, expected_tangent)
+        assert capture_encoder.last_input is not None
+        assert torch.allclose(capture_encoder.last_input, expected_raw + expected_pooled)
+        assert torch.allclose(
+            details["enzyme_fusion_gate_raw_mean"],
+            torch.tensor([0.2, 0.1], device=device),
+        )
+        assert torch.allclose(
+            details["enzyme_fusion_gate_pooled"],
+            torch.tensor([0.3, 0.6], device=device),
+        )
+        assert torch.allclose(
+            details["enzyme_fusion_gate_hyperbolic"],
+            torch.tensor([0.5, 0.3], device=device),
+        )
+
+    def test_tiger_text_fusion_masks_missing_text(self, device):
+        fusion = TigerTextGatedFusion(
+            sequence_dim=4,
+            text_dim=6,
+            output_dim=4,
+            fusion_dim=8,
+            num_heads=2,
+            dropout=0.0,
+        ).to(device)
+        sequence = torch.randn(2, 4, device=device)
+        text = torch.randn(2, 6, device=device)
+        output, details = fusion(
+            sequence,
+            text,
+            text_mask=torch.tensor([True, False], device=device),
+            return_details=True,
+        )
+        assert output.shape == (2, 4)
+        assert details["text_fusion_alpha"].shape == (2, 8)
+        assert details["text_fusion_has_text"].tolist() == [1.0, 0.0]
+        assert torch.allclose(output[1], sequence[1])
+
+    def test_text_gated_hybrid_receives_text_vectors(self, device):
+        class FixedPool(nn.Module):
+            def forward(self, residues, attention_mask=None, return_attention=False):
+                pooled = residues[:, 0, :] + 10.0
+                if return_attention:
+                    weights = torch.zeros(residues.shape[:2], device=residues.device)
+                    weights[:, 0] = 1.0
+                    return pooled, weights
+                return pooled
+
+        class RawMeanPool(nn.Module):
+            def forward(self, residues, attention_mask=None):
+                valid = attention_mask.to(dtype=residues.dtype, device=residues.device)
+                denom = valid.sum(dim=1, keepdim=True).clamp_min(1.0)
+                return (residues * valid.unsqueeze(-1)).sum(dim=1) / denom
+
+        class FakeProjector(nn.Module):
+            def forward(self, pooled):
+                z_hyp = torch.zeros(
+                    (pooled.shape[0], 3),
+                    dtype=pooled.dtype,
+                    device=pooled.device,
+                )
+                z_tangent = pooled[:, :3]
+                return z_hyp, z_tangent
+
+        class CaptureFusion(nn.Module):
+            def forward(
+                self,
+                raw_mean,
+                pooled,
+                hyperbolic_tangent,
+                capability_vector=None,
+                capability_mask=None,
+                return_gates=False,
+            ):
+                fused = raw_mean + pooled
+                if return_gates:
+                    gates = torch.full(
+                        (raw_mean.shape[0], 3),
+                        1.0 / 3.0,
+                        dtype=raw_mean.dtype,
+                        device=raw_mean.device,
+                    )
+                    return fused, gates
+                return fused
+
+        class CaptureTextFusion(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.last_sequence = None
+                self.last_text = None
+                self.last_mask = None
+
+            def forward(self, sequence_feature, text_vector, text_mask=None, return_details=False):
+                self.last_sequence = sequence_feature.detach()
+                self.last_text = text_vector.detach()
+                self.last_mask = None if text_mask is None else text_mask.detach()
+                text_delta = torch.zeros_like(sequence_feature)
+                text_delta[:, : text_vector.shape[1]] = text_vector[:, : sequence_feature.shape[1]]
+                fused = torch.where(
+                    text_mask.unsqueeze(-1),
+                    sequence_feature + text_delta,
+                    sequence_feature,
+                )
+                if return_details:
+                    return fused, {
+                        "text_fusion_alpha": torch.ones_like(sequence_feature),
+                        "text_fusion_has_text": text_mask.to(dtype=sequence_feature.dtype),
+                    }
+                return fused
+
+        class CaptureEncoder(nn.Module):
+            def __init__(self):
+                super().__init__()
+                self.last_input = None
+
+            def forward(self, target_input):
+                self.last_input = target_input.detach()
+                return F.normalize(target_input[:, :2], dim=-1)
+
+        model = ProteinPooledDualModel(
+            query_encoder_kwargs={
+                "input_dim": 3,
+                "output_dim": 2,
+                "normalise_output": True,
+            },
+            target_encoder_kwargs={
+                "input_dim": 4,
+                "output_dim": 2,
+                "normalise_output": True,
+            },
+            residue_dim=4,
+            pooling="mean",
+        ).to(device)
+        model.pooling = FixedPool().to(device)
+        model.enzyme_input_mode = "raw_mean_sleec_hyperbolic_text_gated"
+        model.hyperbolic_use_tangent = True
+        model.hyperbolic_projector = FakeProjector().to(device)
+        model.raw_mean_pooling = RawMeanPool().to(device)
+        model.enzyme_feature_fusion = CaptureFusion().to(device)
+        capture_text_fusion = CaptureTextFusion().to(device)
+        model.text_feature_fusion = capture_text_fusion
+        capture_encoder = CaptureEncoder().to(device)
+        model.target_encoder = capture_encoder
+
+        residues = torch.tensor(
+            [
+                [[1.0, 2.0, 3.0, 4.0], [3.0, 4.0, 5.0, 6.0]],
+                [[2.0, 4.0, 6.0, 8.0], [0.0, 0.0, 0.0, 0.0]],
+            ],
+            device=device,
+        )
+        padding_mask = torch.tensor(
+            [[False, False], [False, True]],
+            dtype=torch.bool,
+            device=device,
+        )
+        text_vectors = torch.tensor(
+            [[0.5, 1.0, 1.5, 2.0], [9.0, 9.0, 9.0, 9.0]],
+            device=device,
+        )
+        text_mask = torch.tensor([True, False], dtype=torch.bool, device=device)
+
+        output, details = model.encode_targets(
+            residues,
+            residue_padding_mask=padding_mask,
+            text_vectors=text_vectors,
+            text_mask=text_mask,
+            return_pooling_details=True,
+        )
+
+        expected_raw = torch.tensor(
+            [[2.0, 3.0, 4.0, 5.0], [2.0, 4.0, 6.0, 8.0]],
+            device=device,
+        )
+        expected_pooled = torch.tensor(
+            [[11.0, 12.0, 13.0, 14.0], [12.0, 14.0, 16.0, 18.0]],
+            device=device,
+        )
+        expected_sequence = expected_raw + expected_pooled
+        expected_target_input = expected_sequence.clone()
+        expected_target_input[0] = expected_target_input[0] + text_vectors[0]
+
+        assert output.shape == (2, 2)
+        assert torch.allclose(capture_text_fusion.last_sequence, expected_sequence)
+        assert torch.allclose(capture_text_fusion.last_text, text_vectors)
+        assert torch.equal(capture_text_fusion.last_mask, text_mask)
+        assert torch.allclose(capture_encoder.last_input, expected_target_input)
+        assert "text_fusion_alpha" in details
+        assert torch.allclose(details["text_fusion_has_text"], text_mask.float())
+
+    def test_biofp_split_mode_returns_embedding_and_auxiliary_logits(self, device):
+        model = ProteinPooledDualModel(
+            query_encoder_kwargs={
+                "input_dim": 3,
+                "output_dim": 6,
+                "normalise_output": True,
+            },
+            target_encoder_kwargs={
+                "input_dim": 6,
+                "output_dim": 6,
+                "normalise_output": True,
+            },
+            residue_dim=4,
+            pooling="mean",
+            enzyme_input_mode="raw_mean_sleec_biofp_split",
+            biofp_center_dim=2,
+            biofp_cofactor_dim=1,
+            biofp_transition_dim=3,
+            biofp_seq_dim=4,
+            biofp_dim=2,
+            biofp_hidden_dim=8,
+            biofp_seq_weight=0.75,
+            biofp_dropout=0.0,
+        ).to(device)
+
+        residues = torch.tensor(
+            [
+                [[1.0, 2.0, 3.0, 4.0], [3.0, 4.0, 5.0, 6.0]],
+                [[2.0, 4.0, 6.0, 8.0], [0.0, 0.0, 0.0, 0.0]],
+            ],
+            device=device,
+        )
+        padding_mask = torch.tensor(
+            [[False, False], [False, True]],
+            dtype=torch.bool,
+            device=device,
+        )
+
+        output, details = model.encode_targets(
+            residues,
+            residue_padding_mask=padding_mask,
+            return_pooling_details=True,
+        )
+
+        assert output.shape == (2, 6)
+        assert torch.allclose(output.norm(dim=-1), torch.ones(2, device=device), atol=1e-5)
+        assert details["biofp_logits_center"].shape == (2, 2)
+        assert details["biofp_logits_cofactor"].shape == (2, 1)
+        assert details["biofp_logits_transition"].shape == (2, 3)
+        assert details["biofp_sequence_gate_raw_mean"].shape == (2,)
+        assert details["biofp_attention_entropy_center"].shape == (2,)
+        assert all(not parameter.requires_grad for parameter in model.target_encoder.parameters())
+
+    def test_biological_factorized_mode_is_sequence_only_and_fixed_layout(self, device):
+        model = ProteinPooledDualModel(
+            query_encoder_kwargs={
+                "input_dim": 3,
+                "output_dim": 10,
+                "normalise_output": True,
+            },
+            target_encoder_kwargs={
+                "input_dim": 10,
+                "output_dim": 10,
+                "normalise_output": True,
+            },
+            residue_dim=4,
+            pooling="sleec_guided_attention",
+            sleec_scorer_hidden_dim=4,
+            enzyme_input_mode="raw_mean_sleec_biological_factorized",
+            hyperbolic_hyp_dim=3,
+            enzyme_block_dims={
+                "core": 3,
+                "site": 2,
+                "mechanism": 2,
+                "cofactor": 1,
+                "ec": 2,
+            },
+            enzyme_block_weights={
+                "core": 0.55,
+                "site": 0.20,
+                "mechanism": 0.12,
+                "cofactor": 0.08,
+                "ec": 0.05,
+            },
+            biofp_family_dims={"mechanism": 2, "cofactor": 1},
+            biofp_hidden_dim=8,
+            biofp_dropout=0.0,
+        ).to(device)
+        residues = torch.randn(2, 4, 4, device=device)
+        padding_mask = torch.tensor(
+            [[False, False, False, True], [False, False, True, True]],
+            device=device,
+        )
+
+        model.eval()
+        output, details = model.encode_targets(
+            residues,
+            residue_padding_mask=padding_mask,
+            return_pooling_details=True,
+        )
+        with torch.no_grad():
+            output_without_diagnostics = model.encode_targets(
+                residues,
+                residue_padding_mask=padding_mask,
+            )
+
+        assert output.shape == (2, 10)
+        assert torch.allclose(output.norm(dim=-1), torch.ones(2, device=device), atol=1e-5)
+        assert torch.allclose(output, output_without_diagnostics, atol=1e-6)
+        assert details["biofp_logits_mechanism"].shape == (2, 2)
+        assert details["biofp_logits_cofactor"].shape == (2, 1)
+        details["biofp_logits_mechanism"].sum().backward()
+        mechanism_projection = model.biological_factorized_encoder.family_projections[
+            "mechanism"
+        ][1]
+        assert mechanism_projection.weight.grad is not None
+        for name in ("core", "site", "mechanism", "cofactor", "ec"):
+            assert f"enzyme_block_norm_{name}" in details
+        assert all(not parameter.requires_grad for parameter in model.target_encoder.parameters())
+
+    def test_biological_factorized_supports_reduced_learned_block_layout(self, device):
+        model = ProteinPooledDualModel(
+            query_encoder_kwargs={
+                "input_dim": 3,
+                "output_dim": 8,
+                "normalise_output": True,
+            },
+            target_encoder_kwargs={
+                "input_dim": 8,
+                "output_dim": 8,
+                "normalise_output": True,
+            },
+            residue_dim=4,
+            pooling="sleec_guided_attention",
+            sleec_scorer_hidden_dim=4,
+            enzyme_input_mode="raw_mean_sleec_biological_factorized",
+            enzyme_block_dims={"core": 6, "site": 2},
+            enzyme_block_weights={"core": 0.75, "site": 0.25},
+            biofp_family_dims={},
+            biofp_hidden_dim=8,
+            biofp_dropout=0.0,
+            enzyme_block_learned_weights=True,
+        ).to(device)
+        residues = torch.randn(3, 5, 4, device=device)
+        padding_mask = torch.zeros(3, 5, dtype=torch.bool, device=device)
+
+        output, details = model.encode_targets(
+            residues,
+            residue_padding_mask=padding_mask,
+            return_pooling_details=True,
+        )
+
+        assert output.shape == (3, 8)
+        assert model.hyperbolic_projector is None
+        assert torch.allclose(output.norm(dim=-1), torch.ones(3, device=device), atol=1e-5)
+        assert details["enzyme_block_weight_core"][0].item() == pytest.approx(0.75)
+        assert details["enzyme_block_weight_site"][0].item() == pytest.approx(0.25)
+        assert details["enzyme_block_weight_kl"].abs().max().item() < 1e-6
+        output.sum().backward()
+        assert model.biological_factorized_encoder.block_weight_logits.grad is not None

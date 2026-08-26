@@ -1,0 +1,73 @@
+# Horizyn residue-level protein pooling configuration
+
+seed: 42
+
+logging:
+  log_dir: logs
+  checkpoint_dir: checkpoints
+  save_every_n_epochs: 10
+  log_every_n_steps: 1
+  wandb:
+    enabled: false
+    project: horizyn-training
+    entity: null
+    run_name: null
+    mode: offline
+    tags: []
+    log_model: false
+
+data:
+  train_pairs_path: data/sota/train_pairs.csv
+  test_pairs_path: data/sota/test_pairs.csv
+  train_reactions_path: data/sota/train_rxns.csv
+  test_reactions_path: data/sota/test_rxns.csv
+  protein_residue_embeds_path: data/sota/prots_t5_residue.h5
+
+  train_batch_size: 64
+  retrieval_batch_size: 1
+  num_workers: 4
+  pin_memory: false
+
+  rdkit_fp_dim: 1024
+  drfp_dim: 1024
+  residue_dim: 1024
+  max_protein_tokens: 1024
+  protein_truncation: ends_center
+
+  standardize_reactions: true
+  standardize_hypervalent: true
+  standardize_remove_hs: true
+  standardize_kekulize: false
+  standardize_uncharge: true
+  standardize_metals: true
+
+model:
+  name: ProteinPooledDualModel
+  pooling: attention              # mean | attention
+  query_encoder_dims: [2048, 4096, 4096, 512]
+  target_encoder_dims: [1024, 4096, 4096, 512]
+  embedding_dim: 512
+  protein_attention_pooling:
+    attention_bias: true
+    return_attention: false
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  check_val_every_n_epoch: 10
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  attention_logging_interval: 100

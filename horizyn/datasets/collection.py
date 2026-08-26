@@ -243,6 +243,9 @@ class TupleDataset(BaseDataset[K]):
         """
         valid_keys = []
         invalid_by_reason = {}  # Track which dataset is missing which keys
+        dataset_key_sets = {
+            key_name: set(dataset.keys) for key_name, dataset in self.key_name_to_dataset.items()
+        }
 
         # Iterate by index for efficiency
         for idx in range(len(self.tuple_dataset)):
@@ -262,7 +265,7 @@ class TupleDataset(BaseDataset[K]):
                 dataset_key = tuple_dict[key_name]
 
                 # Check if the key exists in the dataset (all keys are strings)
-                if dataset_key not in dataset.keys:
+                if dataset_key not in dataset_key_sets[key_name]:
                     is_valid = False
                     # Track for logging
                     reason = f"{key_name}={dataset_key}"

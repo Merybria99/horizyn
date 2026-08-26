@@ -4,6 +4,23 @@ This directory contains YAML configuration files for training the Horizyn model.
 
 ## Available Configurations
 
+### Clean ReactZyme Split Baselines
+
+These configs are the current split-isolated ReactZyme baselines:
+
+- `reactzyme_clean_time_prott5_sleec_reactiont5v2_unimol2_chiro_observed_mlnce.yaml`
+- `reactzyme_clean_enzyme_smi_prott5_sleec_reactiont5v2_unimol2_chiro_observed_mlnce.yaml`
+- `reactzyme_clean_reaction_smi_prott5_sleec_reactiont5v2_unimol2_chiro_observed_mlnce.yaml`
+
+They use ProT5 residue embeddings with SLEEC-guided attention pooling for enzymes,
+ReactionT5v2 + UniMol2 + ChIRo attention fusion for reactions, and
+`FullBatchMLNCELoss` with `positive_pair_source: observed_pairs`.
+
+The configs intentionally do not include BioFP labels, TIGER text fusion, Lorentz
+geometry, or hard-negative batching. They are clean protocol baselines for the
+three official ReactZyme train/test definitions under
+`data/revised_protocols/reactzyme_official/`.
+
 ### `sota.yaml` - Production SOTA Model
 
 The state-of-the-art configuration used in the Horizyn publication.
@@ -285,4 +302,3 @@ All metrics are logged to CSV files in the `logs/` directory.
 - **Data Formats**: See data/README.md
 - **Training Script**: See train.py --help
 - **Testing**: Run `pytest tests/test_integration.py` to verify setup
-

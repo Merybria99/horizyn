@@ -1,0 +1,42 @@
+{
+  "schema_version": "horizyn_wet_lab_swissprot_v1",
+  "prepared_at": "2026-07-28T19:29:40.846602+00:00",
+  "source": {
+    "fasta_url": "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/uniprot_sprot.fasta.gz",
+    "release_url": "https://ftp.uniprot.org/pub/databases/uniprot/current_release/knowledgebase/complete/reldate.txt",
+    "release": "UniProt Knowledgebase Release 2026_02 consists of:\nUniProtKB/Swiss-Prot Release 2026_02 of 10-Jun-2026\nUniProtKB/TrEMBL Release 2026_02 of 10-Jun-2026",
+    "canonical_sequences_only": true,
+    "reviewed_only": true
+  },
+  "files": {
+    "compressed_fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/uniprot_sprot.fasta.gz",
+    "normalized_fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/proteins.fasta",
+    "candidate_ids": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/candidate_ids.txt",
+    "metadata_csv": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/proteins.csv"
+  },
+  "sha256": {
+    "compressed_fasta": "b774748a050fd3de0bf2ad49b359ed59a2c2b02c89df3fe0679fafa446751794",
+    "normalized_fasta": "c5e354c4c2903d1fdd9e39aab249bdbe52b16e3f4547d294e61619843e58b578",
+    "candidate_ids": "824e1438cb1cb25583d0359491f53630ec24e76de96b92c92a0b6845b3477abb"
+  },
+  "statistics": {
+    "protein_count": 575503,
+    "total_residues": 208906902,
+    "minimum_sequence_length": 2,
+    "maximum_sequence_length": 35213,
+    "nonstandard_residue_counts": {
+      "B": 276,
+      "O": 29,
+      "U": 331,
+      "X": 8183,
+      "Z": 249
+    }
+  },
+  "prott5": {
+    "required_output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/swissprot/current/proteins_prott5_residue.h5",
+    "model": "Rostlab/prot_t5_xl_half_uniref50-enc",
+    "max_sequence_length": 1024,
+    "sequence_truncation": "ends_center",
+    "stored_dtype": "float16"
+  }
+}

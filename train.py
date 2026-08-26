@@ -28,7 +28,7 @@ Example:
 
 import argparse
 import sys
-from pathlib import Path
+from typing import Any
 
 import lightning.pytorch as pl
 import torch
@@ -36,6 +36,13 @@ import torch
 from horizyn.config import load_config, parse_overrides
 from horizyn.data_module import HorizynDataModule
 from horizyn.lightning_module import HorizynLitModule
+from horizyn.wandb_utils import (
+    DelayedHyperparameterLogger,
+    build_logger_hparams,
+    build_wandb_logger,
+    rank_zero_print,
+    resolve_wandb_settings,
+)
 
 
 def main():
@@ -64,6 +71,26 @@ def main():
         default=None,
         help="Path to checkpoint to resume training from",
     )
+    parser.add_argument("--wandb", action="store_true", help="Enable Weights & Biases logging")
+    parser.add_argument(
+        "--wandb-project",
+        default=None,
+        help="W&B project name (default: logging.wandb.project)",
+    )
+    parser.add_argument("--wandb-entity", default=None, help="Optional W&B entity/team")
+    parser.add_argument("--wandb-run-name", default=None, help="Optional W&B run name")
+    parser.add_argument(
+        "--wandb-mode",
+        choices=["online", "offline", "disabled"],
+        default=None,
+        help="W&B mode (default: logging.wandb.mode or WANDB_MODE or offline)",
+    )
+    parser.add_argument("--wandb-tags", nargs="*", default=None, help="Optional W&B tags")
+    parser.add_argument(
+        "--wandb-log-model",
+        action="store_true",
+        help="Upload checkpoints as W&B model artifacts",
+    )
 
     # Parse known args and capture remaining for overrides
     args, unknown = parser.parse_known_args()
@@ -88,6 +115,8 @@ def main():
         print(f"{e}")
         sys.exit(1)
 
+    wandb_settings = resolve_wandb_settings(args, config)
+    query_encoder_checkpoint_path = config.model.get("query_encoder_checkpoint_path", None)
     # Print configuration summary
     print("\n" + "=" * 80)
     print("HORIZYN TRAINING CONFIGURATION")
@@ -99,12 +128,19 @@ def main():
     print(f"Learning Rate: {config.training.learning_rate}")
     print(f"Weight Decay: {config.training.weight_decay}")
     print(f"Model: {config.model.name}")
+    print(f"Reaction Pooling: {config.model.get('reaction_pooling', 'attention')}")
     print(f"Query Encoder: {config.model.query_encoder_dims}")
+    if query_encoder_checkpoint_path:
+        print(f"Query Encoder Checkpoint: {query_encoder_checkpoint_path}")
     print(f"Target Encoder: {config.model.target_encoder_dims}")
     print(f"Embedding Dim: {config.model.embedding_dim}")
     print(f"Loss: {config.training.loss.name} (beta={config.training.loss.beta})")
     print(f"Log Dir: {config.logging.log_dir}")
     print(f"Checkpoint Dir: {config.logging.checkpoint_dir}")
+    print(f"W&B Enabled: {wandb_settings['enabled']} ({wandb_settings['mode']})")
+    print(f"Accelerator: {config.training.get('accelerator', 'auto')}")
+    print(f"Devices: {config.training.get('devices', 1 if torch.cuda.is_available() else 'auto')}")
+    print(f"Strategy: {config.training.get('strategy', 'auto')}")
     print("=" * 80 + "\n")
 
     # Set random seed for reproducibility
@@ -130,9 +166,17 @@ def main():
             retrieval_batch_size=config.data.retrieval_batch_size,
             rdkit_fp_dim=config.data.get("rdkit_fp_dim", 1024),
             drfp_dim=config.data.get("drfp_dim", 1024),
+            reaction_representation=config.data.get("reaction_representation", "fingerprint"),
+            reaction_embeds_path=config.data.get("reaction_embeds_path", None),
+            reaction_unimol_dim=config.data.get("reaction_unimol_dim", 768),
             num_workers=config.data.get("num_workers", 0),
             pin_memory=config.data.get("pin_memory", False),
             standardize_reactions=config.data.get("standardize_reactions", True),
+            standardize_hypervalent=config.data.get("standardize_hypervalent", True),
+            standardize_remove_hs=config.data.get("standardize_remove_hs", True),
+            standardize_kekulize=config.data.get("standardize_kekulize", False),
+            standardize_uncharge=config.data.get("standardize_uncharge", True),
+            standardize_metals=config.data.get("standardize_metals", True),
         )
     except FileNotFoundError as e:
         print(f"\nError: Data file not found")
@@ -156,7 +200,29 @@ def main():
         weight_decay=config.training.weight_decay,
         beta=config.training.loss.beta,
         learn_beta=config.training.loss.get("learn_beta", False),
+        loss_name=config.training.loss.get("name", "FullBatchMLNCELoss"),
+        lambda_r=config.training.loss.get("lambda_r", 0.05),
+        lambda_e=config.training.loss.get("lambda_e", 0.05),
+        lambda_g=config.training.loss.get("lambda_g", 0.01),
+        tau_r=config.training.loss.get("tau_r", 0.1),
+        tau_e=config.training.loss.get("tau_e", 0.1),
+        tau_t=config.training.loss.get("tau_t", 0.1),
+        delta_r=config.training.loss.get("delta_r", 0.5),
+        delta_e=config.training.loss.get("delta_e", 0.5),
+        symmetric_gw=config.training.loss.get("symmetric_gw", True),
         metric_ks=config.training.metrics.get("top_k", [1, 10, 100, 1000]),
+        query_encoder_type=config.model.get("query_encoder_type", "mlp"),
+        reaction_unimol_dim=config.data.get("reaction_unimol_dim", 768),
+        reaction_pooling=config.model.get("reaction_pooling", "attention"),
+        reaction_attention_bias=config.model.get("reaction_attention_pooling", {}).get(
+            "attention_bias",
+            True,
+        ),
+        reaction_separate_side_poolers=config.model.get(
+            "reaction_attention_pooling",
+            {},
+        ).get("separate_side_poolers", True),
+        query_encoder_checkpoint_path=query_encoder_checkpoint_path,
     )
 
     # Count parameters
@@ -166,10 +232,31 @@ def main():
     print(f"Trainable parameters: {trainable_params:,}\n")
 
     # Setup logging
-    logger = pl.loggers.CSVLogger(
+    csv_logger = pl.loggers.CSVLogger(
         save_dir=config.logging.log_dir,
         name="horizyn_training",
     )
+    logger: Any = csv_logger
+    try:
+        wandb_logger = build_wandb_logger(args, config)
+    except RuntimeError as e:
+        print(f"\nError initializing W&B logger: {e}")
+        sys.exit(1)
+
+    callbacks: list[pl.Callback] = []
+    if wandb_logger is not None:
+        callbacks.append(
+            DelayedHyperparameterLogger(
+                build_logger_hparams(
+                    args=args,
+                    config=config,
+                    total_params=total_params,
+                    trainable_params=trainable_params,
+                )
+            )
+        )
+        logger = [csv_logger, wandb_logger]
+        rank_zero_print("W&B logger enabled")
 
     # Setup callbacks
     checkpoint_callback = pl.callbacks.ModelCheckpoint(
@@ -181,20 +268,34 @@ def main():
         monitor="val/loss",
         mode="min",
     )
+    callbacks.append(checkpoint_callback)
 
     # Setup trainer
     print("Setting up Lightning Trainer...")
+    devices = config.training.get("devices", 1 if torch.cuda.is_available() else "auto")
+    accelerator = config.training.get("accelerator", "auto")
+    strategy = config.training.get("strategy", "auto")
+
+    if torch.cuda.is_available() and devices not in (1, "1", "auto") and strategy == "auto":
+        strategy = "ddp"
+
+    trainer_kwargs = {
+        "max_epochs": config.training.max_epochs,
+        "logger": logger,
+        "callbacks": callbacks,
+        "log_every_n_steps": config.logging.get("log_every_n_steps", 1),
+        "check_val_every_n_epoch": config.training.get("check_val_every_n_epoch", 10),
+        "enable_progress_bar": config.training.get("enable_progress_bar", True),
+        "deterministic": True,
+        "devices": devices,
+        "accelerator": accelerator,
+        "strategy": strategy,
+        "num_nodes": config.training.get("num_nodes", 1),
+        "use_distributed_sampler": config.training.get("use_distributed_sampler", True),
+    }
+
     trainer = pl.Trainer(
-        max_epochs=config.training.max_epochs,
-        logger=logger,
-        callbacks=[checkpoint_callback],
-        log_every_n_steps=config.logging.get("log_every_n_steps", 1),
-        check_val_every_n_epoch=config.training.get("check_val_every_n_epoch", 10),
-        enable_progress_bar=config.training.get("enable_progress_bar", True),
-        deterministic=True,  # For reproducibility
-        # Single GPU training (DDP not supported in simplified version)
-        devices=1 if torch.cuda.is_available() else "auto",
-        accelerator="auto",
+        **trainer_kwargs,
     )
 
     print(f"Trainer configured for {config.training.max_epochs} epochs\n")

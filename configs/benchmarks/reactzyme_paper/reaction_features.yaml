@@ -1,0 +1,85 @@
+variants:
+  - &base
+    id: F0_directional_delta_control
+    label: F0
+    description: B0 control with the current self-reaction directional-delta composition.
+    template: sleec
+    mode: raw_mean_sleec_biological_factorized
+    loss_name: FullBatchMLNCELoss
+    positive_pair_source: observed_pairs
+    hard_negative: false
+    structure: false
+    capability: false
+    biological: true
+    pretrain: false
+    pretrain_families: []
+    ec_pretrain: false
+    supervised_families: []
+    block_dims: &enzyme_dims {core: 288, site: 96, mechanism: 64, cofactor: 32, ec: 32}
+    block_weights: &enzyme_weights {core: 0.55, site: 0.20, mechanism: 0.12, cofactor: 0.08, ec: 0.05}
+    reaction_feature_ablation: true
+    reaction_side_composition: directional_delta
+    reaction_use_model: true
+    reaction_set_features: false
+    reaction_fusion: attention
+    reaction_output_projection: mlp
+    reaction_factorized_dims: null
+    reaction_factorized_weights: null
+    reaction_directional: null
+
+  - <<: *base
+    id: F1_molecule_set
+    label: F1
+    description: Treat UniMol2 and ChIRo participants as one unordered molecule set.
+    reaction_side_composition: molecule_set
+
+  - <<: *base
+    id: F2_molecule_set_no_reactiont5
+    label: F2
+    description: F1 without the self-reaction ReactionT5 token.
+    reaction_side_composition: molecule_set
+    reaction_use_model: false
+
+  - <<: *base
+    id: F3_set_chemistry
+    label: F3
+    description: F1 plus train-fitted molecule-set descriptors, fingerprints, and cofactors.
+    reaction_side_composition: molecule_set
+    reaction_set_features: true
+
+  - <<: *base
+    id: F4_factorized_reaction
+    label: F4
+    description: F3 with fixed normalized reaction-modality blocks instead of attention mixing.
+    reaction_side_composition: molecule_set
+    reaction_set_features: true
+    reaction_fusion: factorized_concat
+    reaction_output_projection: identity
+    reaction_factorized_dims: {reaction_model: 128, unimol2: 192, chiro: 96, reaction_chemistry: 96}
+    reaction_factorized_weights: {reaction_model: 0.25, unimol2: 0.375, chiro: 0.1875, reaction_chemistry: 0.1875}
+
+  - <<: *base
+    id: F5_rhea_directional
+    label: F5
+    description: F4 plus a gated residual for reaction-only uniquely matched Rhea direction.
+    reaction_side_composition: molecule_set
+    reaction_set_features: true
+    reaction_fusion: factorized_concat
+    reaction_output_projection: identity
+    reaction_factorized_dims: {reaction_model: 128, unimol2: 192, chiro: 96, reaction_chemistry: 96}
+    reaction_factorized_weights: {reaction_model: 0.25, unimol2: 0.375, chiro: 0.1875, reaction_chemistry: 0.1875}
+    reaction_directional: f5
+    reaction_directional_gate_init: 0.10
+
+  - <<: *base
+    id: F6_rhea_center
+    label: F6
+    description: F5 plus train-vocabulary RXNMapper reaction-center labels in the gated residual.
+    reaction_side_composition: molecule_set
+    reaction_set_features: true
+    reaction_fusion: factorized_concat
+    reaction_output_projection: identity
+    reaction_factorized_dims: {reaction_model: 128, unimol2: 192, chiro: 96, reaction_chemistry: 96}
+    reaction_factorized_weights: {reaction_model: 0.25, unimol2: 0.375, chiro: 0.1875, reaction_chemistry: 0.1875}
+    reaction_directional: f6
+    reaction_directional_gate_init: 0.10

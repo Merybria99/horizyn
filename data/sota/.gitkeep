@@ -1,3 +1,0 @@
-# This file ensures the data/ directory is tracked by git
-# Data files will be downloaded here via scripts/download_data.py
-

@@ -1,0 +1,82 @@
+version: 1
+description: Unified enzyme-reaction retrieval benchmark suite.
+
+tasks:
+  - name: reactzyme_time
+    type: retrieval
+    split: time
+    pairs: data/paper/reactzyme/eval/time/test_pairs.csv
+    train_pairs: data/paper/reactzyme/eval/time/train_pairs.csv
+    reactions: data/paper/reactzyme/eval/time/reactions.csv
+    candidate_ids: data/paper/reactzyme/eval/time/candidate_ids.txt
+    candidate_residue_h5:
+      prott5: data/paper/reactzyme/eval/all_proteins_prott5_residue.h5
+      esm2: data/paper/reactzyme/eval/all_proteins_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/paper/reactzyme/eval/all_proteins_esm2_650m_residue.h5
+    reaction_embeds_h5: data/paper/reactzyme/eval/reactzyme_unimol2_reaction_sets.h5
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50]
+
+  - name: reactzyme_enzyme_smi
+    type: retrieval
+    split: enzyme_smi
+    pairs: data/paper/reactzyme/eval/enzyme_smi/test_pairs.csv
+    train_pairs: data/paper/reactzyme/eval/enzyme_smi/train_pairs.csv
+    reactions: data/paper/reactzyme/eval/enzyme_smi/reactions.csv
+    candidate_ids: data/paper/reactzyme/eval/enzyme_smi/candidate_ids.txt
+    candidate_residue_h5:
+      prott5: data/paper/reactzyme/eval/all_proteins_prott5_residue.h5
+      esm2: data/paper/reactzyme/eval/all_proteins_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/paper/reactzyme/eval/all_proteins_esm2_650m_residue.h5
+    reaction_embeds_h5: data/paper/reactzyme/eval/reactzyme_unimol2_reaction_sets.h5
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50]
+
+  - name: reactzyme_reaction_smi
+    type: retrieval
+    split: reaction_smi
+    pairs: data/paper/reactzyme/eval/reaction_smi/test_pairs.csv
+    train_pairs: data/paper/reactzyme/eval/reaction_smi/train_pairs.csv
+    reactions: data/paper/reactzyme/eval/reaction_smi/reactions.csv
+    candidate_ids: data/paper/reactzyme/eval/reaction_smi/candidate_ids.txt
+    candidate_residue_h5:
+      prott5: data/paper/reactzyme/eval/all_proteins_prott5_residue.h5
+      esm2: data/paper/reactzyme/eval/all_proteins_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/paper/reactzyme/eval/all_proteins_esm2_650m_residue.h5
+    reaction_embeds_h5: data/paper/reactzyme/eval/reactzyme_unimol2_reaction_sets.h5
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50]
+
+  - name: clipzyme_enzymemap
+    type: screening
+    split: enzymemap
+    pairs: data/paper/clipzyme/eval/enzymemap/pairs.csv
+    reactions: data/paper/clipzyme/eval/enzymemap/reactions.csv
+    candidate_ids: data/paper/clipzyme/eval/enzymemap/candidate_ids.txt
+    candidate_residue_h5:
+      prott5: data/paper/clipzyme/eval/enzymemap/proteins_prott5_residue.h5
+      esm2: data/paper/clipzyme/eval/enzymemap/proteins_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/paper/clipzyme/eval/enzymemap/proteins_esm2_650m_residue.h5
+    reaction_embeds_h5: data/paper/clipzyme/eval/enzymemap/unimol2_reaction_sets.h5
+    bedroc_alphas: [85, 20]
+    ef_fractions: [0.05, 0.10]
+
+  - name: horizyn_sota
+    type: retrieval
+    split: horizyn_sota
+    pairs: data/sota/test_pairs.csv
+    train_pairs: data/sota/train_pairs.csv
+    reactions: data/sota/test_rxns.csv
+    candidate_embedding_h5: data/sota/prots_t5.h5
+    candidate_residue_h5:
+      prott5: data/sota/prots_t5_residue.h5
+      esm2: data/sota/prots_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/sota/prots_esm2_650m_residue.h5
+    reaction_embeds_h5: data/sota/rxns_unimol2_84m_reaction_sets.h5
+    directions: [reaction_to_enzyme]
+    top_k: [1, 10, 100, 1000]

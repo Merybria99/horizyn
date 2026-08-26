@@ -1,0 +1,160 @@
+capability_pretraining:
+  enabled: true
+
+pretraining_objective: enzyme_bio_composite_supcon
+
+logging:
+  wandb:
+    enabled: true
+    project: horizyn-enzyme-bio-stage1
+    entity: omnai
+    run_name: enzyme_bio_stack_pretrain_v1_4gpu_20260706_165452
+    mode: online
+    tags:
+      - horizyn
+      - enzyme-bio-stack
+      - stage1
+      - core-cofactor
+      - substrate-product-transition
+      - prott5-residue-multiquery
+      - prot5-mean
+      - sleec-pooled
+      - lorentz-tangent
+      - train-exact-rhea-reconstructed
+    log_model: false
+
+paths:
+  capability_dir: data/processed/capability_features/train_exact_rhea_reconstructed
+  train_pairs: data/processed/capability_features/train_exact_rhea_reconstructed/train_pairs_directional_rhea_reconstructed.csv
+  reaction_features: data/processed/capability_features/train_exact_rhea_reconstructed/reaction_features.parquet
+  reaction_demand_vectors: data/processed/capability_features/train_exact_rhea_reconstructed/reaction_demand_vectors.npz
+  reaction_demand_metadata: data/processed/capability_features/train_exact_rhea_reconstructed/reaction_demand_metadata.parquet
+  enzyme_capability_labels: data/processed/capability_features/train_exact_rhea_reconstructed/enzyme_capability_labels.parquet
+  pair_capability_training: data/processed/capability_features/train_exact_rhea_reconstructed/pair_capability_training.parquet
+  enzyme_label_vocabs: data/processed/capability_features/train_exact_rhea_reconstructed/enzyme_label_vocabs.json
+
+  prot5_mean: data/processed/capability_features/train_exact/enzyme_features/prot5_mean.npz
+  prot5_sleec: data/processed/capability_features/train_exact/enzyme_features/prot5_sleec.npz
+  lorentz_tangent: data/processed/capability_features/train_exact/enzyme_features/lorentz_tangent.npz
+  prot5_residue: data/standardized/retrieval_training_source_collapse/train_exact/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+
+  output_dir: outputs/enzyme_bio_pretrain_v1
+
+data:
+  exclude_reactzyme_molecule_set_rows: true
+  require_directional_reaction: true
+  use_train_pairs_only: true
+  non_directional_policy: exclude
+  residue_max_tokens: 1022
+  residue_truncation: ends_center
+  residue_in_memory: false
+
+label_quality:
+  enabled: true
+  failed_family_policy: abort
+  min_core_cofactor_coverage: 0.50
+  min_transition_coverage: 0.75
+  min_substrate_coverage: 0.80
+  min_product_coverage: 0.80
+  min_known_label_families: 2
+  min_usable_anchor_fraction: 0.70
+  max_anchor_checks: 0
+  max_candidate_checks_per_anchor: 256
+
+model:
+  biological_family_names:
+    - global
+    - cofactor
+    - transition
+    - reaction_center
+    - substrate
+    - product
+  capability_mode: factorized_biological
+  capability_dim: 512
+  family_dim: 256
+  hidden_dim: 512
+  dropout: 0.10
+  use_prot5_mean: true
+  use_sleec_pool: true
+  use_lorentz: true
+  use_prot5_residue_multiquery_pooling: true
+  normalize_inputs: true
+  normalize_output: true
+  residue_pooling:
+    dropout: 0.05
+    initial_scale: 0.1
+    max_tokens: 1022
+    truncation: ends_center
+    in_memory: false
+
+training:
+  batch_size: 128
+  epochs: 30
+  lr: 3.0e-4
+  weight_decay: 1.0e-2
+  num_workers: 4
+  pin_memory: false
+  seed: 13
+  validation_fraction: 0.05
+  checkpoint_monitor: val/placement/composite_positive_negative_cosine_gap
+  checkpoint_mode: max
+  precision: bf16-mixed
+  gradient_clip_val: 1.0
+  accelerator: gpu
+  devices: 4
+  strategy: ddp_find_unused_parameters_true
+  resume_from_checkpoint: null
+  log_every_n_steps: 10
+
+loss:
+  objective: enzyme_bio_composite_supcon
+  capability_temperature: 0.07
+
+  selected_biological_families:
+    - cofactor
+    - transition
+    - substrate
+    - product
+
+  composite_family_weights:
+    cofactor: 0.35
+    transition: 0.40
+    substrate: 0.15
+    product: 0.10
+    reaction_center: 0.0
+  composite_positive_family_names:
+    - cofactor
+    - transition
+    - substrate
+    - product
+  composite_known_family_names:
+    - cofactor
+    - transition
+    - substrate
+    - product
+  composite_required_positive_families:
+    - cofactor
+    - transition
+  composite_positive_threshold: 0.35
+  composite_min_positive_families: 2
+  composite_min_known_families: 2
+
+  composite_weight: 1.0
+  cofactor_weight: 0.35
+  transition_weight: 0.35
+  substrate_weight: 0.15
+  product_weight: 0.15
+  reaction_center_weight: 0.0
+  global_weight: 0.0
+  attribute_bce_weight: 0.05
+  factor_diversity_weight: 0.01
+  same_center_hard_negative_weight: 0.0
+  ec_weight: 0.0
+  mask_missing_attributes: true
+  deduplicate_entities_before_loss: true
+
+sampling:
+  use_in_batch_negatives: true
+  use_stratified_hard_negatives: false
+  hard_negative_count: 8
+  random_negative_count: 16

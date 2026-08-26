@@ -1,0 +1,21 @@
+{
+  "protein_id": "P32176",
+  "rank": 5,
+  "sequence_length": 1016,
+  "selenocysteine_positions": [
+    196
+  ],
+  "esmfold_substitutions": [
+    {
+      "position": 196,
+      "original": "U",
+      "model_input": "X"
+    }
+  ],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 69.99870300292969,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.8141813278198242,
+  "elapsed_seconds": 41.46346110990271,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/05_P32176.pdb"
+}

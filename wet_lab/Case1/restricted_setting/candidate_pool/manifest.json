@@ -1,0 +1,16 @@
+{
+  "schema_version": "case1_restricted_candidate_pool_v1",
+  "source": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/sequence_pool/final_entry_sequences.csv",
+  "source_sha256": "538e0e6f54a1b6880de71d1fe0cb7d7d7b726da1331ba3d737fe509bff37b711",
+  "selection": "sheet == Homologs and status starts with resolved and sequence is non-empty",
+  "candidate_rows": 144,
+  "unique_entry_ids": 144,
+  "unique_sequences": 123,
+  "duplicate_sequence_groups": 18,
+  "rows_in_duplicate_sequence_groups": 39,
+  "artifacts": {
+    "fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/restricted_setting/candidate_pool/proteins.fasta",
+    "metadata_csv": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/restricted_setting/candidate_pool/proteins.csv",
+    "candidate_ids": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/restricted_setting/candidate_pool/candidate_ids_prott5_order.txt"
+  }
+}

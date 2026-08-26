@@ -1,0 +1,98 @@
+# Train Horizyn retrieval on the collapsed-source nr90 split with ProtT5 residue
+# embeddings, frozen SLEEC-guided attention, and a frozen Lorentz hyperbolic
+# enzyme projector.
+
+seed: 42
+
+logging:
+  log_dir: logs
+  checkpoint_dir: checkpoints
+  save_every_n_epochs: 10
+  log_every_n_steps: 1
+  wandb:
+    enabled: true
+    project: horizyn-retrieval-source-collapse
+    entity: null
+    run_name: horizyn-source-collapse-nr90-prott5-sleec-lorentz-c0p25
+    mode: online
+    tags:
+      - horizyn
+      - source-collapse
+      - nr90
+      - prott5
+      - sleec-guided-attention
+      - frozen-lorentz-hyperbolic-c0p25
+      - mlnce
+    log_model: false
+
+data:
+  train_pairs_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_pairs.csv
+  train_reactions_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_rxns.csv
+
+  test_pairs_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/pairs_horizyn.csv
+  test_reactions_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/reactions.csv
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+
+  train_batch_size: 128
+  retrieval_batch_size: 1
+  num_workers: 4
+  pin_memory: false
+
+  rdkit_fp_dim: 1024
+  drfp_dim: 1024
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  standardize_reactions: true
+  standardize_hypervalent: true
+  standardize_remove_hs: true
+  standardize_kekulize: false
+  standardize_uncharge: true
+  standardize_metals: true
+  normalize_molecule_sets_as_self_reactions: true
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_dims: [2048, 4096, 4096, 512]
+  target_encoder_dims: [512, 4096, 4096, 512]
+  embedding_dim: 512
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: false
+  hyperbolic_encoder:
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/hyperbolic_enzyme/hyperbolic-enzyme-prott5-lorentz-c0p25-b512-4gpu-20260601_150714/best.ckpt
+    hyp_dim: 512
+    use_tangent: true
+    freeze_projector: true
+    load_attention_pooler: true
+    freeze_attention_pooler: true
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  check_val_every_n_epoch: 1
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  log_attention_stats: true
+  attention_logging_interval: 10

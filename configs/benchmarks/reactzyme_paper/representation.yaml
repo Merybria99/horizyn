@@ -1,0 +1,115 @@
+variants:
+  - id: A8_flat_cap_capacity
+    label: A8
+    description: A7-style blockwise model with larger flat capability allocation.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: true
+    factorized_capability: false
+    reaction_chemistry: false
+    block_dims: {core: 160, site: 64, ec: 128, capability: 160}
+    block_weights: {core: 0.35, site: 0.15, ec: 0.20, capability: 0.30}
+
+  - id: A9_factorized_cap_no_mask
+    label: A9
+    description: Replace flat capability with cofactor/center/transition blocks without missing-label masks.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_factorized_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: false
+    factorized_capability: true
+    factorized_use_masks: false
+    reaction_chemistry: false
+    block_dims: &factorized_dims
+      core: 160
+      site: 64
+      ec: 128
+      cofactor: 56
+      center: 48
+      transition: 56
+    block_weights: &factorized_weights
+      core: 0.35
+      site: 0.15
+      ec: 0.20
+      cofactor: 0.10
+      center: 0.08
+      transition: 0.12
+
+  - id: A10_factorized_cap_masked
+    label: A10
+    description: A9 with per-family capability missing-label masks enabled.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_factorized_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: false
+    factorized_capability: true
+    factorized_use_masks: true
+    reaction_chemistry: false
+    block_dims: *factorized_dims
+    block_weights: *factorized_weights
+
+  - id: A11_reaction_chem_token
+    label: A11
+    description: A10 plus a reaction-side chemistry label token in multimodal attention.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_factorized_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: false
+    factorized_capability: true
+    factorized_use_masks: true
+    reaction_chemistry: true
+    reaction_chemistry_dim: 256
+    block_dims: *factorized_dims
+    block_weights: *factorized_weights
+
+  - id: A12_reaction_chem_no_ec_structure
+    label: A12
+    description: A11 with EC structure regularization disabled to isolate chemistry-token effects.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_factorized_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: false
+    capability: false
+    factorized_capability: true
+    factorized_use_masks: true
+    reaction_chemistry: true
+    reaction_chemistry_dim: 256
+    block_dims: *factorized_dims
+    block_weights: *factorized_weights
+
+  - id: A15_r2e_hardneg_stronger
+    label: A15
+    description: A11 with stronger R->E hard-negative pressure.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_factorized_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: false
+    factorized_capability: true
+    factorized_use_masks: true
+    reaction_chemistry: true
+    reaction_chemistry_dim: 256
+    lambda_r2e_hard_neg: 0.35
+    r2e_hard_neg_top_k: 96
+    r2e_hard_neg_margin: 0.08
+    hard_negative_anchors_per_batch: 64
+    hard_negative_negatives_per_query: 8
+    block_dims: *factorized_dims
+    block_weights: *factorized_weights

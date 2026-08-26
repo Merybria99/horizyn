@@ -10,7 +10,12 @@ import h5py
 import pytest
 import torch
 
-from horizyn.data_module import HorizynDataModule
+from horizyn.data_module import (
+    HorizynDataModule,
+    hierarchical_ec_shared_weight,
+    normalize_ec_number,
+)
+from horizyn.datasets.base import BaseDataset
 
 
 @pytest.fixture
@@ -124,6 +129,16 @@ class TestHorizynDataModule:
         assert dm._train_data is not None
         assert dm._val_data is not None
         assert dm._target_data is not None
+        assert dm._train_query_to_targets == {
+            "rxn1_f": ["prot1", "prot2"],
+            "rxn1_r": ["prot1", "prot2"],
+            "rxn2_f": ["prot2"],
+            "rxn2_r": ["prot2"],
+        }
+        assert dm._train_target_to_queries == {
+            "prot1": ["rxn1_f", "rxn1_r"],
+            "prot2": ["rxn1_f", "rxn1_r", "rxn2_f", "rxn2_r"],
+        }
 
         # Verify sizes (bidirectional augmentation doubles pairs and reactions)
         assert len(dm._train_data) == 6  # 3 training pairs × 2 directions = 6
@@ -414,3 +429,38 @@ class TestHorizynDataModule:
         assert len(forward_pairs) == len(
             backward_pairs
         ), "Forward and backward validation pair counts don't match"
+
+
+def test_normalize_ec_number_handles_partial_labels():
+    assert normalize_ec_number("1.2.3.4") == "1.2.3.4"
+    assert normalize_ec_number("1.2.3.-") == "1.2.3"
+    assert normalize_ec_number("") is None
+
+
+def test_hierarchical_ec_shared_weight_uses_selected_depths():
+    assert hierarchical_ec_shared_weight(("1.2.3.4",), ("1.2.3.4",)) == 1.0
+    assert hierarchical_ec_shared_weight(("1.2.3.4",), ("1.2.3.9",)) == 0.5
+    assert hierarchical_ec_shared_weight(("1.2.3.4",), ("1.2.8.9",)) == 0.25
+    assert hierarchical_ec_shared_weight(("1.2.3.4",), ("1.9.8.9",)) == 0.0
+
+
+def test_derive_reaction_ec_sets_from_positive_enzyme_labels():
+    pairs = BaseDataset(
+        keys=["p1", "p2", "p3"],
+        array_data=[
+            {"query_id": "rxn1_f", "target_id": "enz1"},
+            {"query_id": "rxn1_f", "target_id": "enz2"},
+            {"query_id": "rxn2_r", "target_id": "enz_missing"},
+        ],
+    )
+    enzyme_ec_sets = {
+        "enz1": ("1.1.1.1",),
+        "enz2": ("2.2.2.2",),
+    }
+
+    reaction_ec_sets = HorizynDataModule._derive_reaction_ec_sets(
+        pairs,
+        enzyme_ec_sets,
+    )
+
+    assert reaction_ec_sets == {"rxn1_f": ("1.1.1.1", "2.2.2.2")}

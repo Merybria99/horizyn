@@ -1,0 +1,130 @@
+# Clean ReactZyme reaction-SMILES split baseline.
+# Enzyme: ProT5 residues + SLEEC-guided attention pooling.
+# Reaction: ReactionT5v2 + UniMol2 + ChIRo attention fusion.
+
+seed: 42
+
+logging:
+  log_dir: logs/reactzyme_clean_prott5_sleec_reactiont5v2_unimol2_chiro_observed/reaction_smi
+  checkpoint_dir: checkpoints/reactzyme_clean_prott5_sleec_reactiont5v2_unimol2_chiro_observed/reaction_smi
+  checkpoint_monitor: val/reaction_to_enzyme/mrr
+  checkpoint_mode: max
+  save_every_n_train_steps: 1000
+  log_every_n_steps: 10
+  wandb:
+    enabled: true
+    project: horizyn-reactzyme-clean
+    entity: omnai
+    run_name: clean-reaction-smi-prott5-sleec-reactiont5v2-unimol2-chiro-observed-mlnce
+    mode: online
+    tags:
+      - horizyn
+      - reactzyme-clean
+      - reaction-smi-split
+      - prott5
+      - sleec-guided-attention
+      - reactiont5v2
+      - unimol2
+      - chiro
+      - observed-pairs
+      - no-biofp
+    log_model: false
+
+data:
+  train_pairs_path: data/revised_protocols/reactzyme_official/reaction_smi/train_pairs.csv
+  train_reactions_path: data/revised_protocols/reactzyme_official/reaction_smi/train_rxns.csv
+  test_pairs_path: data/revised_protocols/reactzyme_official/reaction_smi/test_pairs.csv
+  test_reactions_path: data/revised_protocols/reactzyme_official/reaction_smi/test_rxns.csv
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/reactiont5v2.h5
+  validation_reaction_t5v2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/test/reactiont5v2.h5
+  train_reaction_unimol2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/unimol2.h5
+  validation_reaction_unimol2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/test/unimol2.h5
+  train_reaction_chiro_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/chiro.h5
+  validation_reaction_chiro_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/test/chiro.h5
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chirality_dim: 256
+  reaction_chienn_dim: 256
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chirality: false
+  reaction_allow_missing_chienn: false
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: true
+
+  train_batch_size: 512
+  retrieval_batch_size: 128
+  validation_retrieval_batch_size: 128
+  num_workers: 4
+  pin_memory: false
+
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: data/revised_protocols/reactzyme_official/reaction_smi/candidate_ids.txt
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_chirality_name: chiro
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [1024, 4096, 4096, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.15
+    token_layer_norm: true
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: false
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    positive_pair_source: observed_pairs
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: data/revised_protocols/reactzyme_official/reaction_smi/candidate_ids.txt
+  validation_retrieval_batch_size: 128
+  validation_interval_steps: 1000
+  enable_progress_bar: true
+  devices: 1
+  accelerator: gpu
+  strategy: auto
+  log_attention_stats: true
+  attention_logging_interval: 10

@@ -39,6 +39,8 @@ sys.path.insert(0, str(project_root))
 from horizyn.config import load_config
 from horizyn.lightning_module import HorizynLitModule
 from horizyn.metrics import average_precision, r_precision, top_k_hit_rate
+from horizyn.reaction_features import build_reaction_feature_dataset
+from horizyn.utils import unimol2_reaction_collate_fn
 
 
 def compute_cosine_distances(
@@ -57,6 +59,16 @@ def compute_cosine_distances(
     # Cosine distance = 1 - cosine_similarity
     # Both inputs should already be L2-normalized
     return 1.0 - torch.matmul(query_embeds, target_embeds.T)
+
+
+def normalize_molecule_set_reaction(config, _key: str, sample: dict) -> dict:
+    if not config.data.get("normalize_molecule_sets_as_self_reactions", False):
+        return sample
+    smiles = sample.get("reaction_smiles", "")
+    if isinstance(smiles, str) and smiles.count(">") < 2:
+        sample = dict(sample)
+        sample["reaction_smiles"] = f"{smiles}>>{smiles}"
+    return sample
 
 
 def evaluate_checkpoint(
@@ -95,14 +107,8 @@ def evaluate_checkpoint(
 
     # Import required dataset classes
     from horizyn.datasets.base import BaseDataset
-    from horizyn.datasets.collection import MergeDataset, TupleDataset
     from horizyn.datasets.csv import CSVDataset
-    from horizyn.datasets.fingerprints import (
-        DRFPFingerprintDataset,
-        RDKitPlusFingerprintDataset,
-    )
     from horizyn.datasets.hdf5 import EmbedDataset
-    from horizyn.datasets.transform import ConcatTensorTransform
 
     # Load validation pairs
     val_pairs = CSVDataset(
@@ -130,69 +136,15 @@ def evaluate_checkpoint(
     val_pairs = BaseDataset(keys=augmented_keys, array_data=augmented_data)
     print(f"  Augmented to {len(val_pairs)} bidirectional pairs")
 
-    # Load test reactions and create fingerprints
-    reactions = CSVDataset(
-        file_path=config.data.test_reactions_path,
-        key_column="reaction_id",
-        columns=["reaction_smiles"],
+    # Load test reactions and create the configured reaction representation.
+    reaction_features = build_reaction_feature_dataset(
+        reactions_path=config.data.test_reactions_path,
+        config=config,
+        bidirectional=True,
+        transforms=lambda key, sample: normalize_molecule_set_reaction(config, key, sample),
+        split_name="validation",
     )
-
-    # Augment reactions bidirectionally
-    rxn_augmented_keys = []
-    rxn_augmented_data = []
-    for rxn_id in reactions.keys:
-        rxn_data = reactions[rxn_id]
-        smiles = rxn_data["reaction_smiles"]
-        # Forward
-        rxn_augmented_keys.append(f"{rxn_id}_f")
-        rxn_augmented_data.append({"reaction_smiles": smiles})
-        # Backward
-        if ">>" in smiles:
-            parts = smiles.split(">>")
-            if len(parts) == 2:
-                reversed_smiles = f"{parts[1]}>>{parts[0]}"
-                rxn_augmented_keys.append(f"{rxn_id}_r")
-                rxn_augmented_data.append({"reaction_smiles": reversed_smiles})
-
-    reactions = BaseDataset(keys=rxn_augmented_keys, array_data=rxn_augmented_data)
-    print(f"  Loaded {len(reactions)} bidirectional test reactions")
-
-    # Generate fingerprints
-    print("  Generating RDKit+ fingerprints...")
-    rdkit_fp = RDKitPlusFingerprintDataset(
-        reaction_dataset=reactions,
-        vec_dim=config.data.get("rdkit_fp_dim", 1024),
-        mol_fp_type="morgan",
-        rxn_fp_type="struct",
-        use_chirality=True,
-        standardize=config.data.get("standardize_reactions", True),
-        standardize_hypervalent=config.data.get("standardize_hypervalent", True),
-        standardize_remove_hs=config.data.get("standardize_remove_hs", True),
-        standardize_kekulize=config.data.get("standardize_kekulize", False),
-        standardize_uncharge=config.data.get("standardize_uncharge", True),
-        standardize_metals=config.data.get("standardize_metals", True),
-    )
-
-    print("  Generating DRFP fingerprints...")
-    drfp_fp = DRFPFingerprintDataset(
-        reaction_dataset=reactions,
-        vec_dim=config.data.get("drfp_dim", 1024),
-        radius=3,
-        rings=True,
-        standardize=config.data.get("standardize_reactions", True),
-        standardize_hypervalent=config.data.get("standardize_hypervalent", True),
-        standardize_remove_hs=config.data.get("standardize_remove_hs", True),
-        standardize_kekulize=config.data.get("standardize_kekulize", False),
-        standardize_uncharge=config.data.get("standardize_uncharge", True),
-        standardize_metals=config.data.get("standardize_metals", True),
-    )
-
-    # Merge and concatenate fingerprints
-    merged_fp = MergeDataset(
-        datasets={"rdkit": rdkit_fp, "drfp": drfp_fp},
-        add_prefix=False,
-    )
-    merged_fp.append_transforms(ConcatTensorTransform(labels=["rdkit", "drfp"], dim=0))
+    print(f"  Loaded {len(reaction_features)} configured test reaction features")
 
     # Load protein embeddings (full screening set)
     print("  Loading protein embeddings...")
@@ -248,12 +200,22 @@ def evaluate_checkpoint(
         for query_idx in tqdm(range(num_queries), desc="Evaluating queries"):
             query_id = unique_query_ids[query_idx]
 
-            # Get query fingerprint (ConcatTensorTransform returns a tensor)
-            query_fp_tensor: torch.Tensor = merged_fp[query_id]
-            query_fp = query_fp_tensor.unsqueeze(0).to(device)
+            # Get configured query representation.
+            query_sample = reaction_features[query_id]
+            if isinstance(query_sample, dict):
+                query_fp = {
+                    key: value.to(device, non_blocking=True)
+                    for key, value in unimol2_reaction_collate_fn([query_sample]).items()
+                }
+            else:
+                query_fp = query_sample.unsqueeze(0).to(device)
 
             # Encode query
-            query_embed = model.model.query_encoder(query_fp)
+            query_embed = (
+                model.model.query_encoder(**query_fp)
+                if isinstance(query_fp, dict)
+                else model.model.query_encoder(query_fp)
+            )
 
             # Compute distances to all targets
             dists = compute_cosine_distances(query_embed, target_embeds_tensor)

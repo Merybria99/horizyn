@@ -1,0 +1,34 @@
+{
+  "schema_version": "case1_restricted_ranked_comparison_v1",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]",
+    "warnings": []
+  },
+  "model": {
+    "name": "F3 Set Chemistry ReactZyme time, epoch 26",
+    "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_reaction_features_v1/checkpoints/time/F3_set_chemistry/protein-pooling-epoch=26.ckpt",
+    "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_reaction_features_v1/configs/F3_set_chemistry/time/test.yaml"
+  },
+  "candidate_pool_rows": 144,
+  "top_k": 25,
+  "ranked_candidate_rows_total": 29,
+  "ranked_candidate_rows_resolved": 28,
+  "ranked_candidate_unique_sequences_resolved": 27,
+  "ranked_candidate_unique_sequences_eligible_in_homolog_pool": 25,
+  "top_k_rows_matching_ranked_candidates": 4,
+  "top_k_rows_with_direct_evidence_match": 3,
+  "top_k_rows_with_exact_sequence_match": 4,
+  "top_k_unique_sequences": 22,
+  "eligible_ranked_unique_sequences_recovered": 3,
+  "eligible_ranked_unique_sequence_recall": 0.12,
+  "comparison_semantics": {
+    "evidence_id": "Homolog entry_id occurs in Ranked Candidates evidence_row",
+    "exact_sequence": "Homolog and resolved Ranked Candidate SHA-256 values match",
+    "note": "Ranked Candidates are a comparison set, not binary ground truth."
+  },
+  "inputs": {
+    "query_results": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/restricted_setting/runs/time/tagatose_4_epimerase_6357be7a71b4/results.json",
+    "entry_table": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/sequence_pool/final_entry_sequences.csv"
+  }
+}

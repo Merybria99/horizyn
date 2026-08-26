@@ -1,0 +1,13 @@
+{
+  "protein_id": "B8I944",
+  "rank": 4,
+  "sequence_length": 293,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 88.52572631835938,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.9254239797592163,
+  "elapsed_seconds": 2.4498293311335146,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/04_B8I944.pdb"
+}

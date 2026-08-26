@@ -1,0 +1,80 @@
+# Horizyn ESM2 residue-level SLEEC stage-1 pooling configuration
+
+seed: 42
+
+logging:
+  log_dir: logs
+  checkpoint_dir: checkpoints
+  save_every_n_epochs: 10
+  log_every_n_steps: 1
+  wandb:
+    enabled: true
+    project: horizyn-training
+    entity: null
+    run_name: esm2-sleec-stage1-threshold034-mlnce
+    mode: online
+    tags: [sleec, esm2-650m, stage1-frozen, mlnce]
+    log_model: false
+
+data:
+  train_pairs_path: data/sota/train_pairs.csv
+  test_pairs_path: data/sota/test_pairs.csv
+  train_reactions_path: data/sota/train_rxns.csv
+  test_reactions_path: data/sota/test_rxns.csv
+  protein_residue_embeds_path: data/sota/prots_esm2_650m_residue.h5
+
+  train_batch_size: 64
+  retrieval_batch_size: 1
+  num_workers: 4
+  pin_memory: false
+
+  rdkit_fp_dim: 1024
+  drfp_dim: 1024
+  residue_dim: 1280
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  standardize_reactions: true
+  standardize_hypervalent: true
+  standardize_remove_hs: true
+  standardize_kekulize: false
+  standardize_uncharge: true
+  standardize_metals: true
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec
+  query_encoder_dims: [2048, 4096, 4096, 512]
+  target_encoder_dims: [1280, 4096, 4096, 512]
+  embedding_dim: 512
+  sleec_pooling:
+    mode: threshold
+    threshold: 0.34
+    topk_fraction: 0.2
+    scorer_hidden_dim: 256
+    score_embedding_source: same
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_esm2_650m_paper_from0_50k_threshold_sweep_4gpu/best.ckpt
+    freeze_scorer: true
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  check_val_every_n_epoch: 1
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  log_attention_stats: true
+  attention_logging_interval: 1

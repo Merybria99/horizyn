@@ -1,0 +1,19 @@
+ranking:
+  results: wet_lab/runs/refseq/prokaryotes/tagatose_4_epimerase_f3_epoch28_merged/results.json
+  candidate_fasta: wet_lab/runs/refseq/prokaryotes/tagatose_4_epimerase_f3_epoch28_merged/top_100.fasta
+  top_k: 10
+
+backend:
+  name: esmfold
+  model: facebook/esmfold_v1
+  device: cuda:0
+  cache_dir: wet_lab/cache/esmfold
+  esm_half_precision: true
+  low_cpu_mem_usage: true
+  chunk_size: 64
+  max_sequence_length: 1024
+  long_sequence_policy: error
+  model_seeds: [1]
+
+output:
+  directory: wet_lab/structures/refseq_tagatose_4_epimerase_individual_models/f3_top10

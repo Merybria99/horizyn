@@ -1,0 +1,13 @@
+{
+  "protein_id": "A8RG82",
+  "rank": 2,
+  "sequence_length": 301,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 87.64142608642578,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.9359431266784668,
+  "elapsed_seconds": 2.609697292558849,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/02_A8RG82.pdb"
+}

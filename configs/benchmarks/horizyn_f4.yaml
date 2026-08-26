@@ -1,0 +1,22 @@
+version: 1
+description: Exact published Horizyn test for an in-domain F4 checkpoint.
+
+tasks:
+  - name: horizyn_f4_test
+    type: retrieval
+    dataset: Horizyn
+    task_label: F4_in_domain
+    split: horizyn_original_test
+    pairs: data/sota/test_pairs.csv
+    train_pairs: data/sota/train_pairs.csv
+    reactions: data/sota/test_rxns.csv
+    candidate_ids: runs/horizyn_f4_in_domain_v1/protocol/test_candidate_ids.txt
+    candidate_residue_h5:
+      prott5: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+    candidate_score_residue_h5:
+      prott5: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+    reaction_model_embeds_h5: runs/horizyn_f4_in_domain_v1/features/test/reactiont5v2.h5
+    reaction_unimol2_embeds_h5: runs/horizyn_f4_in_domain_v1/features/test/unimol2.h5
+    reaction_chiro_embeds_h5: runs/horizyn_f4_in_domain_v1/features/test/chiro.h5
+    directions: [reaction_to_enzyme]
+    top_k: [1, 10, 100, 1000]

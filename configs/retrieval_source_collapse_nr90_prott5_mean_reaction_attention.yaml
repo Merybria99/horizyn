@@ -1,0 +1,96 @@
+# Train Horizyn retrieval on the collapsed-source nr90 split with the default
+# frozen ProtT5 enzyme features produced by residue mean pooling, plus a
+# trainable reaction fingerprint attention pre-pooler.
+
+seed: 42
+
+logging:
+  log_dir: logs/retrieval_source_collapse_nr90_prott5_mean_reaction_attention
+  checkpoint_dir: checkpoints/retrieval_source_collapse_nr90_prott5_mean_reaction_attention
+  save_every_n_epochs: 10
+  log_every_n_steps: 1
+  wandb:
+    enabled: true
+    project: horizyn-retrieval-source-collapse
+    entity: null
+    run_name: horizyn-source-collapse-nr90-prott5-mean-reaction-attention
+    mode: online
+    tags:
+      - horizyn
+      - source-collapse
+      - nr90
+      - prott5
+      - mean-pooling
+      - reaction-fingerprint-attention
+      - no-sleec
+      - no-hyperbolic
+      - mlnce
+    log_model: false
+
+data:
+  train_pairs_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_pairs_valid_rxn_nonempty_prott5.csv
+  train_reactions_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_rxns_valid_rxn.csv
+
+  # Used for validation loss during training.
+  test_pairs_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/pairs_horizyn_nonempty_prott5.csv
+  test_reactions_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/reactions.csv
+
+  # Frozen ProtT5 residue embeddings; model.pooling=mean makes this equivalent
+  # to the default fixed mean-pooled enzyme representation before the target MLP.
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+
+  train_batch_size: 512
+  retrieval_batch_size: 1
+  num_workers: 4
+  pin_memory: false
+
+  rdkit_fp_dim: 1024
+  drfp_dim: 1024
+  reaction_representation: fingerprint
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  standardize_reactions: true
+  standardize_hypervalent: true
+  standardize_remove_hs: true
+  standardize_kekulize: false
+  standardize_uncharge: true
+  standardize_metals: true
+  normalize_molecule_sets_as_self_reactions: true
+
+model:
+  name: ProteinPooledDualModel
+  pooling: mean
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [1024, 4096, 4096, 512]
+  embedding_dim: 512
+  reaction_fingerprint_attention:
+    enabled: true
+    token_dim: 512
+    hidden_dim: 512
+    dropout: 0.0
+    attention_bias: true
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  check_val_every_n_epoch: 1
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  log_attention_stats: true
+  attention_logging_interval: 10

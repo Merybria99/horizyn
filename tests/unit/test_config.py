@@ -200,6 +200,498 @@ class TestValidateConfig:
         # Should not raise any errors
         validate_config(config)
 
+    def test_validate_accepts_validation_paths_without_test_aliases(self):
+        """Training configs may expose validation paths without test aliases."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "validation_pairs_path": "data/validation_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "validation_reactions_path": "data/validation_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {"max_epochs": 100},
+            }
+        )
+
+        validate_config(config)
+
+    def test_validate_accepts_biological_factorized_enzyme_mode(self):
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "validation_pairs_path": "data/validation_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "validation_reactions_path": "data/validation_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [512, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_biological_factorized",
+                    "biofp": {"family_dims": {"mechanism": 8, "cofactor": 10}},
+                },
+                "training": {"max_epochs": 30},
+            }
+        )
+
+        validate_config(config)
+
+    def test_validate_fgw_loss_config(self):
+        """Test validation accepts the FGW loss options."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {
+                        "name": "HorizynFGWLoss",
+                        "beta": 10.0,
+                        "lambda_r": 0.05,
+                        "lambda_e": 0.05,
+                        "lambda_g": 0.01,
+                        "tau_r": 0.1,
+                        "tau_e": 0.1,
+                        "tau_t": 0.1,
+                        "delta_r": 0.5,
+                        "delta_e": 0.5,
+                        "symmetric_gw": True,
+                    },
+                },
+            }
+        )
+        validate_config(config)
+
+    def test_validate_anchor_balanced_supcon_loss_config(self):
+        """Test validation accepts anchor-balanced supervised contrastive options."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {
+                        "name": "BidirectionalAnchorBalancedSupConLoss",
+                        "beta": 10.0,
+                        "direction_balance_weight": 0.0,
+                    },
+                },
+            }
+        )
+        validate_config(config)
+
+    def test_validate_hybrid_enzyme_input_config(self):
+        """Test validation accepts raw ProT5 plus hyperbolic tangent enzyme input."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [1536, 4096, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_sleec_hyperbolic_concat",
+                    "hyperbolic_encoder": {
+                        "checkpoint_path": "checkpoints/hyperbolic.ckpt",
+                        "hyp_dim": 512,
+                        "use_tangent": True,
+                    },
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "validation_interval_steps": 1000,
+                },
+                "logging": {
+                    "save_every_n_train_steps": 1000,
+                },
+            }
+        )
+        validate_config(config)
+
+    def test_validate_hybrid_enzyme_input_rejects_wrong_target_dim(self):
+        """Hybrid enzyme input must match raw residue plus tangent dimensions."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 4096, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_sleec_hyperbolic_concat",
+                    "hyperbolic_encoder": {
+                        "checkpoint_path": "checkpoints/hyperbolic.ckpt",
+                        "hyp_dim": 512,
+                        "use_tangent": True,
+                    },
+                },
+                "training": {"max_epochs": 100},
+            }
+        )
+        with pytest.raises(ValueError, match="raw_sleec_hyperbolic_concat"):
+            validate_config(config)
+
+    def test_validate_capability_gated_enzyme_input_config(self):
+        """Capability-gated enzyme input requires static capability vectors."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "protein_capability_vectors_path": "outputs/capability.npz",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 4096, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_hyperbolic_capability_gated",
+                    "capability_vector": {
+                        "dim": 256,
+                        "freeze": True,
+                        "adapter": False,
+                        "dropout": 0.1,
+                    },
+                    "hyperbolic_encoder": {
+                        "checkpoint_path": "checkpoints/hyperbolic.ckpt",
+                        "hyp_dim": 512,
+                        "use_tangent": True,
+                    },
+                },
+                "training": {"max_epochs": 100},
+            }
+        )
+        validate_config(config)
+
+    def test_validate_text_gated_enzyme_input_config(self):
+        """Text-gated enzyme input requires static text vectors."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "protein_text_vectors_path": "outputs/pubmedbert_text.npz",
+                    "text_vector_missing_policy": "zero_with_mask",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 4096, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_hyperbolic_text_gated",
+                    "text_vector": {
+                        "dim": 768,
+                        "fusion_dim": 512,
+                        "num_heads": 8,
+                        "dropout": 0.1,
+                        "freeze": True,
+                        "adapter": False,
+                    },
+                    "hyperbolic_encoder": {
+                        "checkpoint_path": "checkpoints/hyperbolic.ckpt",
+                        "hyp_dim": 512,
+                        "use_tangent": True,
+                    },
+                },
+                "training": {"max_epochs": 100},
+            }
+        )
+        validate_config(config)
+
+    def test_validate_text_gated_requires_divisible_attention_heads(self):
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "protein_text_vectors_path": "outputs/pubmedbert_text.npz",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 4096, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_hyperbolic_text_gated",
+                    "text_vector": {
+                        "dim": 768,
+                        "fusion_dim": 510,
+                        "num_heads": 8,
+                    },
+                    "hyperbolic_encoder": {
+                        "checkpoint_path": "checkpoints/hyperbolic.ckpt",
+                        "hyp_dim": 512,
+                        "use_tangent": True,
+                    },
+                },
+                "training": {"max_epochs": 100},
+            }
+        )
+        with pytest.raises(ValueError, match="fusion_dim"):
+            validate_config(config)
+
+    def test_validate_biofp_split_enzyme_input_config(self):
+        """BioFP split enzyme input accepts enzyme-only soft target supervision."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "protein_biofp_targets_path": "outputs/enzyme_biofp_targets.npz",
+                    "biofp_missing_policy": "zero_with_mask",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_biofp_split",
+                    "biofp": {
+                        "center_dim": 8,
+                        "cofactor_dim": 10,
+                        "transition_dim": 16,
+                        "seq_dim": 384,
+                        "dim": 128,
+                        "hidden_dim": 512,
+                        "seq_weight": 0.75,
+                        "dropout": 0.1,
+                        "missing_policy": "zero_with_mask",
+                    },
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {
+                        "name": "FullBatchMLNCELoss",
+                        "biofp_aux_weight": 0.03,
+                        "biofp_confidence_cap": 8.0,
+                    },
+                },
+            }
+        )
+        validate_config(config)
+
+    def test_validate_biofp_split_requires_targets_when_auxiliary_loss_enabled(self):
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_biofp_split",
+                    "biofp": {
+                        "center_dim": 8,
+                        "cofactor_dim": 10,
+                        "transition_dim": 16,
+                        "seq_dim": 384,
+                        "dim": 128,
+                    },
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {
+                        "name": "FullBatchMLNCELoss",
+                        "biofp_aux_weight": 0.03,
+                    },
+                },
+            }
+        )
+        with pytest.raises(ValueError, match="protein_biofp_targets_path"):
+            validate_config(config)
+
+    def test_validate_biofp_vocab_dimension_mismatch(self, tmp_path):
+        vocab_path = tmp_path / "biofp_vocab.json"
+        vocab_path.write_text(
+            '{"families": {"center": ["redox_like"], "cofactor": [], "transition": []}}'
+        )
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "protein_biofp_vocab_path": str(vocab_path),
+                    "residue_dim": 1024,
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [512, 4096, 512],
+                    "target_encoder_dims": [512, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_biofp_split",
+                    "biofp": {
+                        "center_dim": 2,
+                        "cofactor_dim": 0,
+                        "transition_dim": 0,
+                        "seq_dim": 384,
+                        "dim": 128,
+                    },
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {"name": "FullBatchMLNCELoss"},
+                },
+            }
+        )
+        with pytest.raises(ValueError, match="center_dim"):
+            validate_config(config)
+
+    def test_validate_unsupported_loss_rejected(self):
+        """Test validation rejects unsupported loss names."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {"name": "NotALoss"},
+                },
+            }
+        )
+        with pytest.raises(ValueError, match="training.loss.name"):
+            validate_config(config)
+
+    @pytest.mark.parametrize(
+        "loss_name",
+        [
+            "DegreeTemperedFullBatchMLNCELoss",
+            "DecoupledAllPositiveInfoNCELoss",
+            "HybridCardinalityRetrievalLoss",
+            "BalancedSigmoidEBMLoss",
+            "degree_tempered_mlnce",
+            "decoupled_all_positive_infonce",
+            "hybrid_cardinality_retrieval",
+            "balanced_sigmoid_ebm",
+        ],
+    )
+    def test_validate_accepts_f3_loss_ablation_names(self, loss_name):
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {"name": loss_name},
+                },
+            }
+        )
+
+        validate_config(config)
+
+    def test_validate_bad_fgw_temperature_rejected(self):
+        """Test validation rejects invalid FGW temperatures."""
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "test_pairs_path": "data/test_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "test_reactions_path": "data/test_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "loss": {"name": "HorizynFGWLoss", "tau_t": 0.0},
+                },
+            }
+        )
+        with pytest.raises(ValueError, match="training.loss.tau_t"):
+            validate_config(config)
+
     def test_validate_missing_section(self):
         """Test validation fails with missing top-level section."""
         config = DotDict(
@@ -367,6 +859,36 @@ class TestLoadConfig:
         # Check other values unchanged
         assert config.seed == 42
         assert config.model.embedding_dim == 512
+
+    def test_load_hybrid_unimol2_mean_pooling_config(self):
+        """Test loading the hybrid Uni-Mol2 mean-pooling config."""
+        config = load_config("configs/hybrid_reaction_meanpool_unimol2_prott5_attention_sota.yaml")
+
+        assert config.model.pooling == "attention"
+        assert config.model.reaction_pooling == "mean"
+        assert config.model.query_encoder_type == "hybrid_reaction"
+        assert config.data.reaction_representation == "hybrid_fingerprint_unimol2"
+        assert config.data.train_batch_size == 16
+        assert config.training.devices == 4
+
+    def test_load_hybrid_fgw_config(self):
+        """Test loading the hybrid FGW loss config."""
+        config = load_config("configs/hybrid_reaction_fgw_meanpool_unimol2_prott5_attention_sota.yaml")
+
+        assert config.training.loss.name == "HorizynFGWLoss"
+        assert config.training.loss.lambda_r == 0.05
+        assert config.training.loss.lambda_e == 0.05
+        assert config.training.loss.lambda_g == 0.01
+        assert config.model.reaction_pooling == "mean"
+
+    def test_load_hybrid_multi_alignment_config(self):
+        """Test loading the hybrid multi-alignment retrieval config."""
+        config = load_config("configs/retrieval_hybrid_multi_alignment_4gpu.yaml")
+
+        assert config.training.loss.name == "MultiAlignmentRetrievalLoss"
+        assert config.training.loss.positive_pair_source == "all_known_in_batch"
+        assert config.training.loss.ec_positive_policy == "hierarchical_weighted"
+        assert config.data.enzyme_ec_labels_path.endswith("nr90_valid_prefix_ec_labels.csv")
 
     def test_load_config_without_validation(self):
         """Test loading config without validation."""

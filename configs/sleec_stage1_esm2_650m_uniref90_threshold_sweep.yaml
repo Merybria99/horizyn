@@ -1,0 +1,66 @@
+# SLEEC paper stage-1 functional-residue classifier using ESM2-650M
+# residue embeddings and UniRef90 MSA pseudo-labels.
+#
+# This mirrors the 50k threshold-sweep setup used for the comparable ESM2,
+# ProtT5, and ESMC stage-1 runs, but points pseudo labels to the UniRef90 MSA
+# post-processing output.
+
+seed: 42
+
+data:
+  residue_embeds_path: data/sleec_stage1/mcsa_cath_esm2_650m_residue.h5
+  mcsa_labels_path: data/sleec_stage1/mcsa_residue_labels.csv
+  pseudo_labels_path: data/sleec_stage1/msa_pseudo_residue_labels_uniref90.balanced.csv
+  balance_pseudo_negatives: false
+  pseudo_negative_ratio: 1.0
+  strict_paper_mcsa_counts: false
+  num_workers: 4
+  pin_memory: true
+
+model:
+  name: SLEECStage1Classifier
+  variant: paper
+  input_dim: auto
+  hidden_dim: 256
+  dropout: 0.0
+  layer_norm: false
+
+training:
+  device: auto
+  data_parallel: true
+  device_ids: "0,1,2,3"
+  max_steps: 50000
+  supervised_batch_size: 8192
+  pseudo_batch_size: 8192
+  eval_batch_size: 8192
+  learning_rate: 0.00001
+  weight_decay: 0.01
+  lambda_pseudo: 1.0
+  confidence_threshold: 0.9
+  supervised_pos_weight: null
+  metric_for_best: threshold_best_f1
+  early_stopping_patience_evals: null
+  eval_every_steps: 500
+  save_every_steps: 1000
+  threshold_sweep: "0.25,0.28,0.30,0.32,0.329,0.34,0.36,0.371,0.38,0.40,0.42,0.45,0.48,0.50,0.55"
+  threshold_sweep_balance_max_gap: 0.1
+  threshold_sweep_min_precision: 0.5
+
+logging:
+  output_dir: checkpoints/SLEEC/sleec_stage1_esm2_650m_uniref90_msa_50k_threshold_sweep_4gpu
+  log_every_steps: 50
+  wandb:
+    enabled: true
+    mode: online
+    project: sleec-stage1-uniref90
+    entity: null
+    run_name: esm2_650m_uniref90_from0_to50k_threshold_sweep_4gpu
+    tags:
+      - sleec
+      - stage1
+      - paper
+      - esm2-650m
+      - unpooled
+      - uniref90
+      - threshold-sweep
+    log_model: false

@@ -13,11 +13,55 @@ __author__ = "Dayhoff Labs"
 __license__ = "PolyForm-Noncommercial-1.0.0"
 
 from horizyn.config import DotDict, load_config, parse_overrides
-from horizyn.data_module import HorizynDataModule
-from horizyn.lightning_module import HorizynLitModule
-from horizyn.losses import FullBatchMLNCELoss, FullBatchNCELoss
-from horizyn.metrics import create_retrieval_metrics
-from horizyn.model import DualContrastiveModel, MLP
+
+
+_LAZY_EXPORTS = {
+    "HorizynDataModule": ("horizyn.data_module", "HorizynDataModule"),
+    "HorizynLitModule": ("horizyn.lightning_module", "HorizynLitModule"),
+    "DualContrastiveModel": ("horizyn.model", "DualContrastiveModel"),
+    "FunctionalResidueScorer": ("horizyn.model", "FunctionalResidueScorer"),
+    "HybridReactionEncoder": ("horizyn.model", "HybridReactionEncoder"),
+    "MLP": ("horizyn.model", "MLP"),
+    "MoleculeSetMeanPooling": ("horizyn.model", "MoleculeSetMeanPooling"),
+    "MultimodalReactionAttentionEncoder": (
+        "horizyn.model",
+        "MultimodalReactionAttentionEncoder",
+    ),
+    "ProteinAttentionPooling": ("horizyn.model", "ProteinAttentionPooling"),
+    "ProteinMeanPooling": ("horizyn.model", "ProteinMeanPooling"),
+    "ProteinPooledDualModel": ("horizyn.model", "ProteinPooledDualModel"),
+    "ReactionFingerprintAttentionPool": (
+        "horizyn.model",
+        "ReactionFingerprintAttentionPool",
+    ),
+    "SLEECFunctionalPool": ("horizyn.model", "SLEECFunctionalPool"),
+    "ProteinPooledLitModule": (
+        "horizyn.protein_pooling_lightning_module",
+        "ProteinPooledLitModule",
+    ),
+    "SLEECStage1Classifier": ("horizyn.sleec_stage1", "SLEECStage1Classifier"),
+    "FullBatchNCELoss": ("horizyn.losses", "FullBatchNCELoss"),
+    "FullBatchMLNCELoss": ("horizyn.losses", "FullBatchMLNCELoss"),
+    "BidirectionalAnchorBalancedSupConLoss": (
+        "horizyn.losses",
+        "BidirectionalAnchorBalancedSupConLoss",
+    ),
+    "HorizynFGWLoss": ("horizyn.losses", "HorizynFGWLoss"),
+    "MultiAlignmentRetrievalLoss": ("horizyn.losses", "MultiAlignmentRetrievalLoss"),
+    "build_horizyn_loss": ("horizyn.losses", "build_horizyn_loss"),
+    "create_retrieval_metrics": ("horizyn.metrics", "create_retrieval_metrics"),
+}
+
+
+def __getattr__(name: str):
+    if name not in _LAZY_EXPORTS:
+        raise AttributeError(f"module 'horizyn' has no attribute {name!r}")
+    module_name, attr_name = _LAZY_EXPORTS[name]
+    from importlib import import_module
+
+    value = getattr(import_module(module_name), attr_name)
+    globals()[name] = value
+    return value
 
 # Package exports
 __all__ = [
@@ -30,8 +74,23 @@ __all__ = [
     "HorizynDataModule",
     "HorizynLitModule",
     "DualContrastiveModel",
+    "FunctionalResidueScorer",
+    "HybridReactionEncoder",
     "MLP",
+    "MoleculeSetMeanPooling",
+    "MultimodalReactionAttentionEncoder",
+    "ProteinAttentionPooling",
+    "ProteinMeanPooling",
+    "ProteinPooledDualModel",
+    "ReactionFingerprintAttentionPool",
+    "SLEECFunctionalPool",
+    "ProteinPooledLitModule",
+    "SLEECStage1Classifier",
     "FullBatchNCELoss",
     "FullBatchMLNCELoss",
+    "BidirectionalAnchorBalancedSupConLoss",
+    "HorizynFGWLoss",
+    "MultiAlignmentRetrievalLoss",
+    "build_horizyn_loss",
     "create_retrieval_metrics",
 ]

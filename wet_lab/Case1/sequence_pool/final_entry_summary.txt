@@ -1,0 +1,17 @@
+Final entry sequence resolution summary
+
+Ranked Candidates: 28/29 resolved; 1 unresolved
+Homologs: 144/145 resolved; 1 unresolved
+Engineered Variants: 510/524 resolved; 14 unresolved
+Indirect F6P: 5/5 resolved; 0 unresolved
+
+All sheets: 687/703 resolved; 16 unresolved
+Unique resolved amino-acid sequences: 627
+
+Statuses:
+  resolved_cross_reference: 34
+  resolved_exact_patent: 458
+  resolved_inferred_reference: 3
+  resolved_reconstructed: 141
+  resolved_reference: 51
+  unresolved_incomplete_definition: 16

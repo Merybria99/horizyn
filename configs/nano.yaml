@@ -10,6 +10,14 @@ logging:
   checkpoint_dir: checkpoints
   save_every_n_epochs: 10
   log_every_n_steps: 1
+  wandb:
+    enabled: false
+    project: horizyn-training
+    entity: null
+    run_name: null
+    mode: offline              # online | offline | disabled
+    tags: []
+    log_model: false
 
 # Data configuration
 data:
@@ -83,4 +91,3 @@ training:
 
   # Progress bar
   enable_progress_bar: true
-

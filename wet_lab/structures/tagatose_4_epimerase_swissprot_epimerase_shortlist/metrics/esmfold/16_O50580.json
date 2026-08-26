@@ -1,0 +1,13 @@
+{
+  "protein_id": "O50580",
+  "rank": 16,
+  "sequence_length": 290,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 89.44650268554688,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.9273648858070374,
+  "elapsed_seconds": 2.344203056767583,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/16_O50580.pdb"
+}

@@ -1,0 +1,243 @@
+schema_version: reactzyme_e2r_geometry_v1
+
+promotion:
+  macro_balanced_drop: 0.005
+  per_split_balanced_drop: 0.010
+  reaction_smi_e2r_tie: 0.002
+
+stages:
+  recipe:
+    baseline: R0
+    variants:
+      - id: R0
+        label: R0
+        description: B0 loss and shuffled pair-row sampling control.
+        complexity: 0
+        overlay:
+          loss:
+            name: FullBatchMLNCELoss
+            positive_pair_source: observed_pairs
+          sampler: {name: shuffle}
+      - id: R1
+        label: R1
+        description: R0 with every known in-batch association treated as positive.
+        complexity: 1
+        overlay:
+          loss:
+            name: FullBatchMLNCELoss
+            positive_pair_source: all_known_in_batch
+          sampler: {name: shuffle}
+      - id: R2
+        label: R2
+        description: Observed-pair MLNCE with reaction-degree-balanced batches.
+        complexity: 1
+        overlay:
+          loss:
+            name: FullBatchMLNCELoss
+            positive_pair_source: observed_pairs
+          sampler: {name: reaction_degree_balanced, degree_exponent: 0.5}
+      - id: R3
+        label: R3
+        description: Anchor-balanced bidirectional SupCon with all known positives.
+        complexity: 2
+        overlay:
+          loss:
+            name: BidirectionalAnchorBalancedSupConLoss
+            positive_pair_source: all_known_in_batch
+            lambda_r2e: 0.5
+            lambda_e2r: 0.5
+          sampler: {name: shuffle}
+      - id: R4
+        label: R4
+        description: R3 with reaction-degree-balanced batches.
+        complexity: 3
+        overlay:
+          loss:
+            name: BidirectionalAnchorBalancedSupConLoss
+            positive_pair_source: all_known_in_batch
+            lambda_r2e: 0.5
+            lambda_e2r: 0.5
+          sampler: {name: reaction_degree_balanced, degree_exponent: 0.5}
+      - id: R5
+        label: R5
+        description: R4 with additional enzyme-to-reaction loss weight.
+        complexity: 3
+        overlay:
+          loss:
+            name: BidirectionalAnchorBalancedSupConLoss
+            positive_pair_source: all_known_in_batch
+            lambda_r2e: 0.4
+            lambda_e2r: 0.6
+          sampler: {name: reaction_degree_balanced, degree_exponent: 0.5}
+      - id: R6
+        label: R6
+        description: R4 with a learned bounded contrastive scale.
+        complexity: 4
+        overlay:
+          loss:
+            name: BidirectionalAnchorBalancedSupConLoss
+            positive_pair_source: all_known_in_batch
+            lambda_r2e: 0.5
+            lambda_e2r: 0.5
+            learn_beta: true
+          sampler: {name: reaction_degree_balanced, degree_exponent: 0.5}
+
+  reaction:
+    baseline: A0
+    variants:
+      - id: A0
+        label: A0
+        description: Promoted recipe with the original B0 reaction encoder.
+        complexity: 0
+        overlay: {}
+      - id: A1
+        label: A1
+        description: Compact per-modality adapters.
+        complexity: 1
+        overlay:
+          reaction: {modality_encoder_widths: [1024], output_projection: mlp}
+      - id: A2
+        label: A2
+        description: Compact adapters and a gated residual reaction projection.
+        complexity: 2
+        overlay:
+          reaction:
+            modality_encoder_widths: [1024]
+            output_projection: residual_mlp
+            residual_gate_init: 0.1
+      - id: A3
+        label: A3
+        description: A2 with modality dropout.
+        complexity: 3
+        overlay:
+          reaction:
+            modality_encoder_widths: [1024]
+            output_projection: residual_mlp
+            residual_gate_init: 0.1
+            modality_dropout: 0.15
+      - id: A4
+        label: A4
+        description: A2 with a minimum modality-attention entropy penalty.
+        complexity: 3
+        overlay:
+          reaction:
+            modality_encoder_widths: [1024]
+            output_projection: residual_mlp
+            residual_gate_init: 0.1
+          reaction_attention_regularization:
+            weight: 0.01
+            min_normalized_entropy: 0.75
+      - id: A5
+        label: A5
+        description: A2 with molecule-set rather than directional-delta composition.
+        complexity: 3
+        overlay:
+          reaction:
+            modality_encoder_widths: [1024]
+            output_projection: residual_mlp
+            residual_gate_init: 0.1
+            side_composition: molecule_set
+      - id: A6
+        label: A6
+        description: Molecule-set composition with dropout and entropy control.
+        complexity: 5
+        overlay:
+          reaction:
+            modality_encoder_widths: [1024]
+            output_projection: residual_mlp
+            residual_gate_init: 0.1
+            side_composition: molecule_set
+            modality_dropout: 0.15
+          reaction_attention_regularization:
+            weight: 0.01
+            min_normalized_entropy: 0.75
+      - id: A7
+        label: A7
+        description: A2 with uniform mean fusion across available modalities.
+        complexity: 2
+        overlay:
+          reaction:
+            modality_encoder_widths: [1024]
+            output_projection: residual_mlp
+            residual_gate_init: 0.1
+            modality_fusion: mean
+
+  enzyme:
+    baseline: E0
+    variants:
+      - id: E0
+        label: E0
+        description: Promoted recipe and reaction encoder with B0 enzyme blocks.
+        complexity: 0
+        overlay: {}
+      - id: E1
+        label: E1
+        description: Reduced sequence-core and SLEEC-site enzyme geometry.
+        complexity: 1
+        overlay:
+          enzyme:
+            dims: {core: 384, site: 128}
+            weights: {core: 0.75, site: 0.25}
+            family_dims: {}
+      - id: E2
+        label: E2
+        description: E1 with a compact sequence-predicted cofactor branch.
+        complexity: 2
+        overlay:
+          enzyme:
+            dims: {core: 352, site: 112, cofactor: 48}
+            weights: {core: 0.67, site: 0.23, cofactor: 0.10}
+            family_dims: {cofactor: 10}
+      - id: E3
+        label: E3
+        description: E2 with train-only cofactor pretraining and a light joint auxiliary loss.
+        complexity: 4
+        overlay:
+          enzyme:
+            dims: {core: 352, site: 112, cofactor: 48}
+            weights: {core: 0.67, site: 0.23, cofactor: 0.10}
+            family_dims: {cofactor: 10}
+          biological_pretrain_families: [cofactor]
+          supervised_families: [cofactor]
+          biofp_aux_weight: 0.03
+      - id: E4
+        label: E4
+        description: B0 blocks with learned mixture weights regularized to the B0 prior.
+        complexity: 3
+        overlay:
+          enzyme:
+            dims: {core: 288, site: 96, mechanism: 64, cofactor: 32, ec: 32}
+            weights: {core: 0.55, site: 0.20, mechanism: 0.12, cofactor: 0.08, ec: 0.05}
+            family_dims: {mechanism: 8, cofactor: 10}
+            learned_weights: true
+            weight_kl_weight: 0.01
+      - id: E5
+        label: E5
+        description: E2 with a small train-only EC-supervised hyperbolic block.
+        complexity: 5
+        overlay:
+          enzyme:
+            dims: {core: 320, site: 112, cofactor: 48, ec: 32}
+            weights: {core: 0.62, site: 0.23, cofactor: 0.10, ec: 0.05}
+            family_dims: {cofactor: 10}
+          ec_pretrain: true
+
+  hard_negative:
+    baseline: H0
+    variants:
+      - id: H0
+        label: H0
+        description: Five-epoch continuation control from the promoted enzyme checkpoint.
+        complexity: 0
+        overlay: {continuation_epochs: 5}
+      - id: H1
+        label: H1
+        description: Five-epoch continuation with model-ranked hard-negative batches.
+        complexity: 2
+        overlay:
+          continuation_epochs: 5
+          model_hard_negatives: true
+          hard_negative_top_k: 64
+          hard_negative_anchors_per_batch: 32
+          hard_negative_positives_per_query: 2
+          hard_negative_negatives_per_query: 6

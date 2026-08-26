@@ -1,0 +1,39 @@
+version: 1
+description: SABIO-RK complete-SMILES retrieval benchmark filtered by sequence novelty.
+
+# Generate the split files with:
+#   python scripts/prepare_sabio_rk_benchmark_splits.py
+#
+# Before running model evaluation, extract candidate protein embeddings from
+# data/paper/sabio_rk/eval/novelty*/sequences.tsv into the HDF5 paths below.
+
+tasks:
+  - name: sabio_rk_novelty50
+    type: retrieval
+    split: sabio_rk_max_similarity_lt50
+    pairs: data/paper/sabio_rk/eval/novelty50/pairs.csv
+    reactions: data/paper/sabio_rk/eval/novelty50/reactions.csv
+    candidate_ids: data/paper/sabio_rk/eval/novelty50/candidate_ids.txt
+    candidate_embedding_h5: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_t5.h5
+    candidate_residue_h5:
+      prott5: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_t5_residue.h5
+      esm2: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_esm2_650m_residue.h5
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50, 100]
+
+  - name: sabio_rk_novelty90
+    type: retrieval
+    split: sabio_rk_max_similarity_lt90
+    pairs: data/paper/sabio_rk/eval/novelty90/pairs.csv
+    reactions: data/paper/sabio_rk/eval/novelty90/reactions.csv
+    candidate_ids: data/paper/sabio_rk/eval/novelty90/candidate_ids.txt
+    candidate_embedding_h5: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_t5.h5
+    candidate_residue_h5:
+      prott5: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_t5_residue.h5
+      esm2: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_esm2_650m_residue.h5
+    candidate_score_residue_h5:
+      esm2: data/paper/sabio_rk/eval/embeddings/sabio_rk_prots_esm2_650m_residue.h5
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50, 100]

@@ -1,0 +1,16 @@
+{
+  "schema_version": "horizyn_wet_lab_query_v1",
+  "reaction_id": "tagatose_4_epimerase",
+  "reaction_smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]",
+  "warnings": [],
+  "features": {
+    "reaction_t5": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_5881f6306730/features/reactiont5v2.h5",
+    "unimol2": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_5881f6306730/features/unimol2.h5",
+    "chiro": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_5881f6306730/features/chiro.h5",
+    "chemistry": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_5881f6306730/features/reaction_set_features.npz"
+  },
+  "chemistry": {
+    "status": "reused",
+    "output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/swissprot/tagatose_4_epimerase_5881f6306730/features/reaction_set_features.npz"
+  }
+}

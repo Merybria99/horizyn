@@ -1,0 +1,28 @@
+{
+  "schema_version": "case1_structure_tree_v1",
+  "model": "F3_set_chemistry",
+  "target_reaction": "D-fructose_to_D-tagatose",
+  "splits": [
+    "time",
+    "enzyme_smi",
+    "reaction_smi"
+  ],
+  "selection": "top 25 per split",
+  "overlap_rule": "overlapping when a Homolog has an evidence-ID or exact-sequence match in the resolved Ranked Candidates sheet",
+  "counts": {
+    "time": {
+      "overlapping": 4,
+      "non-overlapping": 21
+    },
+    "enzyme_smi": {
+      "overlapping": 12,
+      "non-overlapping": 13
+    },
+    "reaction_smi": {
+      "overlapping": 12,
+      "non-overlapping": 13
+    }
+  },
+  "total_structure_rows": 75,
+  "tree_root": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/Case1/restricted_setting/structures/F3_set_chemistry/D-fructose_to_D-tagatose"
+}

@@ -1,0 +1,227 @@
+seed: 42
+logging:
+  log_dir: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_f3_cluster_proxy_v1/logs
+  checkpoint_dir: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_f3_cluster_proxy_v1/checkpoints
+  checkpoint_monitor: val/enzyme_to_reaction/reactzyme_mrr
+  checkpoint_mode: max
+  save_every_n_train_steps: null
+  log_every_n_steps: 10
+  wandb:
+    enabled: true
+    project: horizyn-reactzyme-reaction-cluster-proxy-v1
+    entity: omnai
+    run_name: f3-reaction-smi-cluster-0p85-seed42
+    mode: online
+    tags:
+    - F3
+    - F3_set_chemistry
+    - biofp-minimal-v1
+    - blockwise-enzyme
+    - chiro
+    - e2r-all-positive-monitor
+    - forward-only-reactions
+    - horizyn
+    - modality-mlp-attention
+    - no-capability
+    - no-ec-hyperbolic
+    - no-enzyme-text
+    - no-factorized-capability
+    - no-hard-negative
+    - no-reaction-chemistry-token
+    - no-structure
+    - reaction-cluster-held-out
+    - reaction-feature-ablation
+    - reaction-smi-split
+    - reactiont5v2
+    - reactzyme-paper-protocol
+    - reactzyme-reaction_features-ablation
+    - released-test-final-only
+    - retain-all-epochs
+    - similarity-0p85
+    - sleec
+    - train-derived-validation
+    - unimol2
+    log_model: false
+  checkpoint_on_validation_end: true
+  save_top_k: -1
+data:
+  train_pairs_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/train_pairs.csv
+  train_reactions_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/train_rxns.csv
+  protein_residue_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_official/features/reaction_smi/train/reactiont5v2.h5
+  validation_reaction_t5v2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_official/features/reaction_smi/train/reactiont5v2.h5
+  train_reaction_unimol2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_official/features/reaction_smi/train/unimol2.h5
+  validation_reaction_unimol2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_official/features/reaction_smi/train/unimol2.h5
+  train_reaction_chiro_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_official/features/reaction_smi/train/chiro.h5
+  validation_reaction_chiro_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_official/features/reaction_smi/train/chiro.h5
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chirality_dim: 256
+  reaction_chienn_dim: 256
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chirality: false
+  reaction_allow_missing_chienn: false
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: true
+  train_batch_size: 512
+  retrieval_batch_size: 512
+  validation_retrieval_batch_size: 512
+  num_workers: 1
+  pin_memory: false
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/validation_candidate_ids.txt
+  validation_pairs_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/validation_pairs.csv
+  validation_reactions_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/validation_rxns.csv
+  reaction_direction_mode: forward_only
+  reaction_use_model: true
+  reaction_use_chemistry: true
+  train_reaction_chemistry_vectors_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/features/reaction_set/train_reaction_set_features.npz
+  validation_reaction_chemistry_vectors_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/features/reaction_set/validation_reaction_set_features.npz
+  reaction_chemistry_dim: 617
+  reaction_allow_missing_chemistry: true
+  reaction_use_directional: false
+  enzyme_ec_labels_path: null
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_chirality_name: chiro
+  query_encoder_dims:
+  - 512
+  - 4096
+  - 4096
+  - 512
+  target_encoder_dims:
+  - 512
+  - 512
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.0
+    token_layer_norm: true
+    modality_encoder_widths:
+    - 4096
+    - 4096
+    modality_encoder_use_layer_norm: false
+    modality_encoder_dropout: 0.0
+    modality_encoder_normalise_output: false
+    side_composition: molecule_set
+    fusion: attention
+    output_projection: mlp
+    directional_gate_init: 0.1
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: true
+  enzyme_input_mode: raw_mean_sleec_biological_factorized
+  enzyme_block_fusion:
+    dims:
+      core: 288
+      site: 96
+      mechanism: 64
+      cofactor: 32
+      ec: 32
+    weights:
+      core: 0.55
+      site: 0.2
+      mechanism: 0.12
+      cofactor: 0.08
+      ec: 0.05
+    dropout: 0.1
+  biofp:
+    family_dims:
+      mechanism: 8
+      cofactor: 10
+    hidden_dim: 512
+    dropout: 0.1
+  hyperbolic_encoder:
+    hyp_dim: 128
+    use_tangent: true
+    freeze_projector: false
+    load_attention_pooler: false
+    freeze_attention_pooler: false
+training:
+  max_epochs: 30
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    positive_pair_source: observed_pairs
+    biofp_aux_weight: 0.0
+    biofp_family_weights: {}
+    biofp_confidence_cap: 1.0
+  metrics:
+    top_k:
+    - 1
+    - 10
+    - 100
+    - 1000
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/revised_protocols/reactzyme_reaction_cluster_validation_v1/similarity_0p85/validation_candidate_ids.txt
+  validation_retrieval_batch_size: 512
+  validation_interval_steps: null
+  enable_progress_bar: false
+  devices: 4
+  accelerator: gpu
+  strategy: ddp_find_unused_parameters_true
+  log_attention_stats: true
+  attention_logging_interval: 10
+  accumulate_grad_batches: 1
+  validation_retrieval_directions:
+  - reaction_to_enzyme
+  - enzyme_to_reaction
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 0
+  use_distributed_sampler: true
+  early_stopping:
+    enabled: false
+    monitor: val/mean_bidirectional_mrr
+    mode: max
+    patience: 5
+    min_delta: 0.0001
+ablation:
+  run_id: reaction_smi_F3_cluster_proxy_0p85
+  split: reaction_smi
+  variant: F3_set_chemistry
+  label: F3
+  description: F1 plus train-fitted molecule-set descriptors, fingerprints, and cofactors.
+  test_config: false
+  execution_model: independent-4gpu-ddp-concurrent-wave
+  no_enzyme_text: true
+  matrix: reaction_features
+  data_protocol: reactzyme-reaction-cluster-validation-v1-similarity-0p85
+  evaluation_subset: reaction_cluster_validation
+  evaluation_protocol: configured_forward_candidates
+  checkpoint_selection:
+    primary: enzyme_to_reaction/reactzyme_mrr
+    constraint: reaction_to_enzyme/reactzyme_mrr >= f3_baseline - 0.015
+    secondary: harmonic_all_positive_mrr
+    application: offline because every validation epoch is retained

@@ -1,0 +1,126 @@
+# Old ProT5 SLEEC Lorentz representation stack with the current
+# all-known anchor-balanced retrieval objective.
+
+seed: 42
+
+logging:
+  log_dir: logs/retrieval_prott5_sleec_lorentz_allknown_anchor_4gpu
+  checkpoint_dir: checkpoints/retrieval_prott5_sleec_lorentz_allknown_anchor_4gpu
+  checkpoint_monitor: val/balanced_mrr
+  checkpoint_mode: max
+  save_every_n_train_steps: 1000
+  log_every_n_steps: 1
+  wandb:
+    enabled: true
+    project: horizyn-retrieval-source-collapse
+    entity: omnai
+    run_name: prott5_sleec_lorentz_allknown_anchor_4gpu
+    mode: online
+    tags:
+      - horizyn
+      - source-collapse
+      - nr90
+      - prott5
+      - sleec-guided-attention
+      - lorentz-tangent-only
+      - frozen-lorentz-hyperbolic-c0p25
+      - fingerprint-reaction
+      - all-known-positives
+      - multi-alignment
+      - anchor-balanced
+      - balanced-checkpoint
+      - step-validation
+      - 4gpu
+    log_model: false
+
+data:
+  train_pairs_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_pairs_valid_rxn_nonempty_prott5.csv
+  train_reactions_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_rxns_valid_rxn.csv
+  test_pairs_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/pairs_horizyn_nonempty_prott5.csv
+  test_reactions_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/reactions.csv
+  enzyme_ec_labels_path: data/standardized/retrieval_training_source_collapse/hyperbolic_ec_labels/nr90_valid_prefix_ec_labels.csv
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+
+  reaction_representation: fingerprint
+  rdkit_fp_dim: 1024
+  drfp_dim: 1024
+  reaction_model_dim: 1024
+
+  normalize_molecule_sets_as_self_reactions: true
+  standardize_reactions: true
+  standardize_hypervalent: true
+  standardize_remove_hs: true
+  standardize_kekulize: false
+  standardize_uncharge: true
+  standardize_metals: true
+
+  train_batch_size: 512
+  retrieval_batch_size: 128
+  num_workers: 4
+  pin_memory: false
+
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: mlp
+  query_encoder_dims: [2048, 4096, 4096, 512]
+  target_encoder_dims: [512, 4096, 4096, 512]
+  embedding_dim: 512
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: false
+  hyperbolic_encoder:
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/hyperbolic_enzyme/hyperbolic-enzyme-prott5-lorentz-c0p25-b512-4gpu-20260601_150714/best.ckpt
+    hyp_dim: 512
+    use_tangent: true
+    freeze_projector: true
+    load_attention_pooler: true
+    freeze_attention_pooler: true
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: MultiAlignmentRetrievalLoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    positive_pair_source: all_known_in_batch
+    lambda_direction_gap: 0.05
+    lambda_rr: 0.0
+    lambda_ee: 0.0
+    lambda_gw: 0.0
+    tau_rr: 0.1
+    tau_ee: 0.1
+    tau_gw: 0.1
+    ec_positive_policy: hierarchical_weighted
+    ec_min_shared_depth: 2
+    gw_max_anchors: 512
+    symmetric_gw: true
+    apply_structure_terms_on_val: false
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: validation
+  validation_retrieval_batch_size: 128
+  validation_interval_steps: 1000
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  log_attention_stats: true
+  attention_logging_interval: 10

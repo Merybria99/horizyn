@@ -1,0 +1,21 @@
+{
+  "protein_id": "P24183",
+  "rank": 8,
+  "sequence_length": 1015,
+  "selenocysteine_positions": [
+    196
+  ],
+  "esmfold_substitutions": [
+    {
+      "position": 196,
+      "original": "U",
+      "model_input": "X"
+    }
+  ],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 69.24266052246094,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.8307657241821289,
+  "elapsed_seconds": 42.0233139549382,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/08_P24183.pdb"
+}

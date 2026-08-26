@@ -1,0 +1,93 @@
+# Train Horizyn retrieval on the collapsed-source nr90 split with a multimodal
+# reaction representation:
+#   ReactionT5v2/RXN-style reaction vector + Uni-Mol2 molecule sets + ChiENN
+#   chirality molecule sets -> modality attention -> Horizyn query MLP.
+
+seed: 42
+
+logging:
+  log_dir: logs/retrieval_source_collapse_nr90_prott5_multimodal_reaction_attention
+  checkpoint_dir: checkpoints/retrieval_source_collapse_nr90_prott5_multimodal_reaction_attention
+  save_every_n_epochs: 10
+  log_every_n_steps: 1
+  wandb:
+    enabled: true
+    project: horizyn-retrieval-source-collapse
+    entity: null
+    run_name: horizyn-source-collapse-nr90-prott5-multimodal-reaction-attention
+    mode: online
+    tags:
+      - horizyn
+      - source-collapse
+      - nr90
+      - prott5
+      - multimodal-reaction
+      - reactiont5v2
+      - unimol2
+      - chienn
+      - mlnce
+    log_model: false
+
+data:
+  train_pairs_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_pairs_valid_rxn_nonempty_prott5.csv
+  train_reactions_path: data/standardized/retrieval_training_source_collapse/train_nr90/train_rxns_valid_rxn.csv
+  test_pairs_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/pairs_horizyn_nonempty_prott5.csv
+  test_reactions_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/reactions.csv
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+
+  reaction_representation: multimodal_reaction_attention
+  reaction_t5v2_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/reactions_reactiont5v2.h5
+  reaction_unimol2_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/reactions_unimol2.h5
+  reaction_chienn_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/reactions_chienn.h5
+  reaction_model_dim: 1024
+  reaction_unimol_dim: 768
+  reaction_chienn_dim: 256
+  reaction_embedding_in_memory: true
+
+  train_batch_size: 512
+  retrieval_batch_size: 1
+  num_workers: 4
+  pin_memory: false
+
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+model:
+  name: ProteinPooledDualModel
+  pooling: mean
+  query_encoder_type: multimodal_reaction_attention
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [1024, 4096, 4096, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  check_val_every_n_epoch: 1
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  log_attention_stats: true
+  attention_logging_interval: 10

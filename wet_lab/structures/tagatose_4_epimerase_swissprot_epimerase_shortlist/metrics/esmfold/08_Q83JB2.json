@@ -1,0 +1,13 @@
+{
+  "protein_id": "Q83JB2",
+  "rank": 8,
+  "sequence_length": 276,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 86.46165466308594,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.9018949270248413,
+  "elapsed_seconds": 2.2041982039809227,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/08_Q83JB2.pdb"
+}

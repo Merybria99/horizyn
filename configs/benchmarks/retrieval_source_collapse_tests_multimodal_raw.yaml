@@ -1,0 +1,73 @@
+version: 1
+description: >
+  Held-out retrieval tests for the multimodal reaction-attention encoder.
+  This suite mirrors retrieval_source_collapse_tests.yaml but supplies raw-ID
+  DRFP, UniMol2, and ChiENN reaction feature caches for test reactions.
+
+multimodal_reaction_features: &multimodal_reaction_features
+  reaction_model_embeds_h5: data/standardized/retrieval_training_source_collapse/test/reaction_features/rxns_drfp_1024_test_suite_raw.h5
+  reaction_unimol2_embeds_h5: data/standardized/retrieval_training_source_collapse/test/reaction_features/rxns_unimol2_84m_test_suite_raw.h5
+  reaction_chienn_embeds_h5: data/standardized/retrieval_training_source_collapse/test/reaction_features/rxns_chienn_256_test_suite_raw.h5
+
+shared_candidates: &shared_candidates
+  candidate_residue_h5:
+    prott5: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+    esm2: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_esm2_650m_residue.h5
+    esmc: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_esmc_6b_residue.h5
+  candidate_score_residue_h5:
+    prott5: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+    esm2: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_esm2_650m_residue.h5
+    esmc: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_esmc_6b_residue.h5
+
+tasks:
+  - <<: [*multimodal_reaction_features, *shared_candidates]
+    name: horizyn_sota
+    type: retrieval
+    dataset: Horizyn
+    task_label: sota
+    split: horizyn_original_test
+    pairs: data/standardized/retrieval_training_source_collapse/test/horizyn/test_pairs.csv
+    train_pairs: data/sota/train_pairs.csv
+    reactions: data/standardized/retrieval_training_source_collapse/test/horizyn/test_rxns.csv
+    candidate_ids: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/horizyn_sota_candidate_ids.txt
+    directions: [reaction_to_enzyme]
+    top_k: [1, 10, 100, 1000]
+
+  - <<: [*multimodal_reaction_features, *shared_candidates]
+    name: reactzyme_time
+    type: retrieval
+    dataset: ReactZyme
+    task_label: time
+    split: time_original_test
+    pairs: data/standardized/retrieval_training_source_collapse/test/reactzyme_time/test_pairs.csv
+    train_pairs: data/paper/reactzyme/eval/time/train_pairs.csv
+    reactions: data/standardized/retrieval_training_source_collapse/test/reactzyme_time/reactions.csv
+    candidate_ids: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/reactzyme_time_candidate_ids.txt
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50]
+
+  - <<: [*multimodal_reaction_features, *shared_candidates]
+    name: reactzyme_enzyme_smi
+    type: retrieval
+    dataset: ReactZyme
+    task_label: enzyme_smi
+    split: enzyme_smi_original_test
+    pairs: data/standardized/retrieval_training_source_collapse/test/reactzyme_enzyme_smi/test_pairs.csv
+    train_pairs: data/paper/reactzyme/eval/enzyme_smi/train_pairs.csv
+    reactions: data/standardized/retrieval_training_source_collapse/test/reactzyme_enzyme_smi/reactions.csv
+    candidate_ids: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/reactzyme_enzyme_smi_candidate_ids.txt
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50]
+
+  - <<: [*multimodal_reaction_features, *shared_candidates]
+    name: reactzyme_reaction_smi
+    type: retrieval
+    dataset: ReactZyme
+    task_label: reaction_smi
+    split: reaction_smi_original_test
+    pairs: data/standardized/retrieval_training_source_collapse/test/reactzyme_reaction_smi/test_pairs.csv
+    train_pairs: data/paper/reactzyme/eval/reaction_smi/train_pairs.csv
+    reactions: data/standardized/retrieval_training_source_collapse/test/reactzyme_reaction_smi/reactions.csv
+    candidate_ids: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/reactzyme_reaction_smi_candidate_ids.txt
+    directions: [reaction_to_enzyme, enzyme_to_reaction]
+    top_k: [1, 2, 3, 4, 5, 10, 20, 50]

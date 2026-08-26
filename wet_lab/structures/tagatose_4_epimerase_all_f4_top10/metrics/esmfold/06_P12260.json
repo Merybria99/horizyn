@@ -1,0 +1,13 @@
+{
+  "protein_id": "P12260",
+  "rank": 6,
+  "sequence_length": 198,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 81.64769744873047,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.807614803314209,
+  "elapsed_seconds": 1.2342298198491335,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/06_P12260.pdb"
+}

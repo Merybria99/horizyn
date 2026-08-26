@@ -1,0 +1,252 @@
+{
+  "schema_version": "horizyn_wet_lab_folding_v1",
+  "configuration": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/configs/fold_all_f4_top10_esmfold.yaml",
+  "ranking_results": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/reports/tagatose_4_epimerase_all_f4/results.json",
+  "candidate_fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/data/sota/prots.fasta",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]"
+  },
+  "top_k": 10,
+  "backend": "esmfold",
+  "input_artifacts": {
+    "fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/top_10.fasta",
+    "alphafold3_input_dir": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3",
+    "alphafold3_jobs": [
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/01_Q9WYP7.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/02_Q727P3.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/03_Q934F5.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/04_P46448.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/05_P32176.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/06_P12260.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/07_Q9RLB8.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/08_P24183.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/09_Q5WKZ0.json",
+      "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/inputs/alphafold3/10_D3RNN8.json"
+    ]
+  },
+  "candidates": [
+    {
+      "rank": 1,
+      "protein_id": "Q9WYP7",
+      "score": 0.03177805800756621,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 270,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 2,
+      "protein_id": "Q727P3",
+      "score": 0.028612012987012988,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 1012,
+      "selenocysteine_positions": [
+        189
+      ]
+    },
+    {
+      "rank": 3,
+      "protein_id": "Q934F5",
+      "score": 0.028373015873015873,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 1012,
+      "selenocysteine_positions": [
+        193
+      ]
+    },
+    {
+      "rank": 4,
+      "protein_id": "P46448",
+      "score": 0.028258706467661692,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 1028,
+      "selenocysteine_positions": [
+        204
+      ]
+    },
+    {
+      "rank": 5,
+      "protein_id": "P32176",
+      "score": 0.026171741361614778,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 1016,
+      "selenocysteine_positions": [
+        196
+      ]
+    },
+    {
+      "rank": 6,
+      "protein_id": "P12260",
+      "score": 0.025411148470916536,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 198,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 7,
+      "protein_id": "Q9RLB8",
+      "score": 0.0250384024577573,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 768,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 8,
+      "protein_id": "P24183",
+      "score": 0.024393871783430016,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 1015,
+      "selenocysteine_positions": [
+        196
+      ]
+    },
+    {
+      "rank": 9,
+      "protein_id": "Q5WKZ0",
+      "score": 0.02220873786407767,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 271,
+      "selenocysteine_positions": []
+    },
+    {
+      "rank": 10,
+      "protein_id": "D3RNN8",
+      "score": 0.021670070342636714,
+      "score_type": "reciprocal_rank_fusion",
+      "sequence_length": 967,
+      "selenocysteine_positions": []
+    }
+  ],
+  "statuses": [
+    {
+      "rank": 1,
+      "protein_id": "Q9WYP7",
+      "sequence_length": 270,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.03177805800756621,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/01_Q9WYP7.pdb",
+      "mean_plddt": 88.42061614990234,
+      "ptm": 0.9291364550590515,
+      "elapsed_seconds": 2.9249806688167155,
+      "message": ""
+    },
+    {
+      "rank": 2,
+      "protein_id": "Q727P3",
+      "sequence_length": 1012,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.028612012987012988,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/02_Q727P3.pdb",
+      "mean_plddt": 80.28836059570312,
+      "ptm": 0.9045147895812988,
+      "elapsed_seconds": 41.40453602792695,
+      "message": "ESMFold represented selenocysteine as unknown residue X"
+    },
+    {
+      "rank": 3,
+      "protein_id": "Q934F5",
+      "sequence_length": 1012,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.028373015873015873,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/03_Q934F5.pdb",
+      "mean_plddt": 73.00748443603516,
+      "ptm": 0.8461934328079224,
+      "elapsed_seconds": 41.38029965572059,
+      "message": "ESMFold represented selenocysteine as unknown residue X"
+    },
+    {
+      "rank": 4,
+      "protein_id": "P46448",
+      "sequence_length": 1028,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.028258706467661692,
+      "status": "skipped_too_long",
+      "structure_path": "",
+      "mean_plddt": "",
+      "ptm": "",
+      "elapsed_seconds": "",
+      "message": "Full sequence has 1028 residues, exceeding the configured ESMFold limit of 1024; sequence was not truncated"
+    },
+    {
+      "rank": 5,
+      "protein_id": "P32176",
+      "sequence_length": 1016,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.026171741361614778,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/05_P32176.pdb",
+      "mean_plddt": 69.99870300292969,
+      "ptm": 0.8141813278198242,
+      "elapsed_seconds": 41.46346110990271,
+      "message": "ESMFold represented selenocysteine as unknown residue X"
+    },
+    {
+      "rank": 6,
+      "protein_id": "P12260",
+      "sequence_length": 198,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.025411148470916536,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/06_P12260.pdb",
+      "mean_plddt": 81.64769744873047,
+      "ptm": 0.807614803314209,
+      "elapsed_seconds": 1.2342298198491335,
+      "message": ""
+    },
+    {
+      "rank": 7,
+      "protein_id": "Q9RLB8",
+      "sequence_length": 768,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.0250384024577573,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/07_Q9RLB8.pdb",
+      "mean_plddt": 80.5418930053711,
+      "ptm": 0.592157244682312,
+      "elapsed_seconds": 21.123912069946527,
+      "message": ""
+    },
+    {
+      "rank": 8,
+      "protein_id": "P24183",
+      "sequence_length": 1015,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.024393871783430016,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/08_P24183.pdb",
+      "mean_plddt": 69.24266052246094,
+      "ptm": 0.8307657241821289,
+      "elapsed_seconds": 42.0233139549382,
+      "message": "ESMFold represented selenocysteine as unknown residue X"
+    },
+    {
+      "rank": 9,
+      "protein_id": "Q5WKZ0",
+      "sequence_length": 271,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.02220873786407767,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/09_Q5WKZ0.pdb",
+      "mean_plddt": 93.46533203125,
+      "ptm": 0.961368978023529,
+      "elapsed_seconds": 2.165642520878464,
+      "message": ""
+    },
+    {
+      "rank": 10,
+      "protein_id": "D3RNN8",
+      "sequence_length": 967,
+      "score_type": "reciprocal_rank_fusion",
+      "score": 0.021670070342636714,
+      "status": "completed",
+      "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/10_D3RNN8.pdb",
+      "mean_plddt": 71.00753021240234,
+      "ptm": 0.857085645198822,
+      "elapsed_seconds": 37.865576532669365,
+      "message": ""
+    }
+  ]
+}

@@ -1,0 +1,153 @@
+seed: 42
+
+logging:
+  log_dir: logs/enzyme_only_capability_tuning_warmstart_exact_r2e_e2r
+  checkpoint_dir: checkpoints/enzyme_only_capability_tuning_warmstart_exact_r2e_e2r
+  checkpoint_monitor: val/reaction_to_enzyme/mrr
+  checkpoint_mode: max
+  save_every_n_train_steps: 1000
+  log_every_n_steps: 1
+  wandb:
+    enabled: true
+    project: horizyn-retrieval-source-collapse
+    entity: omnai
+    run_name: enzyme_only_capability_tuning_warmstart_exact_r2e_e2r_epoch94
+    mode: online
+    tags:
+      - horizyn
+      - source-collapse
+      - train-exact-directional
+      - capability-branch
+      - enzyme-only-tuning
+      - warmstart
+      - exact-gated-sleec-lorentz-epoch94
+      - r2e-positive-set
+      - e2r-small-weight
+      - anchor-loss
+      - 4gpu
+    log_model: false
+
+data:
+  train_pairs_path: data/processed/capability_features/train_exact/train_pairs_directional.csv
+  train_reactions_path: data/standardized/retrieval_training_source_collapse/train_exact/train_rxns_valid_rxn_pseudo.csv
+  test_pairs_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/pairs_horizyn_nonempty_prott5.csv
+  test_reactions_path: data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/reactions.csv
+  enzyme_ec_labels_path: null
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/train_exact/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+  protein_capability_vectors_path: outputs/enzyme_capability_pretrain/train_exact_directional/enzyme_capability_vectors.npz
+  protein_capability_metadata_path: outputs/enzyme_capability_pretrain/train_exact_directional/enzyme_capability_metadata.parquet
+  capability_vector_in_memory: true
+  capability_missing_policy: zero_with_mask
+
+  reaction_representation: multimodal_reaction_attention
+  reaction_t5v2_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/rxns_reactiont5v2_forward_768_nr90_pseudo_plus_clipzyme_eval.h5
+  reaction_unimol2_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/rxns_unimol2_84m_nr90_plus_clipzyme_eval_readable_highpair_top1000_merged.h5
+  reaction_chiro_embeds_path: data/standardized/retrieval_training_source_collapse/train_nr90/rxns_chiro_256_nr90_plus_clipzyme_eval_highpair_top1000_merged.h5
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_use_chiro: true
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: true
+
+  train_batch_size: 512
+  retrieval_batch_size: 128
+  num_workers: 4
+  pin_memory: false
+
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  enzyme_input_mode: raw_mean_sleec_hyperbolic_capability_gated
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_chirality_name: chiro
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [512, 4096, 4096, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.15
+    token_layer_norm: true
+  enzyme_fusion:
+    hidden_dim: 512
+    dropout: 0.0
+  capability_vector:
+    dim: 256
+    freeze: true
+    adapter: false
+    dropout: 0.1
+    missing_policy: zero_with_mask
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: false
+  hyperbolic_encoder:
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/hyperbolic_enzyme/hyperbolic-enzyme-prott5-lorentz-c0p25-b512-4gpu-20260601_150714/best.ckpt
+    hyp_dim: 512
+    use_tangent: true
+    freeze_projector: true
+    load_attention_pooler: true
+    freeze_attention_pooler: true
+
+training:
+  training_stage: enzyme_only_tuning
+  init_from_checkpoint: checkpoints/retrieval_prott5_exact_mean_sleec_lorentz_gated_multimodal_r2e_allknown_hardneg_b512_4gpu/protein-pooling-epoch=94.ckpt
+  capability_gate_init_bias: -2.0
+  max_epochs: 30
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.00003
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: MultiAlignmentRetrievalLoss
+    beta: 10.0
+    learn_beta: false
+    positive_pair_source: all_known_in_batch
+    detach_reaction_embeddings: true
+    lambda_r2e: 0.85
+    lambda_e2r: 0.15
+    lambda_r2e_hard_neg: 0.0
+    r2e_hard_neg_top_k: 0
+    r2e_hard_neg_margin: 0.0
+    lambda_rr: 0.0
+    lambda_ee: 0.0
+    lambda_gw: 0.0
+    tau_rr: 0.1
+    tau_ee: 0.1
+    tau_gw: 0.1
+    ec_positive_policy: hierarchical_weighted
+    ec_min_shared_depth: 2
+    gw_max_anchors: 512
+    symmetric_gw: true
+    apply_structure_terms_on_val: false
+    anchor_weight: 0.05
+    capability_consistency_weight: 0.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: validation
+  validation_retrieval_batch_size: 128
+  validation_interval_steps: 1000
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp
+  log_attention_stats: true
+  attention_logging_interval: 10

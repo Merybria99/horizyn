@@ -1,0 +1,1592 @@
+********************************************************************************
+RefSeq-release236.txt       https://ftp.ncbi.nlm.nih.gov/refseq/release/release-notes/
+
+		NCBI Reference Sequence (RefSeq) Database
+
+			Release 236
+			July 6, 2026
+
+		Distribution Release Notes
+
+Release Size:
+   182465 organisms
+   6436359149812 nucleotide bases
+   188956181073 amino acids
+   629953391 records
+******************************************************************************
+
+This document describes the format and content of the flat files that 
+comprise releases of the NCBI Reference Sequence (RefSeq) database.
+
+Additional information about RefSeq is available at:
+
+1. NCBI Bookshelf:
+   a) NCBI Handbook:  
+   https://www.ncbi.nlm.nih.gov/books/NBK21091/
+   b) RefSeq Help (FAQ)
+   https://www.ncbi.nlm.nih.gov/books/NBK50680/
+ 
+2. RefSeq Web Sites: 
+   RefSeq Home:  https://www.ncbi.nlm.nih.gov/refseq/
+   RefSeqGene Home: https://www.ncbi.nlm.nih.gov/refseq/rsg/
+
+If you have any questions or comments about RefSeq, the RefSeq release files
+or this document, please contact NCBI by email at:
+   info@ncbi.nlm.nih.gov. 
+
+To receive announcements of future RefSeq releases and large updates please
+subscribe to NCBI's refseq-announce mail list:
+
+   send email to refseq-announce-subscribe@ncbi.nlm.nih.gov
+   with "subscribe" in the subject line (without quotes)
+   and nothing in the email body
+
+OR
+
+subscribe using the web interface at:
+   https://www.ncbi.nlm.nih.gov/mailman/listinfo/refseq-announce
+
+=============================================================================
+TABLE OF CONTENTS
+=============================================================================
+1. INTRODUCTION	 
+	1.1 This release
+	1.2 Cutoff date
+	1.3 RefSeq Project Background
+		1.3.1 Sequence accessions, validation, and annotations
+		1.3.2 Data assembly, curation, and collaboration 
+		1.3.3 Biologically non-redundant data set
+		1.3.4 RefSeq and DDBJ/EMBL/GenBank comparison
+	1.4 Uses and applications of the RefSeq database
+2. CONTENT
+	2.1 Organisms included
+	2.2 Molecule Types included
+	2.3 Known Problems, Redundancies, and Inconsistencies
+	2.4 Release Catalog
+	2.5 Changes since the previous release 
+3. ORGANIZATION OF DATA FILES
+	3.1 FTP Site Organization
+	3.2 Release Contents
+	3.3 File Names and Formats
+        3.4 File Sizes
+        3.5 Statistics
+	3.6 Release Catalog
+	3.7 Removed Records
+      	3.8 Accession Format
+        3.9 Growth of RefSeq        
+4. FLAT FILE ANNOTATION
+	4.1 Main features of RefSeq Flat File
+		4.1.1 LOCUS, DEFLINE, ACCESSION, KEYWORDS, SOURCE, ORGANISM
+		4.1.2 REFERENCE, DIRECT SUBMISSION, COMMENT, PRIMARY
+		4.1.3 NUCLEOTIDE FEATURE ANNOTATION (Gene, mRNA, CDS)
+		4.1.4 PROTEIN FEATURE ANNOTATION
+	4.2 Tracking Identifiers
+		4.2.1 GeneID
+		4.2.2 Transcript ID
+		4.2.3 Protein ID
+		4.2.4 Conserved Domain Database (CDD) ID
+5. REFSEQ ADMINISTRATION
+	5.1 Citing RefSeq
+	5.2 RefSeq Distribution Formats
+	5.3 Other Methods of Accessing RefSeq Data
+	5.4 Request for Corrections and Comments
+	5.5 Credits and Acknowledgements
+	5.6 Disclaimer
+
+=============================================================================
+1. INTRODUCTION
+=============================================================================
+The NCBI Reference Sequence Project (RefSeq) is an effort to provide the 
+best single collection of naturally occurring biomolecules, representative
+of the central dogma, for each major organism. Ideally this would include 
+one sequence record for each chromosome, organelle, or plasmid linked on a 
+residue by residue basis to the expressed transcripts, to the translated 
+proteins, and to each mature peptide product. Depending on the organism, we 
+may have some, but not all, of this information at any given time. We 
+pragmatically include the best view we can from available data.
+
+Additional information about the RefSeq project is available from:
+   a) RefSeq Web site  
+      https://www.ncbi.nlm.nih.gov/refseq/
+   b) Entrez Books, NCBI Handbook, RefSeq chapter
+      https://www.ncbi.nlm.nih.gov/books/NBK21091/  
+
+1.1 This Release 
+----------------
+The National Center for Biotechnology Information (NCBI) at the National
+Library of Medicine (NLM), National Institutes of Health (NIH) is 
+responsible for producing and distributing the RefSeq Sequence Database. 
+Records are provided through a combination of collaboration and in-house 
+processing including some curation by NCBI staff comprised of expert 
+biologists.  
+
+This is a full release of all NCBI RefSeq records.
+The RefSeq project is an ongoing effort to provide a curated, non-redundant
+collection of sequences. This release includes all of the sequence data
+that we have collected at this time. Although the RefSeq collection is not yet 
+complete, its value as a non-redundant dataset has reached a level that
+justifies providing full releases.  
+
+1.2 Cutoff date
+---------------
+This full release, Release 236, incorporates data available as of
+July 6, 2026.
+
+For more recent data, users are advised to:
+	
+   1. Download the RefSeq daily update files from the RefSeq FTP site
+      https://ftp.ncbi.nlm.nih.gov/refseq/daily/
+
+   2. Use NCBI's Entrez Programming Utilities to download records
+      based on queries or lists of accessions
+      https://www.ncbi.nlm.nih.gov/books/NBK25500/
+
+   3. Use the interactive web query system to query based on date.
+      https://www.ncbi.nlm.nih.gov/nucleotide/
+      https://www.ncbi.nlm.nih.gov/protein/
+
+1.3 RefSeq Project Background
+-----------------------------
+
+1.3.1 Sequence accessions, validation, and annotation
+-----------------------------------------------------
+Every sequence is assigned a stable accession and version, and 
+all older versions remain available over time. RefSeq accessions
+have a distinct format (see section 3.6); the underscore ("_") is the 
+primary distinguishing feature of a RefSeq accession. 
+DDBJ/EMBL/GenBank accessions never include an underscore.
+
+Sequences are validated in several ways. For example, to confirm 
+that genomic sequence from the region of the mRNA feature really 
+does match the mRNA sequence itself, and that the annotated coding region 
+features really can be translated into the protein sequences they refer to.
+Validation also checks for valid ASN.1 format. Validation also ensures that
+consistency is maintained in descriptive information (symbols, gene and 
+protein names) between RefSeq and Gene records.
+
+Each molecule is annotated as accurately as possible with the 
+correct organism name, the correct gene symbol for that organism, 
+and reasonable names for proteins where possible. When available, 
+nomenclature provided by official nomenclature groups is used.  
+Note that gene symbols are not required or expected to be unique 
+either across species or within a species. 
+
+1.3.2 Data assembly, curation, and collaboration 
+------------------------------------------------
+We welcome collaborations with authoritative groups outside NCBI 
+who are willing to provide the sequences, annotations, or links 
+to phenotypic or organism specific resources. Where such collaborations 
+have not yet developed, NCBI staff have assembled the best view of 
+the organism that we can put together ourselves. In some cases, as with the 
+human genome, NCBI is an active participant in generating the 
+genome assembly and in providing reference sequences to represent 
+the annotated genome. For other genomes, we may compile the data 
+ourselves from DDBJ/EMBL/GenBank or other public sources. For instance,  
+we may simply select the "best" DDBJ/EMBL/GenBank record by automatic means, 
+validate the data format (and correct if needed), and add an essentially 
+unchanged copy to the RefSeq collection, attributed to the original 
+DDBJ/EMBL/GenBank record. In other cases we may provide a record that is very 
+similar to the DDBJ/EMBL/GenBank record, but to which experts at NCBI have added 
+corrected or additional annotation. This latter process can range 
+from minor technical repairs to a manually curated re-annotation of 
+the sequence, often in collaboration with experts outside NCBI. 
+
+Each record that has been curated, or that is in the pool for
+future curation, is labeled with the level of curation it has received.  
+Curation status information is provided primarily for transcript and 
+protein records.  Curation is carried out on the whole genome level 
+for some smaller genomes such as viral, organelle, and some microbial
+genomes.  
+
+Curation status codes are defined in the section 3.2 below.
+
+1.3.3 Biologically non-redundant data set
+-----------------------------------------
+RefSeq provides a biologically non-redundant set of sequences for database 
+searching and gene characterization. It has the advantage of providing an 
+objective and experimentally verifiable definition of "non-redundant" in 
+supplying one example of each natural biomolecule per organism or sample.
+The small amount of sequence redundancy introduced from close paralogs,
+alternate splicing products, and genome assembly intermediates is compensated
+for by the clarity of the model. RefSeq provides the substrate for a variety
+of conclusions about non-redundancy based on clustering identical sequences, 
+or families of related sequences, without confounding the database itself 
+with these more subjective assessments.
+
+1.3.4 RefSeq and DDBJ/EMBL/GenBank comparison
+---------------------------------------------
+RefSeq is unique in providing a large curated database across many 
+organisms, which precisely and explicitly links genetic (chromosome), 
+expression (mRNA), and functional (protein) sequence data into an 
+integrated whole. 
+
+DDBJ/EMBL/GenBank also integrates DNA and protein information, and RefSeq is 
+substantially based on sequence records contributed to DDBJ/EMBL/GenBank. 
+However, RefSeq is similar to a review article in that it represents 
+a synthesis and summary of information by a particular group (NCBI or 
+other RefSeq contributors) that is based on the primary data gathered 
+by many others and made part of the scientific record. Also, like a 
+review article, it has the advantage of organizing a large body of 
+diverse data into a single consistent framework with a uniform set of 
+conventions and standards.
+
+Note that while based on DDBJ/EMBL/GenBank, RefSeq is distinct from 
+DDBJ/EMBL/GenBank. DDBJ/EMBL/GenBank represents the sequence and annotations 
+supplied by the original authors and is never changed by NCBI or RefSeq staff. 
+DDBJ/EMBL/GenBank remains the primary sequence archive while RefSeq is a 
+summary and synthesis based on that essential primary data.
+
+1.4 Uses and applications of the RefSeq database
+------------------------------------------------
+A stable, consistent, comprehensive, non-redundant database of genomes
+and their products provides a valuable sequence resource for similarity 
+searching, gene identification, protein classification, comparative 
+genomics, and selection of probes for gene expression. It also acts as 
+molecular "white pages" by providing a single, uniform point of access 
+for searching at the sequence level, and by connecting the results with 
+a diversity of organism-specific databases or resources unique to that 
+organism or field. 
+
+=============================================================================
+2. CONTENT
+=============================================================================
+2.1 Organisms included
+----------------------
+This number of organisms reported for the release (section 3.5 below) is 
+determined by counting the number of distinct tax_ids included in the release.
+Tax_ids are provided by the NCBI Taxonomy group. Tax_ids were historically 
+provided for all species and strains having any amount of sequence data. In 2014
+NCBI stopped assigning strain-level tax_ids. Strains are now being tracked by
+the BioSample database.  
+
+The release includes species ranging from viral to microbial to eukaryotic and 
+includes organisms for which complete and incomplete genomic sequence data is 
+available.  
+
+The release does not include all species for which some sequence data is
+available in DDBJ/EMBL/GenBank. The decision to generate RefSeq data for a 
+species or strain depends in part on the amount of sequence data available.  
+Additional species will be represented in the RefSeq collection as more
+sequence data becomes available.
+
+2.2 Molecule Types Included
+---------------------------
+The RefSeq release includes genomic, transcript, and protein sequence data; 
+however, these molecule types are not provided for all organisms and the 
+sequences provided may not be complete or comprehensive for some species.  
+
+Transcript RefSeq records may represent protein-coding transcripts or 
+non-coding RNA products; these records are currently only provided for 
+eukaryotic species.
+
+Genomic RefSeq records are provided when a sufficient quantity of genomic 
+sequence data is available in DDBJ/EMBL/GenBank. Transcript and protein 
+records may be provided for a species before genomic sequence data is available.
+
+2.3 Known Problems, Redundancies, and Inconsistencies
+------------------------------------------------------
+
+Known Problems with RefSeq release 236:	
+=====================================
+
+There are no known problems with RefSeq release 236.
+
+Known Redunancies and Inconsistencies:
+======================================
+The RefSeq collection is an ongoing project that is expected to grow
+in scope and content over time.  Thus it is important to recognize that
+it is not complete in that some genomes are not yet completely sequenced,
+some incompletely sequenced genomes may not be included, or some gene 
+products may not yet be represented. RefSeq records may be added, removed, 
+or updated in future releases as new information becomes available and as 
+a result of curation.
+
+Known Data inconsistencies:
+
+	[1] RefSeq status codes are not consistently provided for some species. 
+	The goal is to consistently provide a status code for all RefSeq
+	records. The release catalog indicates "UNKNOWN" if a status code
+	was expected but not detected and "na" if a status code is not
+	expected based on the original project plan for provision of this type
+	of information. Status codes will be more consistently applied to all 
+	records in the future.
+
+	[2] The genomic, transcript, and protein collection is known to be 
+	incomplete for many species. This is particularly true for those
+	genomes for which a complete genome assembly is not yet available, 
+	such as Sus scrofa (pig). As additional sequence data becomes available, 
+	the RefSeq representation for this, and other, organisms will increase. 
+	
+	[3] Whole genome shotgun (WGS) assemblies of organelle, plastid, or viral 
+        genomes are included in the complete node and in the taxonomic group that 
+        the whole genome WGS project is reported in (e.g., fungi etc.). Our process 
+	flow for WGS data provides a data extraction per WGS project with no 
+	distinction by molecule (such as mitochondrial). Therefore, some nodes do 
+        not include WGS data or may include WGS data for different taxa. For instance, 
+        NZ_ACSJ01000000 includes contigs representing two tax_ids - a bacterium and a 
+        phage.  The entire WGS project has been processed for the complete node and 
+        the microbial node in this release.  Therefore, the microbial node includes 
+        a small amount of viral sequence and the viral node omits this data. 
+    	NZ_ACSJ01000001 to NZ_ACSJ01000011 microbial contigs
+    	NZ_ACSJ01000012 to NZ_ACSJ01000019 viral contigs
+
+	[4] Although the goal is to provide a non-redundant collection, some
+	redundancy is included in this release as follows. 	
+
+	Redundant Protein records:
+	    Alternate Splicing		When additional transcripts are provided
+					to represent alternate splicing products, 
+					and the alternate splice site occurs in 
+					the UTR, then the protein is redundantly 
+					provided.
+
+	    Paralogs (eukaryotes)	The goal is to provide a RefSeq record 
+					for each naturally occurring molecule. 
+					Therefore, records are provided for all 
+					genes identified including those produced 
+					by more recent gene duplication events in 
+					which the genes are nearly identical.
+	
+	Redundant Genomic records:				
+	   Intermediate records		For some species, intermediate genomic 
+					records are provided to support the 
+					assembly and/or annotation of the genome.
+	
+					For example, for human, a chromosome may 
+					be represented by a chromosome RefSeq 
+					record with a NC_ accession prefix.
+					The chromosome record may consist of 
+					many contigs, each represented as a 
+					separate record with a NT_ accession
+					prefix. In addition, some curated gene
+					region records, with NG_ accession
+					prefix, may also be provided to support
+					annotation of complex regions.
+					
+	   Alternate assemblies		Genomic records are provided to represent 
+					alternate assemblies of genomic sequence
+					derived from different populations. These 
+					records will have varying levels of 
+					redundancy and represent polymorphic and
+					haplotype differences in terms of the
+					sequence and annotation.
+
+					For example, alternate assemblies are
+					provided for different mouse strains and
+					for regions of the human major
+					histocompatibility complex (MHC). The MHC
+					is a highly variable region of chromosome
+					6 which exhibits variation at the level 
+					of both sequence polymorphism and gene 
+					content. The alternate assemblies make it
+					possible to represent this alternate gene
+					content. 					
+
+	Prokaryotic strains		Prokaryotic genome sequence data derived from 
+		  			different strains may be represented as 
+					additional RefSeq records. This introduces 
+					redundancy but may also add representation for 
+					some proteins that are unique to a strain.  
+					RefSeq records for a specific strain can be 
+					identified by the unique taxonomic ID for that 
+					strain. The protein complement is non-redundant.
+
+	[5] Note that for some organisms, most notably vertebrates, processing to update 
+	    individual transcript and protein records may occur on a daily basis. Transcript 
+	    and protein updates may include changes to descriptive information such as 
+	    publications, names, or feature annotations. Updates can also include changes 
+	    to the sequence or the addition of new sequence records. Thus information 
+	    available on transcript and protein records may be more current than the 
+	    annotated genome.  
+
+2.4 Release Catalog
+-------------------
+The Release Catalog documents the full contents of the RefSeq Release.
+The catalog can be used to identify data of interest.  See the format
+description in section 3.6 for additional information.
+
+The release catalog is available at:
+  https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/RefSeq-release#.catalog
+
+The catalog for previous releases is available in the archive directory:
+  https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/archive/
+
+2.5 Changes since the previous release:
+--------------------------------------
+[1] New eukaryotic genome annotations 
+    This release contains new or updated annotations generated by NCBI's eukaryotic genome annotation 
+    pipeline for 50 species, including
+        Pig GCF_054392235.1-RS_2026_06 based on new T2T assembly Sscrofa_HxYL_maternal_Yorkshire_Landrace_v2.0
+        Turkey GCF_905368555.1-RS_2026_06 based on updated assembly MGAL_WU_HG_1.1
+        Gulf Coast tick GCF_055883805.1-RS_2026_06 based on new assembly ASM5588380v1
+        Anopheles minimus GCF_965234385.1-RS_2026_06 based on new assembly idAnoMini7.1 
+        European crab apple GCF_916048215.3-RS_2026_06 based on updated assembly drMalSylv7.3
+
+[2] Future change: Reducing the scope of prokaryote genomes 
+    RefSeq is exploring criteria for reducing the number of genomes included in the dataset for frequently
+    sequenced prokaryote species such as Escherichia coli. If you're using large sets of RefSeq prokaryote
+    genomes for a task that may be impacted by such a change, either positively or negatively, we would
+    like to hear from you. Please contact us at refseq-admin@ncbi.nlm.nih.gov.
+
+Previous Announcements:
+[1] New eukaryotic genome annotations 
+    This release contains new or updated annotations generated by NCBI's eukaryotic genome annotation 
+    pipeline for 43 species, including
+        Giraffa tippelskirchi GCF_054371585.1-RS_2026_02 based on new T2T assembly T2T-mGirTip1v1.2.pri
+        Electric eel GCF_041902795.1-RS_2026_03 based on new assembly ASM4190279v1
+        Firebrat GCF_964235325.1-RS_2026_03 based on new assembly izTheDome1.hap1.1
+        Aplidium turbinatum GCF_918807975.1-RS_2026_04 based on new assembly kaAplTurb1.1
+        Camellia sinensis GCF_055761805.1-RS_2026_04 based on new assembly ASM5576180v1
+	
+[2] EGAPx annotations
+    This release includes 73 vertebrate genomes annotated by the Vertebrate Genome Laboratory using EGAPx
+    and incorporated into RefSeq.
+        https://github.com/ncbi/egapx
+
+[3] New version of stand-alone PGAP
+    The RefSeq PGAP pipeline has added logic to name proteins based on protein superfamilies when more
+    specific information is not available. Superfamily-based evidence is now used to name 1.4% of RefSeq
+    WP proteins. Further information is available here:
+        https://ncbiinsights.ncbi.nlm.nih.gov/2026/05/14/new-may-2026-release-of-stand-alone-pgap/
+
+[4] Future changes: Reducing the scope of prokaryote genomes 
+    RefSeq is exploring criteria for reducing the number of genomes included in the dataset for frequently
+    sequenced prokaryote species such as Escherichia coli. If you're using large sets of RefSeq prokaryote
+    genomes for a task that may be impacted by such a change, either positively or negatively, we would
+    like to hear from you. Please contact us at info@ncbi.nlm.nih.gov.
+		
+=============================================================================
+3. ORGANIZATION OF DATA FILES
+=============================================================================
+3.1 FTP Site Organization
+-------------------------
+RefSeq releases are available on the NCBI FTP site at:
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/
+            
+
+Documentation Directories and Files:
+------------------------------------
+  release-catalog/
+     archive/						--subdirectory, archive of previous 
+	  				       		  catalogs
+     RefSeq-release#.catalog  		     		--file, comprehensive list of sequence 
+	  				       		  records included in the current release
+     release#.files.installed 		     		--file, list of sequence data files installed 
+     release#.removed-records 		     		--file, list of removed records that were  
+                                     	       		  included the previous release
+     release#.taxon.new       		       		--file, list of organisms that have been
+                                     	       		   added to the release since the previous 
+					       		   release
+     release#.taxon.update				--file, list of organisms for which there has
+                                               		  been a change in either the NCBI Tax ID or
+                                     	       		  the organism name.
+     release#.AutonomousProtein2Genomic.gz     	   	--file, list of genomic accessions that 
+     							  non-redundant WP protein accessions are
+							  annotated on 
+     release#.MultispeciesAutonomousProtein2taxname.gz  --file, list of NCBI TaxID and species name  
+	  				       		  for the subset of non-redundant WP protein 
+							  accessions that are annotated on genomic 
+							  records from more than one species. 
+     release#.accession2geneid.gz	     		--file, list of GeneIDs included in the 
+     							  current release
+	  				       		  
+                                          
+  release-notes/
+     archive/		   --subdirectory, archive of previous documentation
+     RefSeq-release#.txt   --file, this Release notes document
+
+  release-statistics/
+     archive/				 --subdirectory, archive of previous documentation
+     RefSeq-release#.MMDDYYYY.stats.txt  --file, detailed release statistics
+     *.acc_taxid_growth.txt   		 --growth file, where '*' is archaea, bacteria etc.
+                                     	   first row identifies column content 
+     RefSeq.taxid_growth.txt  		 --organism growth file, release nodes are columns
+                                     	   first row identifies column content
+                       
+Sequence Data Directories and Files:
+------------------------------------
+The RefSeq collection is provided in a redundant fashion to best meet the needs
+of those who want the full collection as well as those who want a specific
+sub-set of the collection.  Therefore the collection is provided as: 
+   1) the complete collection, and
+   2) sections as defined by major taxonomic or other logical groupings. 
+
+A subdirectory exists for each sub-section as follows:
+   archaea
+   bacteria
+   fungi						
+   invertebrate	
+   mitochondrion
+   other	
+   plant
+   plasmid		
+   plastid		
+   protozoa	
+   vertebrate_mammalian	
+   vertebrate_other	
+   viral			
+
+In addition, the complete collection is available without these
+sub-groupings in the subdirectory:
+   complete
+
+Note that this directory structure intentionally provides the release 
+data in a redundant fashion. We gave considerable thought to how to
+package the release to meet the needs of different user groups. 
+For instance, some groups may be interested in retrieving the complete
+protein set, while other groups may be interested in retrieving data 
+for a more limited number of organisms.  We decided to provide
+logical groupings based on general taxonomic node (viral, mammalian etc.)
+as well as logical molecule type compartmentalization (e.g., plastid).
+Thus, all records are provided at least twice, once in the "complete" 
+directory, and a second time in one of the other directories. 
+Some sequences may be provided three times when it is logical to 
+include the record in more than one additional directory. For example, 
+a sequence may be provided in the "complete", "mitochondrion", and 
+"vertebrate_mammalian" directories.
+
+We are interested in hearing if you find this structure useful or if
+you would like information grouped in a different manner.
+
+Send suggestions or comments to the NCBI Help Desk at:
+	info@ncbi.nlm.nih.gov
+
+3.2 Release Contents
+--------------------
+A comprehensive list of sequence files provided for the current release
+is available in:
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/release#.files.installed
+
+A comprehensive list of sequence records included in the current release is 
+available in:
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/release#.catalog
+
+File name format indicates the directory node, molecule type, and format type. 
+
+Name format:
+
+ complete.10.1.bna.gz
+|--------|--|-|---|--|
+   1      2  3  4   5
+
+   1. directory location 
+   2. numerical increment 
+       -to provide a set of unique file names
+   3. optional: sub-part number 
+       -to provide a unique file name for genomic FASTA files which may be split 
+        based on size
+   4. format type 
+   5. compression
+
+Multiple files may be provided for any given molecule and format type, indicated 
+by a numerical increment in the file names. Files of the same molecule type and 
+increment are related by content. Files of different molecule type and the same 
+increment may or may not have related content. For example:
+
+    complete.1006.bna.gz
+    complete.1006.1.genomic.fna.gz
+    complete.1006.2.genomic.fna.gz  -- genomic FASTA split into two sub-parts 
+                                       due to size 
+    complete.1006.genomic.gbff.gz  --  content related to the two 
+                                       1006.#.genomic.fna.gz files 
+    complete.1006.protein.faa.gz 
+    complete.1006.protein.gpff.gz  -- contains proteins found in either genomic 
+                                      or rna files of this increment 
+    complete.1006.rna.fna.gz
+    complete.1006.rna.gbff.gz  -- unrelated to the contents of the genomic files 
+                                  of this increment
+
+If you are interested in a complete set of genomic, protein, and rna files for a given 
+tax_id, you must scan all files from the directory. You may also want to consider using 
+the per-assembly files provided at https://ftp.ncbi.nlm.nih.gov/genomes/refseq/ instead. 
+More information is available at:
+    https://www.ncbi.nlm.nih.gov/genome/doc/ftpfaq/
+
+Note that for some molecule and format types, a number increment is skipped.
+This is not an error. It is also not an error if a filename provided with one
+release is not provided with a different release.  
+For example:
+   complete.281.genomic.gbff.gz
+   complete.282.genomic.gbff.gz
+   complete.284.genomic.gbff.gz
+   complete.285.genomic.gbff.gz  
+   complete.287.genomic.gbff.gz --release 70 did not include files named as
+                               complete.283.genomic or complete.286.genomic
+                               because complete.283.bna & complete.286.bna 
+                               did not include genomic data.
+
+The RefSeq release processing first produces a comprehensive set of ASN.1 files, 
+ordered by tax_id, and limited by a size constraint.  These initial files
+are further processed to export the records by molecule and format type.
+If the initial ASN.1 file does not include any records for a given molecule type, 
+such as genomic sequence data, then the corresponding 'genomic' fasta and 
+flatfile records will not be found.
+
+The installed release includes a comprehensive report of all files installed
+for a given release. Please refer to /release-catalog/release#.files.installed
+(where # is the release number).
+
+3.3 File Names and Formats 
+--------------------------
+File names are informative, and indicate the content, molecule type,
+and file format of each RefSeq release data file. Most filenames
+utilize this structure:
+
+	directory.filenumber.subpart.molecule.format.gz
+	1         2	     3       4        5	  
+
+File Name Key:
+
+	1. directory		directory level the file is provided in 
+				(e.g.,complete, viral etc)
+	2. file	number:		large data sets are provided as incrementally 
+				numbered files 
+        3. sub-part number:     large genomic fasta files may be split to facilitate transfer
+	4. molecule		type of molecule (genomic, rna, or protein); 
+				not relevant for ASN.1 format files provided 
+				in the "complete" sub-directory
+	5. format		the data format provided in the file; see below
+
+For example:
+	complete1.genomic.bna.gz
+        vertebrate_mammalian2.protein.gpff.gz
+
+The filenames for RefSeq non-redundant proteins use a slightly different 
+structure:
+	directory.nonredundant_protein.filenumber.molecule.format.gz
+
+For example:
+	complete.nonredundant_protein.20.protein.faa.gz
+	bacteria.nonredundant_protein.105.protein.gpff.gz
+
+The term "non-redundant protein" refers to the representation of identical 
+proteins in the prokaryotic RefSeq protein dataset using a single non-redundant 
+protein accession number (with the prefix 'WP_'). Non-redundant RefSeq protein 
+records, which are currently provided for archaeal and bacterial RefSeq genomes, 
+may be found in RefSeq genomes from multiple species. More information about this 
+type of RefSeq protein record can be be found here:
+     	https://www.ncbi.nlm.nih.gov/refseq/about/nonredundantproteins/ 
+        https://ftp.ncbi.nlm.nih.gov/refseq/release/announcements/WP-proteins-06.10.2013.pdf
+	
+
+All RefSeq release files have been compressed with the gzip utility;
+therefore, an invariant ".gz" suffix is present for all release files.
+
+The data that comprises a RefSeq release are available in several
+file formats, as indicated by the format component in the file name:
+  bna	binary ASN.1 format; includes nucleotide and protein 
+  gbff	GenBank flat file format; nucleotide records
+  gpff	GenPept flat file format; protein records
+  fna	FASTA format; nucleotide records
+  faa	FASTA format; protein records
+
+The comprehensive full release is deposited in the "complete"
+directory and is available in all file types.
+
+Binary ASN.1 format is only provided in the complete directory. The remaining
+directories include all of the remaining file types.
+
+The DDBJ/EMBL/GenBank and GenPept flat file format provided in this release 
+matches that seen when accessing the records using the NCBI web site. 
+Notably, some RefSeq record are in the CON division and do not instantiate 
+the sequence on the flat file display, instead a 'join' statement is provided 
+to indicate the assembly instructions.  The FASTA files do include the 
+assembled sequences for these CON division RefSeq records.  
+
+For example, see NC_000022.11
+
+Suggestions regarding the structure of the RefSeq release product 
+and the available formats may be sent to the NCBI Help Desk:
+    info@ncbi.nlm.nih.gov
+
+3.4 File Sizes
+--------------
+RefSeq release files are provided in a range of sizes. Most are
+limited to several hundred megabytes (MB) and uncompressed ASN.1 file
+size will not exceed 2 gigabytes (GB). Nucleotide FASTA files are split when 
+they reach 1GB.
+
+Files are compressed to reduce file size and facilitate FTP retrieval.
+
+The total size of release 236 is as follows:
+
+         Extension    Size (GB)          Type
+         -----------------------------------------------------------
+         bna          6362.05             ASN.1
+         gbff         8346.77             GenBank flat file
+         gpff         2790.24             GenPept flat file
+         fna          13081.00            FASTA, nucleotide
+         faa          459.61              FASTA, protein
+
+Notes: 
+ [A] The complete directory provides all file types. The ASN.1 format is only 
+     available in the complete directory; the file sizes reported for the 
+     remaining file formats represents the redundant total found in the complete 
+     plus other directories.
+
+3.5 Statistics
+--------------
+RefSeq release 236 includes sequences from 182465 different organisms.
+
+The number of species represented in each Release sub-directory, 
+determined by counting distinct tax IDs, is as follows: 
+
+        archaea                 1966
+        bacteria                109133
+        complete                182465
+        fungi                   23609
+        invertebrate            8420
+        mitochondrion           18180
+        other                   5
+        plant                   14852
+        plasmid                 10075
+        plastid                 15210
+        protozoa                944
+        vertebrate_mammalian    1692
+        vertebrate_other        6465
+        viral                   15360
+
+Counts of accessions and basepairs/residues per molecule type:
+                 Accessions      Basepairs/Residues
+  Genomic:       62833567        6193826754977 
+  RNA:           83806434        242532394835 
+  Protein:       482864455       188956181073 
+  Wgs master:    448935          0
+
+Complete RefSeq release statistics for each directory are provided 
+in a separate document. Please see:
+
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/release-statistics/
+   
+   file: RefSeq-release#.MMDDYYYY.stats.txt
+         #: indicates release number
+         MMDDYY: indicates release date as month,day,year
+ 
+Statistics for previous releases are available in the archive subdirectory:
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/release-statistics/archive/
+
+3.6 Release Catalog Format
+--------------------------
+The full non-redundant contents of the release are documented in the 
+release catalog. 
+
+Available at:
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/
+
+The catalog includes the following columns:
+  1. tax_id
+  2. Taxon name
+  3. RefSeq accession.version
+  4. FTP directories data is provided in, '|' separated
+  5. RefSeq status code
+  6. sequence length
+
+Note: the molecule type for each catalog entry can be inferred from 
+the accession prefix (see below).
+
+RefSeq Status Codes are documented on the RefSeq web site. The catalog includes 
+the following terms:
+
+  na			Not Applicable; 
+			status codes are not provided for some records
+
+  UNKNOWN		The status code has not yet been applied or status is not
+  			applicable to the type of record. 
+
+  REVIEWED		The RefSeq record has been the reviewed by NCBI  
+			staff or by a collaborator. Some RefSeq records 
+			may incorporate expanded sequence and annotation 
+			information including additional publications 
+			and features. This indicates a curated record.
+
+  VALIDATED		The RefSeq record has undergone an initial review 
+			to provide the preferred sequence standard. The  
+			record has not yet been subject to final review 
+			at which time additional functional information 
+			may be provided. This indicates a curated record.	
+			
+  PROVISIONAL		The RefSeq record has not yet been subject to 
+			individual review and is thought to be well 
+			supported and to represent a valid transcript 
+			and protein. This record is not curated.
+			
+  PREDICTED		The RefSeq transcript may represent an ab initio 
+			prediction or may be weakly supported by transcripts
+			or protein homology. This record is not curated.
+			
+  INFERRED		The RefSeq record is inferred by genome sequence 
+			analysis. This record is not curated.
+
+  MODEL			RefSeq records provided via automated processing 
+  			and are not subject to individual review or revision 
+			between builds. This record is not curated.
+
+3.7 Removed Records
+-------------------
+This is a report of accessions that were included in the
+previous release but are no longer included in the current release.
+
+Available at:
+   https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/
+   release#.removed-records file format
+
+The file includes the following columns:
+
+  1. tax_id
+  2. species name
+  3. RefSeq accession.version
+  4. FTP directories data was provided in, in last release
+  5. RefSeq status code
+  6. sequence length
+  7. type of removal
+	type options include:
+	   dead protein
+	   replaced by accession  [original accession is not secondary]
+           permanently suppressed
+           temporarily suppressed [record may become available again in the future]
+
+3.8 RefSeq Accession Format
+---------------------------
+RefSeq accessions are formatted as a two letter prefix, followed by 
+an underscore, followed by six or nine digits, or 4 letters plus eight digits. 
+For example, NM_020236, NP_001107345, and NZ_AABC02000001.  
+
+The underscore ("_") is the primary distinguishing feature of a RefSeq 
+accession; DDBJ/EMBL/GenBank accessions never include an underscore.
+
+RefSeq accession prefixes
+Prefix	Molecule    Use context				Complete accession format
+	type	
+
+NC_	DNA	    Chromosomes;			Prefix followed by 6 numbers, followed
+		    Linkage Groups			by the sequence version number
+							    
+AC_	DNA	    Chromosomes;			Prefix followed by 6 numbers, followed 		
+		    Linkage Groups			by the sequence version number
+							   						
+NZ_	DNA	    Chromosomes;			Prefix followed by the INSDC accession
+		    Scaffolds;			   	number that the RefSeq record is based 
+		    Used predominantly for 		on, followed by the RefSeq sequence 	   
+		    prokaryotic genomes		   	version number
+
+NT_	DNA	    Scaffolds   			Prefix followed by 6 or 9 numbers, 
+		    					followed by the sequence version number    
+
+NW_	DNA	    Scaffolds			   	Prefix followed by 6 or 9 numbers,
+							followed by the sequence version number
+
+NG_	DNA	    Genomic regions;		   	Prefix followed by 6 numbers, followed
+		    A genomic region record may	   	by the sequence version number	
+		    represent a single or multiple 
+		    genetic loci (e.g., rRNA 
+		    targeted locus, RefSeqGene, 
+		    non-transcribed pseudogene)			
+
+NM_	mRNA	    protein-coding transcripts	        Prefix followed by 6 or 9 numbers,
+				       			followed by the sequence version number;
+							curated by NCBI staff or a model organism 
+							database; these records are referred to 
+							as the 'known' RefSeq dataset
+							   
+XM_	mRNA	    protein-coding transcripts	   	Prefix followed by 6 or 9 numbers,
+				       			followed by the sequence version number; 
+							generated through either the eukaryotic 
+							genome annotation pipeline, or the small 
+							eukaryotic genome annotation pipeline; 
+							records generated via the first method are
+							referred to as the 'model' RefSeq dataset.
+							
+NR_	RNA	    non-protein-coding transcripts 	Prefix followed by 6 or 9 numbers,
+		    including lncRNAs, structural 	followed by the sequence version number;
+		    RNAs, transcribed pseudogenes, 	curated by NCBI staff or a model organism
+		    and transcripts with unlikely	database; these records are referred to as      
+		    protein-coding potential from 	the 'known' RefSeq dataset	
+		    protein-coding genes
+
+XR_	RNA	    non-protein-coding transcripts,	Prefix followed by 6 or 9 numbers,	
+		    as above	   		        followed by the sequence version number
+		       					generated through either the eukaryotic 
+							genome annotation pipeline, or the small
+							eukaryotic genome annotation pipeline; 
+							records generated via the first method are
+							referred to as the 'model' RefSeq dataset.
+
+NP_	protein	    Proteins annotated on NM_ 	        Prefix followed by 6 or 9 numbers,
+		    transcript accessions or 	        followed by the sequence version number;
+		    annotated on genomic molecules 	curated by NCBI staff or a model organism
+		    without an instantiated 		database; these records are referred to as 	
+		    transcript (e.g. some 		the 'known' RefSeq dataset
+		    mitochondrial genomes, viral 
+		    genomes, and reference 
+		    bacterial genomes
+
+AP_	protein	    Proteins annotated on AC_	        Prefix followed by 6 or 9 numbers,
+		    genomic accessions or annotated 	followed by the sequence version number
+		    on genomic molecules without 
+		    an instantiated transcript 
+		    record
+
+XP_	protein	    Proteins annotated on XM_		Prefix followed by 6 or 9 numbers,
+		    transcript accessions or		followed by the sequence version number
+		    annotated on genomic molecules 	generated through either the eukaryotic
+		    without an instantiated 		genome annotation pipeline, or the small
+		    transcript record			eukaryotic genome annotation pipeline; 
+		    	       				records generated via the first method are
+							referred to as the 'model' RefSeq dataset.
+
+YP_	protein	    Proteins annotated on genomic 	Prefix followed by 6 or 9 numbers,
+		    molecules without an		followed by the sequence version number
+		    instantiated transcript 
+		    record
+
+WP_	protein	    Proteins that are non-redundant	Prefix followed by 9 numbers, followed
+		    across multiple strains and 	by the version number, which is 
+		    species. A single protein of 	always '.1' as these records are
+		    this type may be annotated		not subject to update 	 
+		    on more than one prokaryotic 
+		    genome
+
+See online documentation for additional information on WP_ accessions:
+    https://www.ncbi.nlm.nih.gov/refseq/about/nonredundantproteins/
+
+As needed, accession series will be expanded by adding 3 digits, with existing accessions 
+remaining stable.
+
+3.9 Growth of RefSeq	
+--------------------
+Release	Date		Taxons	Nucleotides	 Amino Acids	 Records
+1	Jun 30, 2003	2005	4672871949	 263588685	 1061675
+2	Oct 21, 2003	2124	7745398573	 286957682	 1097404
+3	Jan 13, 2004    2218	7992741222	 294647847	 1101244
+4	Mar 24, 2004    2358	8175128887	 318253841	 1193457
+5	May  3, 2004    2395    8325515623	 337229387	 1255613
+6	Jul 5, 2004	2467	8696371716	 365446682	 1367206 
+7       Sep 10, 2004    2558	21072808460	 405233619	 1579579
+8       Oct 31, 2004    2645	26814386658	 430300369	 1709723 
+9	Jan  9, 2005    2780	36786975473	 470534907	 1843944
+10	Mar  6, 2005    2827    36893741150      482862858       1893478 
+11	May  8, 2005    2928    39731702362      507980644       2477893
+12      Jul 10,2005	2969    43043256058      608493108       2869675
+13	Sep 11, 2005    3060    44727484853      686768902       3400773
+14	Nov 20, 2005    3198	47364955367	 763761075	 3272776
+15      Jan 1, 2006     3244    52645441913      810009733       3436263
+16      Mar 11, 2006    3397    56175443059      887509001       3715260 
+17	May 1, 2006	3497	62130037371	 927587669	 3999859 
+18      Jul 11, 2006   3695	70474041999	 974374765	 4186692
+19	Sep 10, 2006    3774    70694879544      1012985077      4311543 
+20	Nov 5, 2006	3919	72679681505      1061797276	 4567569 
+21	Jan 6, 2007	4079	73864990566      1144795927	 4742335
+22	Mar 5, 2007	4187	82441128546      1215085694	 5207865
+23	May 8, 2007	4300	83148327110      1291050995	 5503385
+24	Jul 10, 2007	4511	89856995521      1365916222	 6073814
+25	Sep 11, 2007	4646	91265840843      1470475398	 6515132 
+26	Nov 4, 2007	4737	99105705485      1495032507 	 6698250 
+27	Jan 6, 2008	4926    101059552113     1556356987	 7025715
+28	Mar 9, 2008	5059	102051350525     1770627427	 7914560
+29	May 4, 2008	5168	104671101150     1870214220	 8376141
+30	Jul 7,2008	5395	105074486709     1913447691	 8572852 
+31	Aug 30, 2008	5513	109214348591     2026768719	 9145702 
+32	Nov 10, 2008	5726	111122203221     2089596746	 9501764
+33	Jan 16, 2009	7773	116001583818     2204073443      10325282
+34	Mar 6, 2009	8054	111792574830     2299682138      10021870
+35	May 4, 2009	8393	113210655336     2565199170      10993891
+36	Jul 2, 2009	8665	117013741530     2756884219      12141825
+37	Sep 3, 2009    9005	119151229820     2965450333      12941750
+38	Nov 7, 2009     9166	119196622435     3115246540      13436447
+39	Jan 23, 2010    10171	118502856500     3221054793      13656433
+40	Mar 7, 2010 	10291	118645985035     3280528951      13853798
+41	May 9, 2010	10567	125500880884     3427514220      14472060
+42	Jul 13, 2010	10728	143311839055     3553178673      15038858
+43	Sep 5, 2010	10854	148706971456     3761205880      15934055
+44	Nov 7, 2010	11354	152241490865     3899827321      16421261
+45      Jan 7, 2011     11536	152787094873     3989526325      16748646
+46	Mar 8, 2011	11734	153220856222     4064052954      16998463
+47	May 7, 2011	12000	162001966044     4226432170      17631876
+48	Jul 10, 2011	12235	163771272903     4381572480      18162534
+49	Sep 7, 2011	16248	162286146420     4401462131      18236994
+50 	Nov 8, 2011	16392	168702162406     4529303978      18815153
+51	Jan 9, 2012	16609	172751347778     4727472575      19580946
+52	Mar 5, 2012	16923	173705194347     4929467422      20235247
+53	May 7, 2012	17339	175345433862     5247723883      21286080
+54	Jul 9, 2012	17605	176492228688     5456992181      21889466
+55	Sep 17, 2012	17994	194971374545     5803694332      23207572
+56	Nov 8, 2012	18512	207200464965     6003283860      23892460
+57	Jan 8, 2013	21415	227639108990     8895153979      34158511
+58	Mar 11,2013 	22460	233247214400     9699076220      36938203
+59	Apr 29, 2013	24656	256547643663     10081118607     39040745
+60 	Jul 19, 2013	28560	304686151670     10968281809     40913699
+61	Sep 9, 2013	29414	319551394177     11248966865     41958567
+62	Nov 10, 2013	31646	361097812819     12364402476     45971929
+63  	Jan 12, 2014	33485	380736496721     12898823816     48358066 
+64	Mar 10, 2014	33693	407131829420     13126329523     49538213
+65	May 12, 2014 	36335	430613954268     13544443640     51770174
+66	Jul 7, 2014	41263	464958653006     15380643722     58334707 
+67	Sep 8, 2014 	41913	490800792583     15984799771     61277203 
+68	Nov 3, 2014	49312	551290496427     16790850066     66078114
+69	Jan 2, 2015 	51661	594452675642     18690872100     74127019
+70	Apr 30, 2015	54118	643051675415     18556381492     74720563
+71	Jul 6, 2015 	55267	669786114584     19394398061     77730891
+72	Aug 27, 2015	54937	705514040682     19748515407     79189847
+73	Nov 2, 2015	55966	738575306673     20847187904     83881439
+74	Jan 11, 2016	57993	780562546593     22359312327     89458499
+75	Mar 7, 2016	58776	807349580822     23386816845     92936289
+76	May 9, 2016 	59995	859358759387     24586044092     97792976
+77 	Jun 29, 2016	60892	872938972710     25449517637     100678438
+78	Sep 6, 2016	62739	904423741786     27105909174     107045797
+79 	Oct 31, 2016	64277	941153466527     28214340731     111024999
+80	Jan 9, 2017	66224 	988758901224     30073388355     118059547
+81	Mar 6, 2017     68165	1022393849190    31208765769     121954847
+82	May 8, 2017	69035	1066355456886	 32674281195	 127098389
+83	Jul 17, 2017	71356	1121562831367	 34113050666	 132052465
+84      Sep 11, 2017    72965   1158748173657    36673975257     140627690
+85	Nov 6, 2017	73996	1204502588476	 38371950939	 146710309
+86	Jan 8, 2018	75218	1224147155468	 39198368659	 149493466
+87      Mar 5, 2018	77225	1266924789413	 40799318419	 155118991
+88	May 14, 2018	79448	1281457514351	 42356891903	 160224355
+89	Jul 9, 2018	81345	1310406641373	 43546263891	 163859625
+90	Sep 10, 2018	84276	1391082745897	 46448327052	 173956003
+91	Nov 5, 2018	85308	1430969078377	 48133151229	 179672083
+92	Jan 4, 2019	86867	1487640446350	 50022196212	 185738687
+93	Mar 13, 2019	88816	1538401021292	 52033004779	 192722653
+94 	May 13, 2019	91873	1604159550977	 54355271806	 200311267
+95	Jul 8, 2019	93618	1663456288307	 56131094433	 206416381
+96	Sep 9, 2019	94946	1731968697055	 58596894789	 213863503
+97	Nov 4, 2019	97407	1775844555056	 60395267362	 219407891
+98	Jan 6, 2020	98406	1811879348292	 61751602519	 223560051
+99	Mar 2, 2020	99842	1865535232080	 64046042055	 231402293
+200	May 4, 2020	100605	1935188461619	 65917036726	 237381664
+201	Jul 6, 2020	103293	2011499231032	 68531730058	 246016651
+202	Sep 8, 2020	104969	2062903159398	 71660941848	 255571455
+203	Nov 2, 2020	105349	2120884152245	 71914251558	 256340911
+204	Jan 4, 2021	106581	2219687944618	 73969071608	 262714372
+205 	Mar 1, 2021	108257	2293291152174	 76233183903	 269975565
+206	May 17, 2021	111743	2403475808345	 79078139531	 279425850
+207	Jul 12, 2021	112462	2452064583574	 80920690233	 285425070
+208	Sep 7, 2021	113002	2512362022380	 81791867275	 288903207
+209	Nov 1, 2021	114396	2714890725865	 83861496486	 296293486
+210	Jan 3, 2022	115929	2775270855148	 85704927012	 302482881
+211     Mar 7, 2022     117030  2858986635659    87327984938     308229655
+212	May 2, 2022	119373  2968684923393    89276136473     314915153
+213	Jul 11, 2022	121461	3045465416031	 91290623940	 321282996
+214	Sep 12, 2022	123394  3197618853054    93402053269     328588569
+215	Nov 7, 2022	125116	3285125468358	 95439114428	 335372031
+216	Jan 9, 2023	128299	3372089244441	 97604007404	 342395932
+217	Mar 8, 2023	130837	3470636446019	 99547648172	 348351219
+218	May 1, 2023	133740	3591427530270	 102255504077	 356619635
+219	Jul 10, 2023	138491	3752372037103	 106842615422	 371291248
+220	Sep 5, 2023	141099	3879838190220	 113122415249	 391350361
+221	Nov 6, 2023	143819	4015493396056	 117268402671	 404657610
+222	Jan 8, 2024	145371	4118849046130	 119326686650	 411137832
+223	Mar 4, 2024	147591	4253118872970	 123784251060	 425594654
+224	May 6, 2024	150742	4379003578168	 126991769080	 435879646
+225	Jul 8, 2024	152668	4483408821882	 131007901745	 448507905
+226	Sep 9, 2024	155792	4672034697432	 138704028653	 472512852
+227	Nov 4, 2024	159324	4855525533471	 146998646179	 497549107
+228	Jan 3, 2025	162138	5036781315002	 152373602594	 513096240
+229	Mar 3, 2025	164117	5152263930970	 155377716565	 522879448
+230	May 2, 2025	165372	5353579931269	 158844316110	 534250035
+231	Jul 7, 2025	167222	5491256322239	 162874888501	 547174354
+232	Sep 2, 2025	170401	5666614918128	 166435737089	 558426495
+233	Jan 26, 2026	174157	5927497896354	 172609572918	 578285616
+234	Mar 16, 2026	176395	6110624972676	 179203453293	 598345955
+235	May 11, 2026	180620	6289903094909	 184893033878	 616942961
+236	Jul 6, 2026	182465	6436359149812	 188956181073	 629953391
+
+Note: Date refers to the data cut-off date, i.e., the release incorporates 
+data available as of the listed date.
+
+=============================================================================
+4. FLAT FILE ANNOTATION
+=============================================================================
+
+4.1 Main features of RefSeq Flat File
+-------------------------------------
+Also see the RefSeq web site and the NCBI Handbook, RefSeq chapter.
+
+   https://www.ncbi.nlm.nih.gov/refseq/
+   https://www.ncbi.nlm.nih.gov/books/NBK21091/
+
+4.1.1 LOCUS, DEFLINE, ACCESSION, KEYWORDS, SOURCE, ORGANISM 
+--------------------------------------------------------------------
+The beginning of each RefSeq record provides information about the accession,
+length, molecule type, division, and last update date. This is followed by the 
+descriptive DEFINITION line, then by the Accession and version, followed by
+detailed information about the organism and taxomonic lineage.
+
+//
+LOCUS       NC_004916             384502 bp    DNA     linear   CON 18-JUN-2017
+DEFINITION  Leishmania major strain Friedlin complete genome, chromosome 3.
+ACCESSION   NC_004916 AC125735
+VERSION     NC_004916.2
+DBLINK      BioProject: PRJNA15564
+            BioSample: SAMEA3138173
+            Assembly: GCF_000002725.2
+KEYWORDS    RefSeq; complete genome.
+SOURCE      Leishmania major strain Friedlin
+  ORGANISM  Leishmania major strain Friedlin
+            Eukaryota; Euglenozoa; Kinetoplastida; Trypanosomatidae;
+            Leishmaniinae; Leishmania.
+//
+
+Note: The VERSION number increments when a sequence is updated, 
+while the ACCESSION remains the same.  The "ACCESSION.VERSION" 
+identifier provides the finest resolution reference to a sequence.
+
+4.1.2 REFERENCE, DIRECT SUBMISSION, COMMENT, PRIMARY
+-------------------------------------------
+REFERENCE: 
+While the majority of RefSeq records do include REFERENCE
+data, this data is not required and some records do not include any
+citations. Publications are propagated from the GenBank record(s) from which
+the RefSeq is derived, provided by collaborating groups and NCBI staff
+during the curation process, and provided by the National Library of
+Medicine (NLM) PubMed MeSH indexing staff as they add new articles to PubMed.
+
+Functionally relevant citations are added by individual scientists using
+the Entrez Gene GeneRIF submission form, and a significant volume of citation
+connections are supplied by the NLM MeSH indexing staff for human, 
+mouse, rat, zebrafish,and cow. This functionality is expected to increase 
+in the future to treat all organisms represented in the RefSeq collection.  
+Citations supplied by the MeSH indexers and individual scientists can be 
+identified by the presence of a REMARK beginning with the text string "GeneRIF".
+This represents a significant method to keep sequence connections to the
+literature up-to-date; GeneRIFs add considerable value to the RefSeq 
+collection.
+
+For more information on GeneRIFs please see:
+
+   https://www.ncbi.nlm.nih.gov/gene/about-generif 
+
+For example, several GeneRIFs have been added to NM_000173.7, including:
+
+//
+
+REFERENCE   2  (bases 1 to 2514)
+  AUTHORS   Xu M, Li J, Neves MAD, Zhu G, Carrim N, Yu R, Gupta S, Marshall J,
+            Rotstein O, Peng J, Hou M, Kunishima S, Ware J, Branch DR, Lazarus
+            AH, Ruggeri ZM, Freedman J and Ni H.
+  TITLE     GPIbalpha is required for platelet-mediated hepatic thrombopoietin
+            generation
+  JOURNAL   Blood 132 (6), 622-634 (2018)
+   PUBMED   29794068
+  REMARK    GeneRIF: In GPIbalpha-deficient human Bernard-Soulier syndrome
+            patients, a decrease occurred in circulating TPO.
+	    
+//
+
+DIRECT SUBMISSION: 
+A Direct Submission field is provided on some RefSeq records but not all. It
+is propagated from the underlying GenBank record from which the RefSeq is 
+derived or provided on submissions from collaborating groups. Transcript
+and protein RefSeqs for human, mouse, rat, zebrafish, and cow do not provide
+this field as records often include additional data and are not necessarily
+direct copies of the GenBank submission.
+
+COMMENT: 
+A COMMENT is provided for the majority of RefSeq records. We are working to supply 
+a COMMENT more comprehensively in the future. A COMMENT is always provided if 
+the version number has  changed. 
+
+COMMENT sections may include information on:	 
+    RefSeq Status (PROVISIONAL, INFERRED, VALIDATED REVIEWED, etc.)
+    Information on collaborating groups (e.g. RefSeqGene project)
+    GenBank records(s) from which the RefSeq is derived. 
+    Version changes
+    A summary about sequence function
+    Description of transcript variants
+    Sequence note to describe the components of the RefSeq transcript
+    Evidence data describing transcript and RNA-Seq support for the RefSeq transcript
+    Attributes: examples - 'non-AUG initiation codon', 'Protein has antimicrobial
+    activity',
+                           'RefSeq Select criteria'
+    5' and/or 3' completeness of the RefSeq transcript			   
+	
+Example: COMMENT section of NM_004323.6 
+//
+COMMENT     REVIEWED REFSEQ: This record has been curated by NCBI staff. The
+            reference sequence was derived from AL356472.17 and AL161445.10.
+            On Nov 23, 2018 this sequence version replaced NM_004323.5.
+            
+            Summary: The oncogene BCL2 is a membrane protein that blocks a step
+            in a pathway leading to apoptosis or programmed cell death. The
+            protein encoded by this gene binds to BCL2 and is referred to as
+            BCL2-associated athanogene. It enhances the anti-apoptotic effects
+            of BCL2 and represents a link between growth factor receptors and
+            anti-apoptotic mechanisms. Multiple protein isoforms are encoded by
+            this mRNA through the use of a non-AUG (CUG) initiation codon, and
+            three alternative downstream AUG initiation codons. A related
+            pseudogene has been defined on chromosome X. [provided by RefSeq,
+            Feb 2010].
+            
+            Transcript Variant: This transcript (1) encodes multiple isoforms
+            due to the use of alternative translation initiation codons. The
+            longest isoform (BAG-1L or p50) is derived from an upstream non-AUG
+            (CUG) start codon, while three shorter isoforms are derived from
+            downstream AUG start codons. The longest isoform (BAG-1L) is
+            represented in this RefSeq.
+            
+            Sequence Note: This RefSeq record was created from transcript and
+            genomic sequence data to make the sequence consistent with the
+            reference genome assembly. The genomic coordinates used for the
+            transcript record were based on transcript alignments.
+            
+            CCDS Note: This CCDS ID represents the longest human BAG1 isoform,
+            known as BAG-1L or p50, as described in the literature, including
+            PMIDs 9396724, 9679980, 9747877 and 17662274. This isoform
+            initiates translation at a non-AUG (CUG) start codon that is
+            well-conserved and present in a strong Kozak signal context.
+            Alternative translation initiation at downstream AUG start codons
+            produces three additional isoforms with shorter N-termini, known as
+            BAG-1M or p46, BAG-1S or p36 (also known as p33), and p29. The most
+            abundant of the shorter isoforms, BAG-1S, is represented by CCDS
+            55301.1. Evidence in PMIDs 9747877 and 17662274 indicates that
+            these isoforms have distinct subcellular distributions, which may
+            contribute to the multifunctionality of the protein.
+            
+            Publication Note:  This RefSeq record includes a subset of the
+            publications that are available for this gene. Please see the Gene
+            record to access additional publications.
+            
+            ##Evidence-Data-START##
+            Transcript exon combination :: AK222749.1, SRR3476690.264741.1
+                                           [ECO:0000332]
+            RNAseq introns              :: single sample supports all introns
+                                           SAMEA2147975, SAMEA2149876
+                                           [ECO:0000348]
+            ##Evidence-Data-END##
+            
+            ##RefSeq-Attributes-START##
+	    MANE Ensembl match       :: ENST00000634734.3/ ENSP00000489189.2
+            non-AUG initiation codon :: PMID: 9679980, 9396724
+            RefSeq Select criteria   :: based on conservation, expression,
+                                        longest protein
+            ##RefSeq-Attributes-END##
+            COMPLETENESS: full length.
+//
+
+PRIMARY:
+This section contains the coordinates of the transcript and/or genomic components 
+of the RefSeq. The 'c' in the COMP column indicates that the coordinates are on 
+the complementary strand.    
+Example: NM_004006.3
+
+//
+PRIMARY     REFSEQ_SPAN         PRIMARY_IDENTIFIER PRIMARY_SPAN        COMP
+            1-37                AL031643.1         20726-20762         c
+            38-2881             M18533.1           9-2852
+            2882-2882           AL031542.1         65972-65972         c
+            2883-4642           M18533.1           2854-4613
+            4643-4643           AL109609.5         79506-79506         c
+            4644-5766           M18533.1           4615-5737
+            5767-5767           AL109609.5         35892-35892         c
+            5768-7332           M18533.1           5739-7303
+            7333-7333           AC079864.22        141601-141601       c
+            7334-9046           M18533.1           7305-9017
+            9047-9047           AC079177.21        132735-132735       c
+            9048-12741          M18533.1           9019-12712
+            12742-13992         BC028720.1         3398-4648
+//	    
+
+4.1.3 NUCLEOTIDE FEATURE ANNOTATION
+-----------------------------------
+Gene, mRNA, CDS:
+Every effort is made to consistently provide the Gene and coding sequence (CDS)
+feature (when relevant). If a RefSeq is based on a GenBank record that is only 
+annotated with the CDS, then a Gene feature is created.  mRNA features are 
+provided for most eukaryotic records; this is not yet comprehensively provided
+and will improve in future releases.
+
+Gene Names: 
+Gene symbols and names are provided by external official 
+nomenclature groups for some organisms.  If official nomenclature is 
+not available we may use a systemic name provided by the data submittor 
+or apply a more functional name during curation. When official nomenclature 
+is available we may provide additional alternate names for some organisms.
+
+Variation:
+Variation is computed by the dbSNP database staff and added via post-processing
+to RefSeq records.
+
+Miscellaneous:
+For some records, additional annotation may be provided when identified by the 
+curation staff or provided by a collaborating group. For example, the location 
+of polyA signal and sites may be included.
+
+4.1.4 PROTEIN FEATURE ANNOTATION
+--------------------------------
+Protein Names: 
+Protein names may be provided by a collaborating group, may be based on the 
+Gene Name, or for some records, the curation process may identify the 
+preferred protein name based on that associated with a specific EC number 
+or based on the literature.
+
+Protein Products:
+Signal peptide and mature peptide annotation is provided by propagation from 
+the GenBank submission that the RefSeq is based on, when provided by a 
+collaborating group, or when determined by the curation process.
+
+Domains:
+Domains are computed by alignment to the NCBI Conserved Domain Database 
+database for  human, mouse, rat, zebrafish, nematode, and cow.  The best 
+hits are annotated on the RefSeq. For some records, additional functionally 
+significant regions of the protein may be annotated by the curation staff.
+Domain annotation is not provided comprehensively at this time.
+
+4.2 Tracking Identifiers
+------------------------
+Several identifiers are provided on RefSeq records that can be used to track 
+relationships between annotated features, relationships between RefSeq records, 
+and changes to RefSeq records over time. 
+
+The GeneID identifies the related Gene, mRNA, and CDS features. 
+Transcript IDs (RefSeq accessions) provide an explicit connection between a 
+transcript feature annotated on a genomic RefSeq record, and the RefSeq 
+transcript record itself. Likewise, the Protein ID (RefSeq accessions) provides 
+the association between the annotated CDS feature on a genomic or transcript 
+RefSeq record, and the protein record itself.
+
+Changes to a RefSeq sequence over time can be identified by changes to the version
+number.
+	
+4.2.1 GeneID
+------------
+A gene feature database cross-reference qualifier (dbxref), the GeneID, 
+is provided on many RefSeq records to support access to the Entrez Gene
+database. 
+
+Entrez Gene provides gene-oriented information for a sub-set of the
+RefSeq collection. Gene includes data for all Eukaryotic genomes, viral genomes,
+and a representative Prokaryotic genomes. 
+
+The GeneID  provides a distinct tracking identifier for a gene
+or locus and is provided on the gene, mRNA, and CDS features. The GeneID 
+can be used to identify a set of related features; this is especially useful 
+when multiple products are provided to represent alternate splicing events.
+	
+For example:
+
+NC_000003.12	Homo sapiens chromosome 3, GRCh38.p14 Primary Assembly.
+
+//
+
+     gene            38039208..38124025
+                     /gene="DLEC1"
+                     /gene_synonym="CFAP81; DLC-1; DLC1; F56; FAP81"
+                     /note="DLEC1 cilia and flagella associated protein;
+                     Derived by automated computational analysis using gene
+                     prediction method: BestRefSeq,Gnomon."
+                     /db_xref="GeneID:9940"	<<<--- GeneID
+                     /db_xref="HGNC:HGNC:2899"
+                     /db_xref="MIM:604050"
+
+//
+	
+
+When viewing RefSeq records via the internet, the GeneID is hot-linked to Entrez
+Gene. 
+
+4.2.2 Transcript ID
+-------------------
+The transcript_id qualifier found on a mRNA or other RNA feature annotation
+provides an explicit correspondence between a feature annotation on a genomic 
+record and the RefSeq transcript record.
+
+For example:
+
+NC_000022.11	Homo sapiens chromosome 22, GRCh38.p14 Primary Assembly.   
+
+//
+
+     mRNA            complement(46255663..46263343)
+                     /gene="PKDREJ"
+                     /product="polycystin family receptor for egg jelly"
+                     /note="Derived by automated computational analysis using
+                     gene prediction method: BestRefSeq."
+                     /transcript_id="NM_006071.2"	<<<--- linked RefSeq transcript
+		     /db_xref="Ensembl:ENST00000253255.7"
+                     /db_xref="GeneID:10343"
+                     /db_xref="HGNC:HGNC:9015"
+                     /db_xref="MIM:604670"
+
+//
+
+		
+4.2.3 Protein ID
+----------------
+The protein_id qualifier found on a coding region (CDS) feature provides an 
+explicit correspondance between feature annotation on a genomic or transcript 
+RefSeq record and the RefSeq transcript record.
+
+For example:
+
+NC_001144.5 	Saccharomyces cerevisiae S288C chromosome XII, complete sequence. 
+
+//
+
+     CDS             complement(16639..17613)
+                     /gene="MHT1"
+                     /locus_tag="YLL062C"
+                     /EC_number="2.1.1.10"
+                     /experiment="EXISTENCE:direct assay:GO:0005737 cytoplasm
+                     [PMID:14562095]"
+                     /experiment="EXISTENCE:direct assay:GO:0008898
+                     S-adenosylmethionine-homocysteine S-methyltransferase
+                     activity [PMID:11013242]"
+                     /experiment="EXISTENCE:mutant phenotype:GO:0000096 sulfur
+                     amino acid metabolic process [PMID:11013242]"
+                     /note="S-methylmethionine-homocysteine methyltransferase;
+                     functions along with Sam4p in the conversion of
+                     S-adenosylmethionine (AdoMet) to methionine to control the
+                     methionine/AdoMet ratio"
+                     /codon_start=1
+                     /product="S-adenosylmethionine-homocysteine
+                     S-methyltransferase MHT1"
+                     /protein_id="NP_013038.1"      <<<--- linked RefSeq protein
+                     /db_xref="GeneID:850664"
+                     /db_xref="SGD:S000003985"
+                     /translation="MKRIPIKELIVEHPGKVLILDGGQGTELENRGININSPVWSAAP
+                     FTSESFWEPSSQERKVVEEMYRDFMIAGANILMTITYQANFQSISENTSIKTLAAYKR
+                     FLDKIVSFTREFIGEERYLIGSIGPWAAHVSCEYTGDYGPHPENIDYYGFFKPQLENF
+                     NQNRDIDLIGFETIPNFHELKAILSWDEDIISKPFYIGLSVDDNSLLRDGTTLEEISV
+                     HIKGLGNKINKNLLLMGVNCVSFNQSALILKMLHEHLPGMPLLVYPNSGEIYNPKEKT
+                     WHRPTNKLDDWETTVKKFVDNGARIIGGCCRTSPKDIAEIASAVDKYS"		     
+    
+ //
+
+4.2.4 Conserved Domain Database (CDD) ID
+----------------------------------------
+Protein domain annotation is calculated by the Conserved Domain Database
+and is included in RefSeq protein records processed for the FTP site. Domain
+annotation appears as a Region feature on protein records and is propagated to
+associated transcript features (if available) as a misc_feat. The feature
+annotation includes a dbxref cross-reference to the CDD database that may change
+over time.  The dbxref retrieves a domain model as calculated at a point in time;
+recalculation of domains by the CDD group may result in a new CDD identifier value.
+The CDD dbxref values that are available in the RefSeq release, although not 
+stable, will continue to retrieve data from the CDD database where a newer 
+identifier value may be found.
+
+For example:
+
+NP_000550.2	 hemoglobin subunit gamma-1 [Homo sapiens].        
+
+//
+
+     Region          8..146
+                     /region_name="Hb-beta-like"
+                     /note="Hemoglobin beta, gamma, delta, epsilon, and related
+                     Hb subunits; cd08925"
+                     /db_xref="CDD:381262"      <<<--- CDD identifier
+
+//
+
+=============================================================================
+5. REFSEQ ADMINISTRATION
+=============================================================================
+The National Center for Biotechnology Information (NCBI), National Library
+of Medicine, National Institutes of Health, is responsible for the production
+and distribution of the NIH RefSeq Sequence Database. NCBI distributes
+RefSeq sequence data by anonymous FTP. For more information, you may contact 
+NCBI by email at info@ncbi.nlm.nih.gov or by phone at 301-496-2475.
+
+5.1 Citing RefSeq
+-----------------
+When citing data in RefSeq, it is appropriate to to give the sequence name,
+and primary accession and version number. Note, the most accurate citation
+of the sequence is provided by including the combined accession plus version number.
+
+It is also appropriate to list a reference for the RefSeq project. Please
+refer to the RefSeq web site for the most recent publication.
+  https://www.ncbi.nlm.nih.gov/refseq/publications/
+
+5.2 RefSeq Release Schedule and Distribution Formats
+-------------------------------
+RefSeq releases occur in the first two weeks of odd-numbered months:
+January, March, May, July, September, November
+
+Complete flat file releases of the RefSeq database are available via
+NCBI's anonymous ftp server:
+	https://ftp.ncbi.nlm.nih.gov/refseq/release/
+
+Each release is cumulative, incorporating previous data plus new data.
+Records that have been suppressed are not included in the release.
+
+Incremental updates that become available between RefSeq releases
+are available at:
+
+https://ftp.ncbi.nlm.nih.gov/refseq/daily
+https://ftp.ncbi.nlm.nih.gov/refseq/cumulative
+
+Please refer to the README for additional information:
+https://ftp.ncbi.nlm.nih.gov/refseq/README
+
+5.3 Other Methods of Accessing RefSeq Data
+------------------------------------------
+Entrez is a molecular biology database system that presents an integrated
+view of DNA and protein sequence data, structure data, genome data, 
+publications, and other data fields.  The Entrez query and retrieval
+system is produced by the National Center for Biotechnology Information
+(NCBI) and is available only via the internet.
+
+Entrez is accessed at:
+
+	https://www.ncbi.nlm.nih.gov/Entrez/
+
+RefSeq entries are indexed for retrieval in the Entrez system. The web-based
+filter restrictions can be used to restrict your query to RefSeq data or to 
+specific subsets of the RefSeq database.
+
+Additional specific property restrictions are provided to support querying
+for RefSeq records with specific STATUS codes. Queries are defined on the
+RefSeq web site at:
+
+	https://www.ncbi.nlm.nih.gov/RefSeq/
+
+5.4 Request for Corrections and Comments
+----------------------------------------
+We welcome your suggestions to improve the RefSeq collection; we invite 
+groups interested in contributing toward the collection and curation 
+of the RefSeq database to improve the representation of single genes, 
+gene families, or complete genomes to contact us.
+
+Please refer to RefSeq accession and version numbers (or GI) and the RefSeq
+Release number to which your comments apply; it is useful if you
+indicate the source of data that you found to be problematic (e.g., data on
+the FTP site, data retrieved on the web site), the entry DEFLINE, and the 
+specific annotation field for which you are suggesting a change.
+
+Suggestions and corrections can be sent to:
+
+	info@ncbi.nlm.nih.gov
+
+5.5 Credits and Acknowledgements
+--------------------------------
+This RefSeq release would not be possible without the support of numerous
+collaborators and the primary sequence data that is submitted by thousands
+of laboratories and available in GenBank.
+
+The RefSeq project is ambitious in scope and we actively welcome opportunities
+to work with other groups to provide this collection. We value all of our 
+collaborators; they contribute information with a large range in scope and 
+volume such as completely annotated genomes, advice to improve the sequence 
+or annotation of individual RefSeq records, information about official 
+nomenclature, and information about function.
+
+In addition to the significant information collected by collaboration, 
+numerous NCBI staff are involved in infrastructure support, programmatic 
+support, and curation. RefSeq is supported by 3 primary work groups that 
+are associated with Entrez Gene, Entrez Genomes, and the Genome Annotation 
+Pipeline. 
+
+5.6 Disclaimer
+--------------
+The United States Government makes no representations or warranties
+regarding the content or accuracy of the information.  The United States
+Government also makes no representations or warranties of merchantability
+or fitness for a particular purpose or that the use of the sequences will
+not infringe any patent, copyright, trademark, or other rights. The United
+States Government accepts no responsibility for any consequence of the receipt
+or use of the information.
+
+For additional information about RefSeq releases, please contact
+NCBI by e-mail at info@ncbi.nlm.nih.gov or by phone at (301) 496-2475.

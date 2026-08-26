@@ -1,0 +1,21 @@
+{
+  "protein_id": "Q727P3",
+  "rank": 2,
+  "sequence_length": 1012,
+  "selenocysteine_positions": [
+    189
+  ],
+  "esmfold_substitutions": [
+    {
+      "position": 189,
+      "original": "U",
+      "model_input": "X"
+    }
+  ],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 80.28836059570312,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.9045147895812988,
+  "elapsed_seconds": 41.40453602792695,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/02_Q727P3.pdb"
+}

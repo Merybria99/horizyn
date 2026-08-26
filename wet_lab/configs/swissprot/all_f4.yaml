@@ -1,0 +1,16 @@
+reaction:
+  id: tagatose_4_epimerase
+  smiles: "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]"
+
+models:
+  - wet_lab/configs/swissprot/f4_reactzyme_time.yaml
+  - wet_lab/configs/swissprot/f4_reactzyme_enzyme_smi.yaml
+  - wet_lab/configs/swissprot/f4_reactzyme_reaction_smi.yaml
+  - wet_lab/configs/swissprot/f4_horizyn.yaml
+
+consensus:
+  rrf_constant: 60
+  max_rank: 100
+
+output:
+  directory: wet_lab/reports/tagatose_4_epimerase_all_f4_swissprot

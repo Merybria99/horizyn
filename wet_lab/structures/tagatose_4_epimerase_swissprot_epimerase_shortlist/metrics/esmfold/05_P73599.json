@@ -1,0 +1,13 @@
+{
+  "protein_id": "P73599",
+  "rank": 5,
+  "sequence_length": 287,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 87.91459655761719,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.932183563709259,
+  "elapsed_seconds": 2.3028236189857125,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/05_P73599.pdb"
+}

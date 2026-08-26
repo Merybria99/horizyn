@@ -1,0 +1,35 @@
+reaction:
+  id: tagatose_4_epimerase
+  smiles: "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]"
+
+model:
+  name: F4 ReactZyme reaction_smi, epoch 28
+  config: runs/reactzyme_reaction_features_v1/horizyn_test/F4_reaction_smi/F4_horizyn.yaml
+  checkpoint: runs/reactzyme_reaction_features_v1/checkpoints/reaction_smi/F4_factorized_reaction/protein-pooling-epoch=28.ckpt
+
+candidate_pool:
+  ids: runs/horizyn_f4_in_domain_v1/protocol/test_candidate_ids.txt
+  residue_embeddings: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+  fasta: data/sota/prots.fasta
+  target_cache_dir: runs/reactzyme_reaction_features_v1/horizyn_test/F4_reaction_smi/target_cache
+  protein_embedding: prott5
+  score_protein_embedding: prott5
+  encoding_batch_size: 2048
+
+feature_generation:
+  reaction_t5_model: ../hf_cache/hub/models--sagawa--ReactionT5v2-forward/snapshots/933114058cb2604dc1bf536dbebdfcefbe83d4fc
+  reaction_t5_max_length: 512
+  reaction_t5_pooling: mean
+  unimol_weight_dir: ../unimol_weights
+  chiro_num_workers: 1
+  chemistry_python: ../.capability-run-py/bin/python
+  reaction_chemistry_schema: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/schema.json
+  cofactor_dictionary: data/processed/capability_features/train_exact_rhea_reconstructed/cofactor_dictionary.csv
+
+inference:
+  device: cuda
+  top_k: [1, 5, 10, 20, 50, 100]
+  score_batch_size: 32768
+
+output:
+  directory: wet_lab/runs

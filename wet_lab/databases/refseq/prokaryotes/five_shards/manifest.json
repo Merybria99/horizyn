@@ -1,0 +1,161 @@
+{
+  "schema_version": "horizyn_wet_lab_refseq_prokaryotic_v1",
+  "prepared_at": "2026-08-16T13:59:39.123631+00:00",
+  "source": {
+    "database": "NCBI RefSeq",
+    "release": 236,
+    "release_catalog_url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/release-catalog/release236.files.installed",
+    "release_notes_url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/release-notes/RefSeq-release236.txt",
+    "release_notes_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/RefSeq-release236.txt",
+    "release_notes_sha256": "aefd7e334e94f13dbeb38ba44aa8cfacbd69d07115ebccbff2ae22d4957a16f6",
+    "nonredundant_wp_only": true
+  },
+  "selection": {
+    "release": 236,
+    "divisions": [
+      "archaea",
+      "bacteria"
+    ],
+    "max_files_per_division": 5,
+    "min_length": 50,
+    "max_length": null,
+    "selected_filenames": [
+      "archaea.wp_protein.1.protein.faa.gz",
+      "archaea.wp_protein.2.protein.faa.gz",
+      "archaea.wp_protein.3.protein.faa.gz",
+      "archaea.wp_protein.4.protein.faa.gz",
+      "archaea.wp_protein.5.protein.faa.gz",
+      "bacteria.wp_protein.1.protein.faa.gz",
+      "bacteria.wp_protein.2.protein.faa.gz",
+      "bacteria.wp_protein.3.protein.faa.gz",
+      "bacteria.wp_protein.4.protein.faa.gz",
+      "bacteria.wp_protein.5.protein.faa.gz"
+    ]
+  },
+  "downloaded_files": [
+    {
+      "division": "archaea",
+      "number": 1,
+      "filename": "archaea.wp_protein.1.protein.faa.gz",
+      "md5": "87049408d8054bbee457dd6c4067a783",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/archaea/archaea.wp_protein.1.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/archaea/archaea.wp_protein.1.protein.faa.gz",
+      "size_bytes": 86064185
+    },
+    {
+      "division": "archaea",
+      "number": 2,
+      "filename": "archaea.wp_protein.2.protein.faa.gz",
+      "md5": "dab8845deab1119bd2ce49d34952f859",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/archaea/archaea.wp_protein.2.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/archaea/archaea.wp_protein.2.protein.faa.gz",
+      "size_bytes": 77834459
+    },
+    {
+      "division": "archaea",
+      "number": 3,
+      "filename": "archaea.wp_protein.3.protein.faa.gz",
+      "md5": "b853162d2e64af38dcb97fbbcfd2b128",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/archaea/archaea.wp_protein.3.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/archaea/archaea.wp_protein.3.protein.faa.gz",
+      "size_bytes": 79869994
+    },
+    {
+      "division": "archaea",
+      "number": 4,
+      "filename": "archaea.wp_protein.4.protein.faa.gz",
+      "md5": "cfbfe81c94c4f62914f602927474846e",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/archaea/archaea.wp_protein.4.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/archaea/archaea.wp_protein.4.protein.faa.gz",
+      "size_bytes": 77512970
+    },
+    {
+      "division": "archaea",
+      "number": 5,
+      "filename": "archaea.wp_protein.5.protein.faa.gz",
+      "md5": "6f4f515e13fc9927fd38497392c09237",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/archaea/archaea.wp_protein.5.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/archaea/archaea.wp_protein.5.protein.faa.gz",
+      "size_bytes": 82570237
+    },
+    {
+      "division": "bacteria",
+      "number": 1,
+      "filename": "bacteria.wp_protein.1.protein.faa.gz",
+      "md5": "4cffe0407d3c0f6c84aefd482bec5ef1",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.wp_protein.1.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/bacteria/bacteria.wp_protein.1.protein.faa.gz",
+      "size_bytes": 69359374
+    },
+    {
+      "division": "bacteria",
+      "number": 2,
+      "filename": "bacteria.wp_protein.2.protein.faa.gz",
+      "md5": "0b0e330521d78af256f7667ef9880e3d",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.wp_protein.2.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/bacteria/bacteria.wp_protein.2.protein.faa.gz",
+      "size_bytes": 51946366
+    },
+    {
+      "division": "bacteria",
+      "number": 3,
+      "filename": "bacteria.wp_protein.3.protein.faa.gz",
+      "md5": "2034c60becf7b7eb135e650c8bf0190b",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.wp_protein.3.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/bacteria/bacteria.wp_protein.3.protein.faa.gz",
+      "size_bytes": 62580327
+    },
+    {
+      "division": "bacteria",
+      "number": 4,
+      "filename": "bacteria.wp_protein.4.protein.faa.gz",
+      "md5": "9a79713446b05f84e8523e5935fa1e1c",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.wp_protein.4.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/bacteria/bacteria.wp_protein.4.protein.faa.gz",
+      "size_bytes": 39126602
+    },
+    {
+      "division": "bacteria",
+      "number": 5,
+      "filename": "bacteria.wp_protein.5.protein.faa.gz",
+      "md5": "80f2d844fac590565e91f960d312b630",
+      "url": "https://ftp.ncbi.nlm.nih.gov/refseq/release/bacteria/bacteria.wp_protein.5.protein.faa.gz",
+      "path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/downloads/bacteria/bacteria.wp_protein.5.protein.faa.gz",
+      "size_bytes": 43201632
+    }
+  ],
+  "files": {
+    "normalized_fasta": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/proteins.fasta",
+    "candidate_ids": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/candidate_ids.txt",
+    "metadata_csv": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/proteins.csv"
+  },
+  "sha256": {
+    "normalized_fasta": "d23798833aa010a81fe1ca85e2ab29ce3c2a16b4f213517d75ecb63bb068684e",
+    "candidate_ids": "5dfac607fb7eb6d7ecbd049b7563803943a75434b89ec06f36a1e9841943c11f",
+    "metadata_csv": "6a6a22e441965e6520b5b05bface785bcaee2988b6ad4d4dca5916adbcab8bfb"
+  },
+  "statistics": {
+    "source_record_count": 3973220,
+    "protein_count": 3944613,
+    "duplicate_accessions_skipped": 0,
+    "below_minimum_length_skipped": 28607,
+    "above_maximum_length_skipped": 0,
+    "total_residues": 1346228408,
+    "minimum_sequence_length": 50,
+    "maximum_sequence_length": 19170,
+    "nonstandard_residue_counts": {
+      "B": 76,
+      "J": 29,
+      "U": 1066,
+      "X": 9817,
+      "Z": 19
+    }
+  },
+  "prott5": {
+    "required_output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/databases/refseq/prokaryotes/five_shards/proteins_prott5_residue.h5",
+    "model": "Rostlab/prot_t5_xl_half_uniref50-enc",
+    "max_sequence_length": 1024,
+    "sequence_truncation": "ends_center",
+    "stored_dtype": "float16"
+  }
+}

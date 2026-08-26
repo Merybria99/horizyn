@@ -1,0 +1,3161 @@
+{
+  "schema_version": "horizyn_wet_lab_f4_campaign_v1",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]",
+    "warnings": []
+  },
+  "models": [
+    {
+      "name": "F4 ReactZyme time, epoch 29",
+      "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_reaction_features_v1/checkpoints/time/F4_factorized_reaction/protein-pooling-epoch=29.ckpt",
+      "result": "wet_lab/runs/swissprot/tagatose_4_epimerase_5e70b5120803/results.json",
+      "top_1": {
+        "rank": 1,
+        "protein_id": "A0A7H0DN72",
+        "cosine_similarity": 0.4518028795719147,
+        "sequence_length": "152",
+        "entry_name": "PG100_MONPV"
+      }
+    },
+    {
+      "name": "F4 ReactZyme enzyme_smi, epoch 29",
+      "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_reaction_features_v1/checkpoints/enzyme_smi/F4_factorized_reaction/protein-pooling-epoch=29.ckpt",
+      "result": "wet_lab/runs/swissprot/tagatose_4_epimerase_5881f6306730/results.json",
+      "top_1": {
+        "rank": 1,
+        "protein_id": "P56504",
+        "cosine_similarity": 0.4270617663860321,
+        "sequence_length": "50",
+        "entry_name": "BAP11_SCHCO"
+      }
+    },
+    {
+      "name": "F4 ReactZyme reaction_smi, epoch 28",
+      "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_reaction_features_v1/checkpoints/reaction_smi/F4_factorized_reaction/protein-pooling-epoch=28.ckpt",
+      "result": "wet_lab/runs/swissprot/tagatose_4_epimerase_2553e3057c19/results.json",
+      "top_1": {
+        "rank": 1,
+        "protein_id": "Q9WYP7",
+        "cosine_similarity": 0.38524913787841797,
+        "sequence_length": "270",
+        "entry_name": "IOLO_THEMA"
+      }
+    },
+    {
+      "name": "F4 Horizyn in-domain, epoch 29",
+      "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/horizyn_f4_in_domain_v1/checkpoints/protein-pooling-epoch=29.ckpt",
+      "result": "wet_lab/runs/swissprot/tagatose_4_epimerase_78a8953e4174/results.json",
+      "top_1": {
+        "rank": 1,
+        "protein_id": "D4GPW5",
+        "cosine_similarity": 0.46332940459251404,
+        "sequence_length": "391",
+        "entry_name": "TSGAD_HALVD"
+      }
+    }
+  ],
+  "consensus": {
+    "method": "reciprocal_rank_fusion",
+    "rrf_constant": 60.0,
+    "max_rank": 100,
+    "rankings": [
+      {
+        "consensus_rank": 1,
+        "protein_id": "Q9WYP7",
+        "rrf_score": 0.025567754549556326,
+        "model_support": 2,
+        "best_rank": 1,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 2,
+        "protein_id": "P0AAA2",
+        "rrf_score": 0.024393743722198307,
+        "model_support": 2,
+        "best_rank": 9,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 3,
+        "protein_id": "P0AAA1",
+        "rrf_score": 0.024089635854341734,
+        "model_support": 2,
+        "best_rank": 10,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 4,
+        "protein_id": "P0DJX9",
+        "rrf_score": 0.023467173087357567,
+        "model_support": 2,
+        "best_rank": 16,
+        "models": "F4 ReactZyme time, epoch 29; F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 5,
+        "protein_id": "Q196T8",
+        "rrf_score": 0.02188034188034188,
+        "model_support": 2,
+        "best_rank": 15,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 6,
+        "protein_id": "M1VMF7",
+        "rrf_score": 0.021516164994425865,
+        "model_support": 2,
+        "best_rank": 18,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 7,
+        "protein_id": "Q82PP4",
+        "rrf_score": 0.020503261882572225,
+        "model_support": 2,
+        "best_rank": 27,
+        "models": "F4 ReactZyme time, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 8,
+        "protein_id": "Q934F5",
+        "rrf_score": 0.01991281949673073,
+        "model_support": 2,
+        "best_rank": 38,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 9,
+        "protein_id": "Q727P3",
+        "rrf_score": 0.01976246105919003,
+        "model_support": 2,
+        "best_rank": 36,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 10,
+        "protein_id": "P46448",
+        "rrf_score": 0.01946358726019743,
+        "model_support": 2,
+        "best_rank": 31,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 11,
+        "protein_id": "O52957",
+        "rrf_score": 0.017475579975579976,
+        "model_support": 2,
+        "best_rank": 52,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29; F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 12,
+        "protein_id": "A0A7H0DN72",
+        "rrf_score": 0.01639344262295082,
+        "model_support": 1,
+        "best_rank": 1,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 13,
+        "protein_id": "D4GPW5",
+        "rrf_score": 0.01639344262295082,
+        "model_support": 1,
+        "best_rank": 1,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 14,
+        "protein_id": "P56504",
+        "rrf_score": 0.01639344262295082,
+        "model_support": 1,
+        "best_rank": 1,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 15,
+        "protein_id": "C1DIY8",
+        "rrf_score": 0.016285153695225638,
+        "model_support": 2,
+        "best_rank": 50,
+        "models": "F4 ReactZyme time, epoch 29; F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 16,
+        "protein_id": "A0A2S5CS40",
+        "rrf_score": 0.016129032258064516,
+        "model_support": 1,
+        "best_rank": 2,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 17,
+        "protein_id": "A8RG82",
+        "rrf_score": 0.016129032258064516,
+        "model_support": 1,
+        "best_rank": 2,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 18,
+        "protein_id": "D4GQ16",
+        "rrf_score": 0.016129032258064516,
+        "model_support": 1,
+        "best_rank": 2,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 19,
+        "protein_id": "Q68US6",
+        "rrf_score": 0.016129032258064516,
+        "model_support": 1,
+        "best_rank": 2,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 20,
+        "protein_id": "A9CH28",
+        "rrf_score": 0.015873015873015872,
+        "model_support": 1,
+        "best_rank": 3,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 21,
+        "protein_id": "P21032",
+        "rrf_score": 0.015873015873015872,
+        "model_support": 1,
+        "best_rank": 3,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 22,
+        "protein_id": "P57911",
+        "rrf_score": 0.015873015873015872,
+        "model_support": 1,
+        "best_rank": 3,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 23,
+        "protein_id": "Q8Z9H9",
+        "rrf_score": 0.015873015873015872,
+        "model_support": 1,
+        "best_rank": 3,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 24,
+        "protein_id": "B0R5Y3",
+        "rrf_score": 0.015625,
+        "model_support": 1,
+        "best_rank": 4,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 25,
+        "protein_id": "B8I944",
+        "rrf_score": 0.015625,
+        "model_support": 1,
+        "best_rank": 4,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 26,
+        "protein_id": "E2FZM4",
+        "rrf_score": 0.015625,
+        "model_support": 1,
+        "best_rank": 4,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 27,
+        "protein_id": "P33004",
+        "rrf_score": 0.015625,
+        "model_support": 1,
+        "best_rank": 4,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 28,
+        "protein_id": "P73599",
+        "rrf_score": 0.015384615384615385,
+        "model_support": 1,
+        "best_rank": 5,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 29,
+        "protein_id": "Q00135",
+        "rrf_score": 0.015384615384615385,
+        "model_support": 1,
+        "best_rank": 5,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 30,
+        "protein_id": "Q5QJJ0",
+        "rrf_score": 0.015384615384615385,
+        "model_support": 1,
+        "best_rank": 5,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 31,
+        "protein_id": "Q9HPK2",
+        "rrf_score": 0.015384615384615385,
+        "model_support": 1,
+        "best_rank": 5,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 32,
+        "protein_id": "P24742",
+        "rrf_score": 0.015151515151515152,
+        "model_support": 1,
+        "best_rank": 6,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 33,
+        "protein_id": "P78562",
+        "rrf_score": 0.015151515151515152,
+        "model_support": 1,
+        "best_rank": 6,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 34,
+        "protein_id": "P89430",
+        "rrf_score": 0.015151515151515152,
+        "model_support": 1,
+        "best_rank": 6,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 35,
+        "protein_id": "Q9ZGS5",
+        "rrf_score": 0.015151515151515152,
+        "model_support": 1,
+        "best_rank": 6,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 36,
+        "protein_id": "P58930",
+        "rrf_score": 0.014925373134328358,
+        "model_support": 1,
+        "best_rank": 7,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 37,
+        "protein_id": "P70669",
+        "rrf_score": 0.014925373134328358,
+        "model_support": 1,
+        "best_rank": 7,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 38,
+        "protein_id": "Q0WML3",
+        "rrf_score": 0.014925373134328358,
+        "model_support": 1,
+        "best_rank": 7,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 39,
+        "protein_id": "Q48414",
+        "rrf_score": 0.014925373134328358,
+        "model_support": 1,
+        "best_rank": 7,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 40,
+        "protein_id": "A7Z487",
+        "rrf_score": 0.014815627743634766,
+        "model_support": 2,
+        "best_rank": 74,
+        "models": "F4 ReactZyme time, epoch 29; F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 41,
+        "protein_id": "P03062",
+        "rrf_score": 0.014705882352941176,
+        "model_support": 1,
+        "best_rank": 8,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 42,
+        "protein_id": "P0C0J8",
+        "rrf_score": 0.014705882352941176,
+        "model_support": 1,
+        "best_rank": 8,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 43,
+        "protein_id": "Q70JY7",
+        "rrf_score": 0.014705882352941176,
+        "model_support": 1,
+        "best_rank": 8,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 44,
+        "protein_id": "Q83JB2",
+        "rrf_score": 0.014705882352941176,
+        "model_support": 1,
+        "best_rank": 8,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 45,
+        "protein_id": "C0HKX3",
+        "rrf_score": 0.014492753623188406,
+        "model_support": 1,
+        "best_rank": 9,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 46,
+        "protein_id": "P0C0J7",
+        "rrf_score": 0.014492753623188406,
+        "model_support": 1,
+        "best_rank": 9,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 47,
+        "protein_id": "P51769",
+        "rrf_score": 0.014492753623188406,
+        "model_support": 1,
+        "best_rank": 9,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 48,
+        "protein_id": "B2RQR8",
+        "rrf_score": 0.014285714285714285,
+        "model_support": 1,
+        "best_rank": 10,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 49,
+        "protein_id": "P07616",
+        "rrf_score": 0.014285714285714285,
+        "model_support": 1,
+        "best_rank": 10,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 50,
+        "protein_id": "P18820",
+        "rrf_score": 0.014285714285714285,
+        "model_support": 1,
+        "best_rank": 10,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 51,
+        "protein_id": "C0H3Z4",
+        "rrf_score": 0.014084507042253521,
+        "model_support": 1,
+        "best_rank": 11,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 52,
+        "protein_id": "F1N476",
+        "rrf_score": 0.014084507042253521,
+        "model_support": 1,
+        "best_rank": 11,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 53,
+        "protein_id": "P38138",
+        "rrf_score": 0.014084507042253521,
+        "model_support": 1,
+        "best_rank": 11,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 54,
+        "protein_id": "T2KNB2",
+        "rrf_score": 0.014084507042253521,
+        "model_support": 1,
+        "best_rank": 11,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 55,
+        "protein_id": "A0A0B4K692",
+        "rrf_score": 0.013888888888888888,
+        "model_support": 1,
+        "best_rank": 12,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 56,
+        "protein_id": "P22399",
+        "rrf_score": 0.013888888888888888,
+        "model_support": 1,
+        "best_rank": 12,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 57,
+        "protein_id": "Q52071",
+        "rrf_score": 0.013888888888888888,
+        "model_support": 1,
+        "best_rank": 12,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 58,
+        "protein_id": "T2KPL4",
+        "rrf_score": 0.013888888888888888,
+        "model_support": 1,
+        "best_rank": 12,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 59,
+        "protein_id": "B9F676",
+        "rrf_score": 0.0136986301369863,
+        "model_support": 1,
+        "best_rank": 13,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 60,
+        "protein_id": "C1KKR1",
+        "rrf_score": 0.0136986301369863,
+        "model_support": 1,
+        "best_rank": 13,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 61,
+        "protein_id": "Q7LYW7",
+        "rrf_score": 0.0136986301369863,
+        "model_support": 1,
+        "best_rank": 13,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 62,
+        "protein_id": "Q96HZ7",
+        "rrf_score": 0.0136986301369863,
+        "model_support": 1,
+        "best_rank": 13,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 63,
+        "protein_id": "O59403",
+        "rrf_score": 0.013513513513513514,
+        "model_support": 1,
+        "best_rank": 14,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 64,
+        "protein_id": "P18889",
+        "rrf_score": 0.013513513513513514,
+        "model_support": 1,
+        "best_rank": 14,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 65,
+        "protein_id": "P55695",
+        "rrf_score": 0.013513513513513514,
+        "model_support": 1,
+        "best_rank": 14,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 66,
+        "protein_id": "Q8RMD1",
+        "rrf_score": 0.013513513513513514,
+        "model_support": 1,
+        "best_rank": 14,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 67,
+        "protein_id": "A1JLD8",
+        "rrf_score": 0.013333333333333334,
+        "model_support": 1,
+        "best_rank": 15,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 68,
+        "protein_id": "O30142",
+        "rrf_score": 0.013333333333333334,
+        "model_support": 1,
+        "best_rank": 15,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 69,
+        "protein_id": "Q9D1H0",
+        "rrf_score": 0.013333333333333334,
+        "model_support": 1,
+        "best_rank": 15,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 70,
+        "protein_id": "O50580",
+        "rrf_score": 0.013157894736842105,
+        "model_support": 1,
+        "best_rank": 16,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 71,
+        "protein_id": "P0AD81",
+        "rrf_score": 0.013157894736842105,
+        "model_support": 1,
+        "best_rank": 16,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 72,
+        "protein_id": "P42893",
+        "rrf_score": 0.013157894736842105,
+        "model_support": 1,
+        "best_rank": 16,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 73,
+        "protein_id": "P0AD80",
+        "rrf_score": 0.012987012987012988,
+        "model_support": 1,
+        "best_rank": 17,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 74,
+        "protein_id": "P0C8C7",
+        "rrf_score": 0.012987012987012988,
+        "model_support": 1,
+        "best_rank": 17,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 75,
+        "protein_id": "Q6R7E3",
+        "rrf_score": 0.012987012987012988,
+        "model_support": 1,
+        "best_rank": 17,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 76,
+        "protein_id": "Q9EQF2",
+        "rrf_score": 0.012987012987012988,
+        "model_support": 1,
+        "best_rank": 17,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 77,
+        "protein_id": "P0AD79",
+        "rrf_score": 0.01282051282051282,
+        "model_support": 1,
+        "best_rank": 18,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 78,
+        "protein_id": "P29064",
+        "rrf_score": 0.01282051282051282,
+        "model_support": 1,
+        "best_rank": 18,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 79,
+        "protein_id": "P42892",
+        "rrf_score": 0.01282051282051282,
+        "model_support": 1,
+        "best_rank": 18,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 80,
+        "protein_id": "A7IIE0",
+        "rrf_score": 0.012658227848101266,
+        "model_support": 1,
+        "best_rank": 19,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 81,
+        "protein_id": "P0AD82",
+        "rrf_score": 0.012658227848101266,
+        "model_support": 1,
+        "best_rank": 19,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 82,
+        "protein_id": "P0DPD9",
+        "rrf_score": 0.012658227848101266,
+        "model_support": 1,
+        "best_rank": 19,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 83,
+        "protein_id": "P9WF03",
+        "rrf_score": 0.012658227848101266,
+        "model_support": 1,
+        "best_rank": 19,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 84,
+        "protein_id": "P0DPD8",
+        "rrf_score": 0.0125,
+        "model_support": 1,
+        "best_rank": 20,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 85,
+        "protein_id": "P22402",
+        "rrf_score": 0.0125,
+        "model_support": 1,
+        "best_rank": 20,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 86,
+        "protein_id": "P45541",
+        "rrf_score": 0.0125,
+        "model_support": 1,
+        "best_rank": 20,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 87,
+        "protein_id": "Q56353",
+        "rrf_score": 0.0125,
+        "model_support": 1,
+        "best_rank": 20,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 88,
+        "protein_id": "O83797",
+        "rrf_score": 0.012345679012345678,
+        "model_support": 1,
+        "best_rank": 21,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 89,
+        "protein_id": "Q4PZA2",
+        "rrf_score": 0.012345679012345678,
+        "model_support": 1,
+        "best_rank": 21,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 90,
+        "protein_id": "Q9FN05",
+        "rrf_score": 0.012345679012345678,
+        "model_support": 1,
+        "best_rank": 21,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 91,
+        "protein_id": "Q9RLB8",
+        "rrf_score": 0.012345679012345678,
+        "model_support": 1,
+        "best_rank": 21,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 92,
+        "protein_id": "P08473",
+        "rrf_score": 0.012195121951219513,
+        "model_support": 1,
+        "best_rank": 22,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 93,
+        "protein_id": "Q8TET4",
+        "rrf_score": 0.012195121951219513,
+        "model_support": 1,
+        "best_rank": 22,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 94,
+        "protein_id": "Q8X840",
+        "rrf_score": 0.012195121951219513,
+        "model_support": 1,
+        "best_rank": 22,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 95,
+        "protein_id": "Q9VWP4",
+        "rrf_score": 0.012195121951219513,
+        "model_support": 1,
+        "best_rank": 22,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 96,
+        "protein_id": "A2QTU5",
+        "rrf_score": 0.012048192771084338,
+        "model_support": 1,
+        "best_rank": 23,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 97,
+        "protein_id": "P10428",
+        "rrf_score": 0.012048192771084338,
+        "model_support": 1,
+        "best_rank": 23,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 98,
+        "protein_id": "P24335",
+        "rrf_score": 0.012048192771084338,
+        "model_support": 1,
+        "best_rank": 23,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 99,
+        "protein_id": "Q5RE69",
+        "rrf_score": 0.012048192771084338,
+        "model_support": 1,
+        "best_rank": 23,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 100,
+        "protein_id": "C0HKX7",
+        "rrf_score": 0.011904761904761904,
+        "model_support": 1,
+        "best_rank": 24,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 101,
+        "protein_id": "D2HS03",
+        "rrf_score": 0.011904761904761904,
+        "model_support": 1,
+        "best_rank": 24,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 102,
+        "protein_id": "P21175",
+        "rrf_score": 0.011904761904761904,
+        "model_support": 1,
+        "best_rank": 24,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 103,
+        "protein_id": "Q5L1R7",
+        "rrf_score": 0.011904761904761904,
+        "model_support": 1,
+        "best_rank": 24,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 104,
+        "protein_id": "Q4WZB3",
+        "rrf_score": 0.011764705882352941,
+        "model_support": 1,
+        "best_rank": 25,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 105,
+        "protein_id": "Q7TLC4",
+        "rrf_score": 0.011764705882352941,
+        "model_support": 1,
+        "best_rank": 25,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 106,
+        "protein_id": "Q8BVW0",
+        "rrf_score": 0.011764705882352941,
+        "model_support": 1,
+        "best_rank": 25,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 107,
+        "protein_id": "Q9V1H5",
+        "rrf_score": 0.011764705882352941,
+        "model_support": 1,
+        "best_rank": 25,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 108,
+        "protein_id": "A0A023IWI4",
+        "rrf_score": 0.011627906976744186,
+        "model_support": 1,
+        "best_rank": 26,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 109,
+        "protein_id": "A0A1L7NQ96",
+        "rrf_score": 0.011627906976744186,
+        "model_support": 1,
+        "best_rank": 26,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 110,
+        "protein_id": "P08049",
+        "rrf_score": 0.011627906976744186,
+        "model_support": 1,
+        "best_rank": 26,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 111,
+        "protein_id": "Q9US55",
+        "rrf_score": 0.011627906976744186,
+        "model_support": 1,
+        "best_rank": 26,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 112,
+        "protein_id": "O83911",
+        "rrf_score": 0.011494252873563218,
+        "model_support": 1,
+        "best_rank": 27,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 113,
+        "protein_id": "P0DPE2",
+        "rrf_score": 0.011494252873563218,
+        "model_support": 1,
+        "best_rank": 27,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 114,
+        "protein_id": "P17384",
+        "rrf_score": 0.011494252873563218,
+        "model_support": 1,
+        "best_rank": 27,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 115,
+        "protein_id": "O34213",
+        "rrf_score": 0.011363636363636364,
+        "model_support": 1,
+        "best_rank": 28,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 116,
+        "protein_id": "P97739",
+        "rrf_score": 0.011363636363636364,
+        "model_support": 1,
+        "best_rank": 28,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 117,
+        "protein_id": "Q11185",
+        "rrf_score": 0.011363636363636364,
+        "model_support": 1,
+        "best_rank": 28,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 118,
+        "protein_id": "Q9BE70",
+        "rrf_score": 0.011363636363636364,
+        "model_support": 1,
+        "best_rank": 28,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 119,
+        "protein_id": "C0HKX6",
+        "rrf_score": 0.011235955056179775,
+        "model_support": 1,
+        "best_rank": 29,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 120,
+        "protein_id": "C5B8J8",
+        "rrf_score": 0.011235955056179775,
+        "model_support": 1,
+        "best_rank": 29,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 121,
+        "protein_id": "O83340",
+        "rrf_score": 0.011235955056179775,
+        "model_support": 1,
+        "best_rank": 29,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 122,
+        "protein_id": "Q61391",
+        "rrf_score": 0.011235955056179775,
+        "model_support": 1,
+        "best_rank": 29,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 123,
+        "protein_id": "P08868",
+        "rrf_score": 0.011111111111111112,
+        "model_support": 1,
+        "best_rank": 30,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 124,
+        "protein_id": "P10032",
+        "rrf_score": 0.011111111111111112,
+        "model_support": 1,
+        "best_rank": 30,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 125,
+        "protein_id": "P42419",
+        "rrf_score": 0.011111111111111112,
+        "model_support": 1,
+        "best_rank": 30,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 126,
+        "protein_id": "Q9GLN7",
+        "rrf_score": 0.011111111111111112,
+        "model_support": 1,
+        "best_rank": 30,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 127,
+        "protein_id": "P0DPD6",
+        "rrf_score": 0.01098901098901099,
+        "model_support": 1,
+        "best_rank": 31,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 128,
+        "protein_id": "Q8A6W5",
+        "rrf_score": 0.01098901098901099,
+        "model_support": 1,
+        "best_rank": 31,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 129,
+        "protein_id": "Q94502",
+        "rrf_score": 0.01098901098901099,
+        "model_support": 1,
+        "best_rank": 31,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 130,
+        "protein_id": "P07861",
+        "rrf_score": 0.010869565217391304,
+        "model_support": 1,
+        "best_rank": 32,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 131,
+        "protein_id": "P33214",
+        "rrf_score": 0.010869565217391304,
+        "model_support": 1,
+        "best_rank": 32,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 132,
+        "protein_id": "P55676",
+        "rrf_score": 0.010869565217391304,
+        "model_support": 1,
+        "best_rank": 32,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 133,
+        "protein_id": "P81464",
+        "rrf_score": 0.010869565217391304,
+        "model_support": 1,
+        "best_rank": 32,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 134,
+        "protein_id": "P0AAW5",
+        "rrf_score": 0.010752688172043012,
+        "model_support": 1,
+        "best_rank": 33,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 135,
+        "protein_id": "P48331",
+        "rrf_score": 0.010752688172043012,
+        "model_support": 1,
+        "best_rank": 33,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 136,
+        "protein_id": "Q495T6",
+        "rrf_score": 0.010752688172043012,
+        "model_support": 1,
+        "best_rank": 33,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 137,
+        "protein_id": "Q9SV73",
+        "rrf_score": 0.010752688172043012,
+        "model_support": 1,
+        "best_rank": 33,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 138,
+        "protein_id": "P0AAW7",
+        "rrf_score": 0.010638297872340425,
+        "model_support": 1,
+        "best_rank": 34,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 139,
+        "protein_id": "P23691",
+        "rrf_score": 0.010638297872340425,
+        "model_support": 1,
+        "best_rank": 34,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 140,
+        "protein_id": "Q98FW0",
+        "rrf_score": 0.010638297872340425,
+        "model_support": 1,
+        "best_rank": 34,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 141,
+        "protein_id": "Q9BYF1",
+        "rrf_score": 0.010638297872340425,
+        "model_support": 1,
+        "best_rank": 34,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 142,
+        "protein_id": "P0AAW8",
+        "rrf_score": 0.010526315789473684,
+        "model_support": 1,
+        "best_rank": 35,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 143,
+        "protein_id": "P0DMM4",
+        "rrf_score": 0.010526315789473684,
+        "model_support": 1,
+        "best_rank": 35,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 144,
+        "protein_id": "Q2YKI6",
+        "rrf_score": 0.010526315789473684,
+        "model_support": 1,
+        "best_rank": 35,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 145,
+        "protein_id": "Q54VK6",
+        "rrf_score": 0.010526315789473684,
+        "model_support": 1,
+        "best_rank": 35,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 146,
+        "protein_id": "C0HLV8",
+        "rrf_score": 0.010416666666666666,
+        "model_support": 1,
+        "best_rank": 36,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 147,
+        "protein_id": "P0AAW6",
+        "rrf_score": 0.010416666666666666,
+        "model_support": 1,
+        "best_rank": 36,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 148,
+        "protein_id": "Q5RFN1",
+        "rrf_score": 0.010416666666666666,
+        "model_support": 1,
+        "best_rank": 36,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 149,
+        "protein_id": "A9R6M7",
+        "rrf_score": 0.010309278350515464,
+        "model_support": 1,
+        "best_rank": 37,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 150,
+        "protein_id": "P12821",
+        "rrf_score": 0.010309278350515464,
+        "model_support": 1,
+        "best_rank": 37,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 151,
+        "protein_id": "P94388",
+        "rrf_score": 0.010309278350515464,
+        "model_support": 1,
+        "best_rank": 37,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 152,
+        "protein_id": "P32176",
+        "rrf_score": 0.01020408163265306,
+        "model_support": 1,
+        "best_rank": 38,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 153,
+        "protein_id": "P47820",
+        "rrf_score": 0.01020408163265306,
+        "model_support": 1,
+        "best_rank": 38,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 154,
+        "protein_id": "Q1CHP5",
+        "rrf_score": 0.01020408163265306,
+        "model_support": 1,
+        "best_rank": 38,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 155,
+        "protein_id": "B2K828",
+        "rrf_score": 0.010101010101010102,
+        "model_support": 1,
+        "best_rank": 39,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 156,
+        "protein_id": "P0DPW2",
+        "rrf_score": 0.010101010101010102,
+        "model_support": 1,
+        "best_rank": 39,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 157,
+        "protein_id": "P0DXE9",
+        "rrf_score": 0.010101010101010102,
+        "model_support": 1,
+        "best_rank": 39,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 158,
+        "protein_id": "P42891",
+        "rrf_score": 0.010101010101010102,
+        "model_support": 1,
+        "best_rank": 39,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 159,
+        "protein_id": "A4TM42",
+        "rrf_score": 0.01,
+        "model_support": 1,
+        "best_rank": 40,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 160,
+        "protein_id": "P09470",
+        "rrf_score": 0.01,
+        "model_support": 1,
+        "best_rank": 40,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 161,
+        "protein_id": "P0DPW1",
+        "rrf_score": 0.01,
+        "model_support": 1,
+        "best_rank": 40,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 162,
+        "protein_id": "Q92I77",
+        "rrf_score": 0.01,
+        "model_support": 1,
+        "best_rank": 40,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 163,
+        "protein_id": "P09165",
+        "rrf_score": 0.009900990099009901,
+        "model_support": 1,
+        "best_rank": 41,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 164,
+        "protein_id": "Q1C6A3",
+        "rrf_score": 0.009900990099009901,
+        "model_support": 1,
+        "best_rank": 41,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 165,
+        "protein_id": "Q56NL1",
+        "rrf_score": 0.009900990099009901,
+        "model_support": 1,
+        "best_rank": 41,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 166,
+        "protein_id": "Q7VSX7",
+        "rrf_score": 0.00980392156862745,
+        "model_support": 1,
+        "best_rank": 42,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 167,
+        "protein_id": "Q8R0I0",
+        "rrf_score": 0.00980392156862745,
+        "model_support": 1,
+        "best_rank": 42,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 168,
+        "protein_id": "Q8ZDJ9",
+        "rrf_score": 0.00980392156862745,
+        "model_support": 1,
+        "best_rank": 42,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 169,
+        "protein_id": "Q5EGZ1",
+        "rrf_score": 0.009708737864077669,
+        "model_support": 1,
+        "best_rank": 43,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 170,
+        "protein_id": "Q668Z3",
+        "rrf_score": 0.009708737864077669,
+        "model_support": 1,
+        "best_rank": 43,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 171,
+        "protein_id": "Q7W2U1",
+        "rrf_score": 0.009708737864077669,
+        "model_support": 1,
+        "best_rank": 43,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 172,
+        "protein_id": "A7FGP6",
+        "rrf_score": 0.009615384615384616,
+        "model_support": 1,
+        "best_rank": 44,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 173,
+        "protein_id": "P27459",
+        "rrf_score": 0.009615384615384616,
+        "model_support": 1,
+        "best_rank": 44,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 174,
+        "protein_id": "Q7WDT9",
+        "rrf_score": 0.009615384615384616,
+        "model_support": 1,
+        "best_rank": 44,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 175,
+        "protein_id": "Q9W5Y0",
+        "rrf_score": 0.009615384615384616,
+        "model_support": 1,
+        "best_rank": 44,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 176,
+        "protein_id": "B1JGK6",
+        "rrf_score": 0.009523809523809525,
+        "model_support": 1,
+        "best_rank": 45,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 177,
+        "protein_id": "P24183",
+        "rrf_score": 0.009523809523809525,
+        "model_support": 1,
+        "best_rank": 45,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 178,
+        "protein_id": "Q54NK2",
+        "rrf_score": 0.009523809523809525,
+        "model_support": 1,
+        "best_rank": 45,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 179,
+        "protein_id": "Q9JLI3",
+        "rrf_score": 0.009523809523809525,
+        "model_support": 1,
+        "best_rank": 45,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 180,
+        "protein_id": "A7ZAH3",
+        "rrf_score": 0.009433962264150943,
+        "model_support": 1,
+        "best_rank": 46,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 181,
+        "protein_id": "A8FB03",
+        "rrf_score": 0.009433962264150943,
+        "model_support": 1,
+        "best_rank": 46,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 182,
+        "protein_id": "P23276",
+        "rrf_score": 0.009433962264150943,
+        "model_support": 1,
+        "best_rank": 46,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 183,
+        "protein_id": "Q4ULV5",
+        "rrf_score": 0.009433962264150943,
+        "model_support": 1,
+        "best_rank": 46,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 184,
+        "protein_id": "P0C1T0",
+        "rrf_score": 0.009345794392523364,
+        "model_support": 1,
+        "best_rank": 47,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 185,
+        "protein_id": "Q58678",
+        "rrf_score": 0.009345794392523364,
+        "model_support": 1,
+        "best_rank": 47,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 186,
+        "protein_id": "Q9RXI7",
+        "rrf_score": 0.009345794392523364,
+        "model_support": 1,
+        "best_rank": 47,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 187,
+        "protein_id": "A6SSW5",
+        "rrf_score": 0.009259259259259259,
+        "model_support": 1,
+        "best_rank": 48,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 188,
+        "protein_id": "P0C5P9",
+        "rrf_score": 0.009259259259259259,
+        "model_support": 1,
+        "best_rank": 48,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 189,
+        "protein_id": "P55451",
+        "rrf_score": 0.009259259259259259,
+        "model_support": 1,
+        "best_rank": 48,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 190,
+        "protein_id": "Q56H28",
+        "rrf_score": 0.009259259259259259,
+        "model_support": 1,
+        "best_rank": 48,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 191,
+        "protein_id": "P18349",
+        "rrf_score": 0.009174311926605505,
+        "model_support": 1,
+        "best_rank": 49,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 192,
+        "protein_id": "Q88JU3",
+        "rrf_score": 0.009174311926605505,
+        "model_support": 1,
+        "best_rank": 49,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 193,
+        "protein_id": "Q9JMI0",
+        "rrf_score": 0.009174311926605505,
+        "model_support": 1,
+        "best_rank": 49,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 194,
+        "protein_id": "C5D2I2",
+        "rrf_score": 0.00909090909090909,
+        "model_support": 1,
+        "best_rank": 50,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 195,
+        "protein_id": "P85102",
+        "rrf_score": 0.00909090909090909,
+        "model_support": 1,
+        "best_rank": 50,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 196,
+        "protein_id": "Q9JHL3",
+        "rrf_score": 0.00909090909090909,
+        "model_support": 1,
+        "best_rank": 50,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 197,
+        "protein_id": "O83305",
+        "rrf_score": 0.009009009009009009,
+        "model_support": 1,
+        "best_rank": 51,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 198,
+        "protein_id": "Q6FRJ6",
+        "rrf_score": 0.009009009009009009,
+        "model_support": 1,
+        "best_rank": 51,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 199,
+        "protein_id": "Q9I6P6",
+        "rrf_score": 0.009009009009009009,
+        "model_support": 1,
+        "best_rank": 51,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 200,
+        "protein_id": "O00906",
+        "rrf_score": 0.008928571428571428,
+        "model_support": 1,
+        "best_rank": 52,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 201,
+        "protein_id": "Q58DD0",
+        "rrf_score": 0.008928571428571428,
+        "model_support": 1,
+        "best_rank": 52,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 202,
+        "protein_id": "Q65D08",
+        "rrf_score": 0.008928571428571428,
+        "model_support": 1,
+        "best_rank": 52,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 203,
+        "protein_id": "A0JQ18",
+        "rrf_score": 0.008849557522123894,
+        "model_support": 1,
+        "best_rank": 53,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 204,
+        "protein_id": "D5EXI2",
+        "rrf_score": 0.008849557522123894,
+        "model_support": 1,
+        "best_rank": 53,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 205,
+        "protein_id": "P13741",
+        "rrf_score": 0.008849557522123894,
+        "model_support": 1,
+        "best_rank": 53,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 206,
+        "protein_id": "Q58586",
+        "rrf_score": 0.008849557522123894,
+        "model_support": 1,
+        "best_rank": 53,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 207,
+        "protein_id": "B1KMU6",
+        "rrf_score": 0.008771929824561403,
+        "model_support": 1,
+        "best_rank": 54,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 208,
+        "protein_id": "B4EZ57",
+        "rrf_score": 0.008771929824561403,
+        "model_support": 1,
+        "best_rank": 54,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 209,
+        "protein_id": "O95672",
+        "rrf_score": 0.008771929824561403,
+        "model_support": 1,
+        "best_rank": 54,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 210,
+        "protein_id": "P55731",
+        "rrf_score": 0.008771929824561403,
+        "model_support": 1,
+        "best_rank": 54,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 211,
+        "protein_id": "B4U2P9",
+        "rrf_score": 0.008695652173913044,
+        "model_support": 1,
+        "best_rank": 55,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 212,
+        "protein_id": "F1RRW5",
+        "rrf_score": 0.008695652173913044,
+        "model_support": 1,
+        "best_rank": 55,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 213,
+        "protein_id": "P54724",
+        "rrf_score": 0.008695652173913044,
+        "model_support": 1,
+        "best_rank": 55,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 214,
+        "protein_id": "F4J6T7",
+        "rrf_score": 0.008620689655172414,
+        "model_support": 1,
+        "best_rank": 56,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 215,
+        "protein_id": "O07636",
+        "rrf_score": 0.008620689655172414,
+        "model_support": 1,
+        "best_rank": 56,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 216,
+        "protein_id": "Q8U0A4",
+        "rrf_score": 0.008620689655172414,
+        "model_support": 1,
+        "best_rank": 56,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 217,
+        "protein_id": "Q9KAH2",
+        "rrf_score": 0.008620689655172414,
+        "model_support": 1,
+        "best_rank": 56,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 218,
+        "protein_id": "P19739",
+        "rrf_score": 0.008547008547008548,
+        "model_support": 1,
+        "best_rank": 57,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 219,
+        "protein_id": "P54082",
+        "rrf_score": 0.008547008547008548,
+        "model_support": 1,
+        "best_rank": 57,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 220,
+        "protein_id": "A3QG19",
+        "rrf_score": 0.00847457627118644,
+        "model_support": 1,
+        "best_rank": 58,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 221,
+        "protein_id": "O83683",
+        "rrf_score": 0.00847457627118644,
+        "model_support": 1,
+        "best_rank": 58,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 222,
+        "protein_id": "Q8U4K5",
+        "rrf_score": 0.00847457627118644,
+        "model_support": 1,
+        "best_rank": 58,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 223,
+        "protein_id": "A0A172U6X0",
+        "rrf_score": 0.008403361344537815,
+        "model_support": 1,
+        "best_rank": 59,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 224,
+        "protein_id": "A7Z570",
+        "rrf_score": 0.008403361344537815,
+        "model_support": 1,
+        "best_rank": 59,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 225,
+        "protein_id": "P12820",
+        "rrf_score": 0.008403361344537815,
+        "model_support": 1,
+        "best_rank": 59,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 226,
+        "protein_id": "Q809Z8",
+        "rrf_score": 0.008403361344537815,
+        "model_support": 1,
+        "best_rank": 59,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 227,
+        "protein_id": "O44857",
+        "rrf_score": 0.008333333333333333,
+        "model_support": 1,
+        "best_rank": 60,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 228,
+        "protein_id": "P03170",
+        "rrf_score": 0.008333333333333333,
+        "model_support": 1,
+        "best_rank": 60,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 229,
+        "protein_id": "Q084X6",
+        "rrf_score": 0.008333333333333333,
+        "model_support": 1,
+        "best_rank": 60,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 230,
+        "protein_id": "Q80A04",
+        "rrf_score": 0.008333333333333333,
+        "model_support": 1,
+        "best_rank": 60,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 231,
+        "protein_id": "O15225",
+        "rrf_score": 0.008264462809917356,
+        "model_support": 1,
+        "best_rank": 61,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 232,
+        "protein_id": "Q5BA89",
+        "rrf_score": 0.008264462809917356,
+        "model_support": 1,
+        "best_rank": 61,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 233,
+        "protein_id": "Q8IS64",
+        "rrf_score": 0.008264462809917356,
+        "model_support": 1,
+        "best_rank": 61,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 234,
+        "protein_id": "Q9Z5Y0",
+        "rrf_score": 0.008264462809917356,
+        "model_support": 1,
+        "best_rank": 61,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 235,
+        "protein_id": "O34351",
+        "rrf_score": 0.00819672131147541,
+        "model_support": 1,
+        "best_rank": 62,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 236,
+        "protein_id": "O57890",
+        "rrf_score": 0.00819672131147541,
+        "model_support": 1,
+        "best_rank": 62,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 237,
+        "protein_id": "P0CT88",
+        "rrf_score": 0.00819672131147541,
+        "model_support": 1,
+        "best_rank": 62,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 238,
+        "protein_id": "Q2PDK5",
+        "rrf_score": 0.00819672131147541,
+        "model_support": 1,
+        "best_rank": 62,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 239,
+        "protein_id": "M9PBE2",
+        "rrf_score": 0.008130081300813009,
+        "model_support": 1,
+        "best_rank": 63,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 240,
+        "protein_id": "O07530",
+        "rrf_score": 0.008130081300813009,
+        "model_support": 1,
+        "best_rank": 63,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 241,
+        "protein_id": "P84813",
+        "rrf_score": 0.008130081300813009,
+        "model_support": 1,
+        "best_rank": 63,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 242,
+        "protein_id": "Q48754",
+        "rrf_score": 0.008130081300813009,
+        "model_support": 1,
+        "best_rank": 63,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 243,
+        "protein_id": "A1WVL3",
+        "rrf_score": 0.008064516129032258,
+        "model_support": 1,
+        "best_rank": 64,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 244,
+        "protein_id": "P54083",
+        "rrf_score": 0.008064516129032258,
+        "model_support": 1,
+        "best_rank": 64,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 245,
+        "protein_id": "Q8R086",
+        "rrf_score": 0.008064516129032258,
+        "model_support": 1,
+        "best_rank": 64,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 246,
+        "protein_id": "Q9C0Y4",
+        "rrf_score": 0.008064516129032258,
+        "model_support": 1,
+        "best_rank": 64,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 247,
+        "protein_id": "P09709",
+        "rrf_score": 0.008,
+        "model_support": 1,
+        "best_rank": 65,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 248,
+        "protein_id": "P86240",
+        "rrf_score": 0.008,
+        "model_support": 1,
+        "best_rank": 65,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 249,
+        "protein_id": "Q37928",
+        "rrf_score": 0.008,
+        "model_support": 1,
+        "best_rank": 65,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 250,
+        "protein_id": "Q50JE5",
+        "rrf_score": 0.008,
+        "model_support": 1,
+        "best_rank": 65,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 251,
+        "protein_id": "P0DSG3",
+        "rrf_score": 0.007936507936507936,
+        "model_support": 1,
+        "best_rank": 66,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 252,
+        "protein_id": "P15558",
+        "rrf_score": 0.007936507936507936,
+        "model_support": 1,
+        "best_rank": 66,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 253,
+        "protein_id": "Q9IQ48",
+        "rrf_score": 0.007936507936507936,
+        "model_support": 1,
+        "best_rank": 66,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 254,
+        "protein_id": "Q9V2C4",
+        "rrf_score": 0.007936507936507936,
+        "model_support": 1,
+        "best_rank": 66,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 255,
+        "protein_id": "A0A023IWG2",
+        "rrf_score": 0.007874015748031496,
+        "model_support": 1,
+        "best_rank": 67,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 256,
+        "protein_id": "A8FTB0",
+        "rrf_score": 0.007874015748031496,
+        "model_support": 1,
+        "best_rank": 67,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 257,
+        "protein_id": "P30660",
+        "rrf_score": 0.007874015748031496,
+        "model_support": 1,
+        "best_rank": 67,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 258,
+        "protein_id": "Q92BW7",
+        "rrf_score": 0.007874015748031496,
+        "model_support": 1,
+        "best_rank": 67,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 259,
+        "protein_id": "B7GLK6",
+        "rrf_score": 0.0078125,
+        "model_support": 1,
+        "best_rank": 68,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 260,
+        "protein_id": "P25548",
+        "rrf_score": 0.0078125,
+        "model_support": 1,
+        "best_rank": 68,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 261,
+        "protein_id": "Q2KJ10",
+        "rrf_score": 0.0078125,
+        "model_support": 1,
+        "best_rank": 68,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 262,
+        "protein_id": "Q60294",
+        "rrf_score": 0.0078125,
+        "model_support": 1,
+        "best_rank": 68,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 263,
+        "protein_id": "P0C6L2",
+        "rrf_score": 0.007751937984496124,
+        "model_support": 1,
+        "best_rank": 69,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 264,
+        "protein_id": "P25399",
+        "rrf_score": 0.007751937984496124,
+        "model_support": 1,
+        "best_rank": 69,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 265,
+        "protein_id": "P35156",
+        "rrf_score": 0.007751937984496124,
+        "model_support": 1,
+        "best_rank": 69,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 266,
+        "protein_id": "Q5XM24",
+        "rrf_score": 0.007751937984496124,
+        "model_support": 1,
+        "best_rank": 69,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 267,
+        "protein_id": "A9KVF7",
+        "rrf_score": 0.007692307692307693,
+        "model_support": 1,
+        "best_rank": 70,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 268,
+        "protein_id": "O10312",
+        "rrf_score": 0.007692307692307693,
+        "model_support": 1,
+        "best_rank": 70,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 269,
+        "protein_id": "P45440",
+        "rrf_score": 0.007692307692307693,
+        "model_support": 1,
+        "best_rank": 70,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 270,
+        "protein_id": "Q6CQ86",
+        "rrf_score": 0.007692307692307693,
+        "model_support": 1,
+        "best_rank": 70,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 271,
+        "protein_id": "C0HJX4",
+        "rrf_score": 0.007633587786259542,
+        "model_support": 1,
+        "best_rank": 71,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 272,
+        "protein_id": "P40161",
+        "rrf_score": 0.007633587786259542,
+        "model_support": 1,
+        "best_rank": 71,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 273,
+        "protein_id": "Q8XUU7",
+        "rrf_score": 0.007633587786259542,
+        "model_support": 1,
+        "best_rank": 71,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 274,
+        "protein_id": "Q9URX4",
+        "rrf_score": 0.007633587786259542,
+        "model_support": 1,
+        "best_rank": 71,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 275,
+        "protein_id": "A7TRU5",
+        "rrf_score": 0.007575757575757576,
+        "model_support": 1,
+        "best_rank": 72,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 276,
+        "protein_id": "C0HJX5",
+        "rrf_score": 0.007575757575757576,
+        "model_support": 1,
+        "best_rank": 72,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 277,
+        "protein_id": "P28938",
+        "rrf_score": 0.007575757575757576,
+        "model_support": 1,
+        "best_rank": 72,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 278,
+        "protein_id": "Q45497",
+        "rrf_score": 0.007575757575757576,
+        "model_support": 1,
+        "best_rank": 72,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 279,
+        "protein_id": "A3D2P8",
+        "rrf_score": 0.007518796992481203,
+        "model_support": 1,
+        "best_rank": 73,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 280,
+        "protein_id": "A6ZRN4",
+        "rrf_score": 0.007518796992481203,
+        "model_support": 1,
+        "best_rank": 73,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 281,
+        "protein_id": "P79403",
+        "rrf_score": 0.007518796992481203,
+        "model_support": 1,
+        "best_rank": 73,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 282,
+        "protein_id": "Q07116",
+        "rrf_score": 0.007518796992481203,
+        "model_support": 1,
+        "best_rank": 73,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 283,
+        "protein_id": "A6UX24",
+        "rrf_score": 0.007462686567164179,
+        "model_support": 1,
+        "best_rank": 74,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 284,
+        "protein_id": "A6WLE9",
+        "rrf_score": 0.007462686567164179,
+        "model_support": 1,
+        "best_rank": 74,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 285,
+        "protein_id": "P51687",
+        "rrf_score": 0.007462686567164179,
+        "model_support": 1,
+        "best_rank": 74,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 286,
+        "protein_id": "G5EGF8",
+        "rrf_score": 0.007407407407407408,
+        "model_support": 1,
+        "best_rank": 75,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 287,
+        "protein_id": "Q5UP51",
+        "rrf_score": 0.007407407407407408,
+        "model_support": 1,
+        "best_rank": 75,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 288,
+        "protein_id": "Q8N608",
+        "rrf_score": 0.007407407407407408,
+        "model_support": 1,
+        "best_rank": 75,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 289,
+        "protein_id": "Q9FJT9",
+        "rrf_score": 0.007407407407407408,
+        "model_support": 1,
+        "best_rank": 75,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 290,
+        "protein_id": "B5XNU6",
+        "rrf_score": 0.007352941176470588,
+        "model_support": 1,
+        "best_rank": 76,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 291,
+        "protein_id": "P0CU53",
+        "rrf_score": 0.007352941176470588,
+        "model_support": 1,
+        "best_rank": 76,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 292,
+        "protein_id": "P17215",
+        "rrf_score": 0.007352941176470588,
+        "model_support": 1,
+        "best_rank": 76,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 293,
+        "protein_id": "A0QRX8",
+        "rrf_score": 0.0072992700729927005,
+        "model_support": 1,
+        "best_rank": 77,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 294,
+        "protein_id": "B8E7M2",
+        "rrf_score": 0.0072992700729927005,
+        "model_support": 1,
+        "best_rank": 77,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 295,
+        "protein_id": "P27208",
+        "rrf_score": 0.0072992700729927005,
+        "model_support": 1,
+        "best_rank": 77,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 296,
+        "protein_id": "Q5JEB6",
+        "rrf_score": 0.0072992700729927005,
+        "model_support": 1,
+        "best_rank": 77,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 297,
+        "protein_id": "A7Z5B6",
+        "rrf_score": 0.007246376811594203,
+        "model_support": 1,
+        "best_rank": 78,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 298,
+        "protein_id": "P0AD98",
+        "rrf_score": 0.007246376811594203,
+        "model_support": 1,
+        "best_rank": 78,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 299,
+        "protein_id": "P0DUH7",
+        "rrf_score": 0.007246376811594203,
+        "model_support": 1,
+        "best_rank": 78,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 300,
+        "protein_id": "Q5TZ24",
+        "rrf_score": 0.007246376811594203,
+        "model_support": 1,
+        "best_rank": 78,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 301,
+        "protein_id": "A1S5C5",
+        "rrf_score": 0.007194244604316547,
+        "model_support": 1,
+        "best_rank": 79,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 302,
+        "protein_id": "P0AD97",
+        "rrf_score": 0.007194244604316547,
+        "model_support": 1,
+        "best_rank": 79,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 303,
+        "protein_id": "Q38646",
+        "rrf_score": 0.007194244604316547,
+        "model_support": 1,
+        "best_rank": 79,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 304,
+        "protein_id": "A5LFY3",
+        "rrf_score": 0.007142857142857143,
+        "model_support": 1,
+        "best_rank": 80,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 305,
+        "protein_id": "A7MH30",
+        "rrf_score": 0.007142857142857143,
+        "model_support": 1,
+        "best_rank": 80,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 306,
+        "protein_id": "P0AD96",
+        "rrf_score": 0.007142857142857143,
+        "model_support": 1,
+        "best_rank": 80,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 307,
+        "protein_id": "Q6Q629",
+        "rrf_score": 0.007142857142857143,
+        "model_support": 1,
+        "best_rank": 80,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 308,
+        "protein_id": "D3ZKM3",
+        "rrf_score": 0.0070921985815602835,
+        "model_support": 1,
+        "best_rank": 81,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 309,
+        "protein_id": "P35937",
+        "rrf_score": 0.0070921985815602835,
+        "model_support": 1,
+        "best_rank": 81,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 310,
+        "protein_id": "Q18673",
+        "rrf_score": 0.0070921985815602835,
+        "model_support": 1,
+        "best_rank": 81,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 311,
+        "protein_id": "Q5W6Y3",
+        "rrf_score": 0.0070921985815602835,
+        "model_support": 1,
+        "best_rank": 81,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 312,
+        "protein_id": "O01404",
+        "rrf_score": 0.007042253521126761,
+        "model_support": 1,
+        "best_rank": 82,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 313,
+        "protein_id": "P24171",
+        "rrf_score": 0.007042253521126761,
+        "model_support": 1,
+        "best_rank": 82,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 314,
+        "protein_id": "Q57M20",
+        "rrf_score": 0.007042253521126761,
+        "model_support": 1,
+        "best_rank": 82,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 315,
+        "protein_id": "U5L396",
+        "rrf_score": 0.007042253521126761,
+        "model_support": 1,
+        "best_rank": 82,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 316,
+        "protein_id": "A1RLI0",
+        "rrf_score": 0.006993006993006993,
+        "model_support": 1,
+        "best_rank": 83,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 317,
+        "protein_id": "F5HEF3",
+        "rrf_score": 0.006993006993006993,
+        "model_support": 1,
+        "best_rank": 83,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 318,
+        "protein_id": "Q9P9T3",
+        "rrf_score": 0.006993006993006993,
+        "model_support": 1,
+        "best_rank": 83,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 319,
+        "protein_id": "Q9RUE8",
+        "rrf_score": 0.006993006993006993,
+        "model_support": 1,
+        "best_rank": 83,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 320,
+        "protein_id": "A4Y589",
+        "rrf_score": 0.006944444444444444,
+        "model_support": 1,
+        "best_rank": 84,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 321,
+        "protein_id": "C0Q4Z6",
+        "rrf_score": 0.006944444444444444,
+        "model_support": 1,
+        "best_rank": 84,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 322,
+        "protein_id": "P12822",
+        "rrf_score": 0.006944444444444444,
+        "model_support": 1,
+        "best_rank": 84,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 323,
+        "protein_id": "Q6JZK2",
+        "rrf_score": 0.006944444444444444,
+        "model_support": 1,
+        "best_rank": 84,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 324,
+        "protein_id": "Q37869",
+        "rrf_score": 0.006896551724137931,
+        "model_support": 1,
+        "best_rank": 85,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 325,
+        "protein_id": "Q5WKZ0",
+        "rrf_score": 0.006896551724137931,
+        "model_support": 1,
+        "best_rank": 85,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 326,
+        "protein_id": "Q7U6P8",
+        "rrf_score": 0.006896551724137931,
+        "model_support": 1,
+        "best_rank": 85,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 327,
+        "protein_id": "Q9W436",
+        "rrf_score": 0.006896551724137931,
+        "model_support": 1,
+        "best_rank": 85,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 328,
+        "protein_id": "A8W7N4",
+        "rrf_score": 0.00684931506849315,
+        "model_support": 1,
+        "best_rank": 86,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 329,
+        "protein_id": "E7E2N8",
+        "rrf_score": 0.00684931506849315,
+        "model_support": 1,
+        "best_rank": 86,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 330,
+        "protein_id": "P48242",
+        "rrf_score": 0.00684931506849315,
+        "model_support": 1,
+        "best_rank": 86,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 331,
+        "protein_id": "Q57PG8",
+        "rrf_score": 0.00684931506849315,
+        "model_support": 1,
+        "best_rank": 86,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 332,
+        "protein_id": "O16796",
+        "rrf_score": 0.006802721088435374,
+        "model_support": 1,
+        "best_rank": 87,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 333,
+        "protein_id": "P56723",
+        "rrf_score": 0.006802721088435374,
+        "model_support": 1,
+        "best_rank": 87,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 334,
+        "protein_id": "Q37958",
+        "rrf_score": 0.006802721088435374,
+        "model_support": 1,
+        "best_rank": 87,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 335,
+        "protein_id": "Q66618",
+        "rrf_score": 0.006802721088435374,
+        "model_support": 1,
+        "best_rank": 87,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 336,
+        "protein_id": "A6UQT5",
+        "rrf_score": 0.006756756756756757,
+        "model_support": 1,
+        "best_rank": 88,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 337,
+        "protein_id": "O31422",
+        "rrf_score": 0.006756756756756757,
+        "model_support": 1,
+        "best_rank": 88,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 338,
+        "protein_id": "Q52281",
+        "rrf_score": 0.006756756756756757,
+        "model_support": 1,
+        "best_rank": 88,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 339,
+        "protein_id": "Q9ZVA1",
+        "rrf_score": 0.006756756756756757,
+        "model_support": 1,
+        "best_rank": 88,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 340,
+        "protein_id": "A0KYY0",
+        "rrf_score": 0.006711409395973154,
+        "model_support": 1,
+        "best_rank": 89,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 341,
+        "protein_id": "O25828",
+        "rrf_score": 0.006711409395973154,
+        "model_support": 1,
+        "best_rank": 89,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 342,
+        "protein_id": "Q08383",
+        "rrf_score": 0.006711409395973154,
+        "model_support": 1,
+        "best_rank": 89,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 343,
+        "protein_id": "Q39VG1",
+        "rrf_score": 0.006711409395973154,
+        "model_support": 1,
+        "best_rank": 89,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 344,
+        "protein_id": "A3PDP9",
+        "rrf_score": 0.006666666666666667,
+        "model_support": 1,
+        "best_rank": 90,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 345,
+        "protein_id": "B5F6H7",
+        "rrf_score": 0.006666666666666667,
+        "model_support": 1,
+        "best_rank": 90,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 346,
+        "protein_id": "B8CRT5",
+        "rrf_score": 0.006666666666666667,
+        "model_support": 1,
+        "best_rank": 90,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 347,
+        "protein_id": "O77256",
+        "rrf_score": 0.006666666666666667,
+        "model_support": 1,
+        "best_rank": 90,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 348,
+        "protein_id": "A8YV42",
+        "rrf_score": 0.006622516556291391,
+        "model_support": 1,
+        "best_rank": 91,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 349,
+        "protein_id": "P26688",
+        "rrf_score": 0.006622516556291391,
+        "model_support": 1,
+        "best_rank": 91,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 350,
+        "protein_id": "P73882",
+        "rrf_score": 0.006622516556291391,
+        "model_support": 1,
+        "best_rank": 91,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 351,
+        "protein_id": "Q75E35",
+        "rrf_score": 0.006622516556291391,
+        "model_support": 1,
+        "best_rank": 91,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 352,
+        "protein_id": "O32104",
+        "rrf_score": 0.006578947368421052,
+        "model_support": 1,
+        "best_rank": 92,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 353,
+        "protein_id": "P77506",
+        "rrf_score": 0.006578947368421052,
+        "model_support": 1,
+        "best_rank": 92,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 354,
+        "protein_id": "Q12L09",
+        "rrf_score": 0.006578947368421052,
+        "model_support": 1,
+        "best_rank": 92,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 355,
+        "protein_id": "Q8RQL6",
+        "rrf_score": 0.006578947368421052,
+        "model_support": 1,
+        "best_rank": 92,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 356,
+        "protein_id": "P06922",
+        "rrf_score": 0.006535947712418301,
+        "model_support": 1,
+        "best_rank": 93,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 357,
+        "protein_id": "P58300",
+        "rrf_score": 0.006535947712418301,
+        "model_support": 1,
+        "best_rank": 93,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 358,
+        "protein_id": "Q0HGZ8",
+        "rrf_score": 0.006535947712418301,
+        "model_support": 1,
+        "best_rank": 93,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 359,
+        "protein_id": "Q18LD2",
+        "rrf_score": 0.006535947712418301,
+        "model_support": 1,
+        "best_rank": 93,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 360,
+        "protein_id": "P50500",
+        "rrf_score": 0.006493506493506494,
+        "model_support": 1,
+        "best_rank": 94,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 361,
+        "protein_id": "Q0HTA5",
+        "rrf_score": 0.006493506493506494,
+        "model_support": 1,
+        "best_rank": 94,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 362,
+        "protein_id": "Q9K8Y0",
+        "rrf_score": 0.006493506493506494,
+        "model_support": 1,
+        "best_rank": 94,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 363,
+        "protein_id": "Q9V297",
+        "rrf_score": 0.006493506493506494,
+        "model_support": 1,
+        "best_rank": 94,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 364,
+        "protein_id": "P08619",
+        "rrf_score": 0.0064516129032258064,
+        "model_support": 1,
+        "best_rank": 95,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 365,
+        "protein_id": "Q8EGC8",
+        "rrf_score": 0.0064516129032258064,
+        "model_support": 1,
+        "best_rank": 95,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 366,
+        "protein_id": "Q8TTZ5",
+        "rrf_score": 0.0064516129032258064,
+        "model_support": 1,
+        "best_rank": 95,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 367,
+        "protein_id": "Q9FRX4",
+        "rrf_score": 0.0064516129032258064,
+        "model_support": 1,
+        "best_rank": 95,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 368,
+        "protein_id": "A8H6B7",
+        "rrf_score": 0.00641025641025641,
+        "model_support": 1,
+        "best_rank": 96,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 369,
+        "protein_id": "Q05128",
+        "rrf_score": 0.00641025641025641,
+        "model_support": 1,
+        "best_rank": 96,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 370,
+        "protein_id": "Q8BHN3",
+        "rrf_score": 0.00641025641025641,
+        "model_support": 1,
+        "best_rank": 96,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 371,
+        "protein_id": "Q8G3D4",
+        "rrf_score": 0.00641025641025641,
+        "model_support": 1,
+        "best_rank": 96,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 372,
+        "protein_id": "A4G0R9",
+        "rrf_score": 0.006369426751592357,
+        "model_support": 1,
+        "best_rank": 97,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 373,
+        "protein_id": "P75036",
+        "rrf_score": 0.006369426751592357,
+        "model_support": 1,
+        "best_rank": 97,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 374,
+        "protein_id": "Q3K594",
+        "rrf_score": 0.006369426751592357,
+        "model_support": 1,
+        "best_rank": 97,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 375,
+        "protein_id": "Q77DJ6",
+        "rrf_score": 0.006369426751592357,
+        "model_support": 1,
+        "best_rank": 97,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 376,
+        "protein_id": "P42542",
+        "rrf_score": 0.006329113924050633,
+        "model_support": 1,
+        "best_rank": 98,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 377,
+        "protein_id": "P54430",
+        "rrf_score": 0.006329113924050633,
+        "model_support": 1,
+        "best_rank": 98,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 378,
+        "protein_id": "Q10MJ1",
+        "rrf_score": 0.006329113924050633,
+        "model_support": 1,
+        "best_rank": 98,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 379,
+        "protein_id": "Q7VU58",
+        "rrf_score": 0.006329113924050633,
+        "model_support": 1,
+        "best_rank": 98,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 380,
+        "protein_id": "A5E4Y7",
+        "rrf_score": 0.006289308176100629,
+        "model_support": 1,
+        "best_rank": 99,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 381,
+        "protein_id": "A8W7N9",
+        "rrf_score": 0.006289308176100629,
+        "model_support": 1,
+        "best_rank": 99,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 382,
+        "protein_id": "Q67200",
+        "rrf_score": 0.006289308176100629,
+        "model_support": 1,
+        "best_rank": 99,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 383,
+        "protein_id": "Q98ST7",
+        "rrf_score": 0.006289308176100629,
+        "model_support": 1,
+        "best_rank": 99,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 384,
+        "protein_id": "P37387",
+        "rrf_score": 0.00625,
+        "model_support": 1,
+        "best_rank": 100,
+        "models": "F4 Horizyn in-domain, epoch 29"
+      },
+      {
+        "consensus_rank": 385,
+        "protein_id": "Q60HD0",
+        "rrf_score": 0.00625,
+        "model_support": 1,
+        "best_rank": 100,
+        "models": "F4 ReactZyme enzyme_smi, epoch 29"
+      },
+      {
+        "consensus_rank": 386,
+        "protein_id": "Q6INI0",
+        "rrf_score": 0.00625,
+        "model_support": 1,
+        "best_rank": 100,
+        "models": "F4 ReactZyme time, epoch 29"
+      },
+      {
+        "consensus_rank": 387,
+        "protein_id": "Q6NXK7",
+        "rrf_score": 0.00625,
+        "model_support": 1,
+        "best_rank": 100,
+        "models": "F4 ReactZyme reaction_smi, epoch 28"
+      }
+    ]
+  }
+}

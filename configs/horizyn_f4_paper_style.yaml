@@ -1,0 +1,192 @@
+seed: 42
+
+logging:
+  log_dir: runs/horizyn_f3_f4_paper_v1/logs/F4
+  checkpoint_dir: runs/horizyn_f3_f4_paper_v1/checkpoints/F4
+  checkpoint_monitor: val/reaction_to_enzyme/top_1
+  checkpoint_mode: max
+  save_top_k: 3
+  checkpoint_on_validation_end: true
+  log_every_n_steps: 10
+  wandb:
+    enabled: true
+    project: horizyn-f3-f4-paper-v1
+    entity: omnai
+    run_name: horizyn-paper-F4-seed42
+    mode: online
+    tags:
+      - horizyn
+      - published-split
+      - published-candidate-pool
+      - paper-style-training
+      - bidirectional-chemical-reactions
+      - F4
+      - reactiont5v2
+      - unimol2
+      - chiro
+      - reaction-chemistry
+      - sleec
+      - full-batch-mlnce
+    log_model: false
+
+data:
+  train_pairs_path: data/sota/train_pairs.csv
+  train_reactions_path: data/sota/train_rxns.csv
+  test_pairs_path: data/sota/test_pairs.csv
+  test_reactions_path: data/sota/test_rxns.csv
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: runs/horizyn_f4_in_domain_v1/features/train/reactiont5v2.h5
+  validation_reaction_t5v2_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/reactiont5v2.h5
+  train_reaction_unimol2_embeds_path: runs/horizyn_f4_in_domain_v1/features/train/unimol2.h5
+  validation_reaction_unimol2_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/unimol2.h5
+  train_reaction_chiro_embeds_path: runs/horizyn_f4_in_domain_v1/features/train/chiro.h5
+  validation_reaction_chiro_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/chiro.h5
+  train_reaction_chemistry_vectors_path: runs/horizyn_f3_f4_paper_v1/features/reaction_set/train_reaction_set_features.npz
+  validation_reaction_chemistry_vectors_path: runs/horizyn_f3_f4_paper_v1/features/reaction_set/validation_reaction_set_features.npz
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chemistry_dim: 617
+  reaction_use_model: true
+  reaction_use_chiro: true
+  reaction_use_chemistry: true
+  reaction_use_directional: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chemistry: true
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: true
+  reaction_direction_mode: bidirectional
+  enzyme_ec_labels_path: null
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+  # Per-rank batch. Four DDP ranks give the paper's 16,384-example pool.
+  train_batch_size: 4096
+  retrieval_batch_size: 512
+  validation_retrieval_batch_size: 512
+  num_workers: 1
+  pin_memory: false
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: runs/horizyn_f3_f4_paper_v1/protocol/published_candidate_ids.txt
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_chirality_name: chiro
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [512, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.0
+    token_layer_norm: true
+    modality_encoder_widths: [4096, 4096]
+    modality_encoder_use_layer_norm: false
+    modality_encoder_dropout: 0.0
+    modality_encoder_normalise_output: false
+    side_composition: molecule_set
+    fusion: factorized_concat
+    output_projection: identity
+    factorized_dims:
+      reaction_model: 128
+      unimol2: 192
+      chiro: 96
+      reaction_chemistry: 96
+    factorized_weights:
+      reaction_model: 0.25
+      unimol2: 0.375
+      chiro: 0.1875
+      reaction_chemistry: 0.1875
+    directional_gate_init: 0.1
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: true
+  enzyme_input_mode: raw_mean_sleec_biological_factorized
+  enzyme_block_fusion:
+    dims:
+      core: 288
+      site: 96
+      mechanism: 64
+      cofactor: 32
+      ec: 32
+    weights:
+      core: 0.55
+      site: 0.2
+      mechanism: 0.12
+      cofactor: 0.08
+      ec: 0.05
+    dropout: 0.1
+  biofp:
+    family_dims:
+      mechanism: 8
+      cofactor: 10
+    hidden_dim: 512
+    dropout: 0.1
+  hyperbolic_encoder:
+    hyp_dim: 128
+    use_tangent: true
+    freeze_projector: false
+    load_attention_pooler: false
+    freeze_attention_pooler: false
+
+training:
+  max_epochs: 100
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: FullBatchMLNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    positive_pair_source: observed_pairs
+    biofp_aux_weight: 0.0
+    biofp_family_weights: {}
+    biofp_confidence_cap: 1.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: runs/horizyn_f3_f4_paper_v1/protocol/published_candidate_ids.txt
+  validation_retrieval_batch_size: 512
+  validation_retrieval_directions:
+    - reaction_to_enzyme
+  check_val_every_n_epoch: 10
+  num_sanity_val_steps: 0
+  devices: 4
+  accelerator: gpu
+  strategy: ddp_find_unused_parameters_true
+  use_distributed_sampler: true
+  accumulate_grad_batches: 1
+  enable_progress_bar: false
+  log_attention_stats: true
+  attention_logging_interval: 10
+  early_stopping:
+    enabled: false
+
+ablation:
+  run_id: horizyn_paper_F4_seed42
+  split: horizyn_published
+  variant: F4_factorized_reaction
+  label: F4
+  description: F4 towers trained with the published Horizyn split and training scale.
+  data_protocol: horizyn-published-train-test
+  evaluation_subset: published_test
+  effective_global_batch_size: 16384
+  checkpoint_policy: final_epoch

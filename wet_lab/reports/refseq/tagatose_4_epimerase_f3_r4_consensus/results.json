@@ -1,0 +1,1152 @@
+{
+  "schema_version": "horizyn_wet_lab_f4_campaign_v1",
+  "reaction": {
+    "id": "tagatose_4_epimerase",
+    "smiles": "[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]>>[OH:1][CH2:2][C:3](=[O:4])[C@@H:5]([OH:6])[C@H:7]([OH:8])[C@H:9]([OH:10])[CH2:11][OH:12]"
+  },
+  "models": [
+    {
+      "name": "F3 ReactZyme reaction_smi, epoch 28",
+      "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_reaction_features_v1/checkpoints/reaction_smi/F3_set_chemistry/protein-pooling-epoch=28.ckpt",
+      "result": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/refseq/prokaryotes/tagatose_4_epimerase_f3_epoch28_merged/results.json",
+      "top_1": {
+        "rank": 1,
+        "protein_id": "WP_396611346.1",
+        "cosine_similarity": 0.5854341387748718,
+        "sequence_length": 668,
+        "accession": "WP_396611346",
+        "description": "nickel-dependent hydrogenase large subunit",
+        "organism": "Haloferax sp. S1W",
+        "refseq_division": "archaea",
+        "source_file": "archaea.wp_protein.1.protein.faa.gz"
+      }
+    },
+    {
+      "name": "R4 ReactZyme reaction_smi, epoch 11",
+      "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/reactzyme_b0_e2r_geometry_v1/checkpoints/reaction_smi/recipe_R4_seed42/protein-pooling-epoch=11.ckpt",
+      "result": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/runs/refseq/prokaryotes/tagatose_4_epimerase_r4_epoch11_merged/results.json",
+      "top_1": {
+        "rank": 1,
+        "protein_id": "WP_396611346.1",
+        "cosine_similarity": 0.3614026606082916,
+        "sequence_length": 668,
+        "accession": "WP_396611346",
+        "description": "nickel-dependent hydrogenase large subunit",
+        "organism": "Haloferax sp. S1W",
+        "refseq_division": "archaea",
+        "source_file": "archaea.wp_protein.1.protein.faa.gz"
+      }
+    }
+  ],
+  "consensus": {
+    "method": "reciprocal_rank_fusion",
+    "rrf_constant": 60.0,
+    "max_rank": 100,
+    "rankings": [
+      {
+        "consensus_rank": 1,
+        "protein_id": "WP_396611346.1",
+        "rrf_score": 0.03278688524590164,
+        "model_support": 2,
+        "best_rank": 1,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 2,
+        "protein_id": "WP_069281360.1",
+        "rrf_score": 0.03076923076923077,
+        "model_support": 2,
+        "best_rank": 5,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 3,
+        "protein_id": "WP_014512387.1",
+        "rrf_score": 0.029827662395050816,
+        "model_support": 2,
+        "best_rank": 2,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 4,
+        "protein_id": "WP_029368532.1",
+        "rrf_score": 0.02976190476190476,
+        "model_support": 2,
+        "best_rank": 3,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 5,
+        "protein_id": "WP_306052134.1",
+        "rrf_score": 0.029513888888888888,
+        "model_support": 2,
+        "best_rank": 4,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 6,
+        "protein_id": "WP_081985438.1",
+        "rrf_score": 0.02878726010616578,
+        "model_support": 2,
+        "best_rank": 2,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 7,
+        "protein_id": "WP_252487940.1",
+        "rrf_score": 0.02792120864410021,
+        "model_support": 2,
+        "best_rank": 3,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 8,
+        "protein_id": "WP_020962524.1",
+        "rrf_score": 0.02684684684684685,
+        "model_support": 2,
+        "best_rank": 14,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 9,
+        "protein_id": "WP_424740917.1",
+        "rrf_score": 0.026830135039090264,
+        "model_support": 2,
+        "best_rank": 7,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 10,
+        "protein_id": "WP_273433069.1",
+        "rrf_score": 0.026540946394272742,
+        "model_support": 2,
+        "best_rank": 9,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 11,
+        "protein_id": "WP_231656783.1",
+        "rrf_score": 0.026494565217391304,
+        "model_support": 2,
+        "best_rank": 4,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 12,
+        "protein_id": "WP_288004304.1",
+        "rrf_score": 0.02649122807017544,
+        "model_support": 2,
+        "best_rank": 15,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 13,
+        "protein_id": "WP_211225995.1",
+        "rrf_score": 0.026387470207694927,
+        "model_support": 2,
+        "best_rank": 6,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 14,
+        "protein_id": "WP_199243720.1",
+        "rrf_score": 0.02628900949796472,
+        "model_support": 2,
+        "best_rank": 7,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 15,
+        "protein_id": "WP_428287799.1",
+        "rrf_score": 0.026200135226504394,
+        "model_support": 2,
+        "best_rank": 8,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 16,
+        "protein_id": "WP_217900345.1",
+        "rrf_score": 0.025987006496751626,
+        "model_support": 2,
+        "best_rank": 9,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 17,
+        "protein_id": "WP_424739099.1",
+        "rrf_score": 0.025849212924606464,
+        "model_support": 2,
+        "best_rank": 11,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 18,
+        "protein_id": "WP_342783398.1",
+        "rrf_score": 0.025657894736842105,
+        "model_support": 2,
+        "best_rank": 16,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 19,
+        "protein_id": "WP_052884511.1",
+        "rrf_score": 0.02564935064935065,
+        "model_support": 2,
+        "best_rank": 10,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 20,
+        "protein_id": "WP_012123507.1",
+        "rrf_score": 0.025396825396825397,
+        "model_support": 2,
+        "best_rank": 10,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 21,
+        "protein_id": "WP_287913133.1",
+        "rrf_score": 0.0251661918328585,
+        "model_support": 2,
+        "best_rank": 18,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 22,
+        "protein_id": "WP_317895228.1",
+        "rrf_score": 0.0251414204902577,
+        "model_support": 2,
+        "best_rank": 14,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 23,
+        "protein_id": "WP_338738986.1",
+        "rrf_score": 0.025122549019607844,
+        "model_support": 2,
+        "best_rank": 8,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 24,
+        "protein_id": "WP_233437601.1",
+        "rrf_score": 0.024766899766899768,
+        "model_support": 2,
+        "best_rank": 6,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 25,
+        "protein_id": "WP_338251413.1",
+        "rrf_score": 0.024451318309029312,
+        "model_support": 2,
+        "best_rank": 13,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 26,
+        "protein_id": "WP_318536409.1",
+        "rrf_score": 0.02411038489469862,
+        "model_support": 2,
+        "best_rank": 21,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 27,
+        "protein_id": "WP_016729744.1",
+        "rrf_score": 0.023809523809523808,
+        "model_support": 2,
+        "best_rank": 18,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 28,
+        "protein_id": "WP_192818046.1",
+        "rrf_score": 0.02361111111111111,
+        "model_support": 2,
+        "best_rank": 20,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 29,
+        "protein_id": "WP_256030818.1",
+        "rrf_score": 0.023430301434776885,
+        "model_support": 2,
+        "best_rank": 11,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 30,
+        "protein_id": "WP_011752262.1",
+        "rrf_score": 0.022888003086022887,
+        "model_support": 2,
+        "best_rank": 17,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 31,
+        "protein_id": "WP_075049147.1",
+        "rrf_score": 0.022616917965755177,
+        "model_support": 2,
+        "best_rank": 26,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 32,
+        "protein_id": "WP_125670036.1",
+        "rrf_score": 0.022431077694235586,
+        "model_support": 2,
+        "best_rank": 24,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 33,
+        "protein_id": "WP_058370518.1",
+        "rrf_score": 0.021629084215370457,
+        "model_support": 2,
+        "best_rank": 22,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 34,
+        "protein_id": "WP_428495034.1",
+        "rrf_score": 0.021390986044383435,
+        "model_support": 2,
+        "best_rank": 33,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 35,
+        "protein_id": "WP_011822511.1",
+        "rrf_score": 0.021136945155189678,
+        "model_support": 2,
+        "best_rank": 29,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 36,
+        "protein_id": "WP_011761956.1",
+        "rrf_score": 0.020730397422126744,
+        "model_support": 2,
+        "best_rank": 35,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 37,
+        "protein_id": "WP_012349775.1",
+        "rrf_score": 0.020673486786018755,
+        "model_support": 2,
+        "best_rank": 32,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 38,
+        "protein_id": "WP_263244772.1",
+        "rrf_score": 0.020620748299319726,
+        "model_support": 2,
+        "best_rank": 36,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 39,
+        "protein_id": "WP_014025627.1",
+        "rrf_score": 0.020449699554177168,
+        "model_support": 2,
+        "best_rank": 17,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 40,
+        "protein_id": "WP_011900768.1",
+        "rrf_score": 0.020309278350515464,
+        "model_support": 2,
+        "best_rank": 37,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 41,
+        "protein_id": "WP_011850254.1",
+        "rrf_score": 0.01980974796508777,
+        "model_support": 2,
+        "best_rank": 39,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 42,
+        "protein_id": "WP_456486798.1",
+        "rrf_score": 0.018906531347192668,
+        "model_support": 2,
+        "best_rank": 22,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 43,
+        "protein_id": "WP_400232001.1",
+        "rrf_score": 0.0180238694487294,
+        "model_support": 2,
+        "best_rank": 49,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 44,
+        "protein_id": "WP_013680997.1",
+        "rrf_score": 0.017751937984496126,
+        "model_support": 2,
+        "best_rank": 40,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 45,
+        "protein_id": "WP_022532976.1",
+        "rrf_score": 0.017494270435446907,
+        "model_support": 2,
+        "best_rank": 50,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 46,
+        "protein_id": "WP_081246872.1",
+        "rrf_score": 0.01722753485655887,
+        "model_support": 2,
+        "best_rank": 43,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 47,
+        "protein_id": "WP_400234509.1",
+        "rrf_score": 0.017170228445099484,
+        "model_support": 2,
+        "best_rank": 55,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 48,
+        "protein_id": "WP_400205355.1",
+        "rrf_score": 0.016880341880341883,
+        "model_support": 2,
+        "best_rank": 57,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 49,
+        "protein_id": "WP_400257267.1",
+        "rrf_score": 0.01666782415445517,
+        "model_support": 2,
+        "best_rank": 59,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 50,
+        "protein_id": "WP_400233513.1",
+        "rrf_score": 0.016597796143250687,
+        "model_support": 2,
+        "best_rank": 60,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 51,
+        "protein_id": "WP_400239948.1",
+        "rrf_score": 0.016312997347480106,
+        "model_support": 2,
+        "best_rank": 56,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 52,
+        "protein_id": "WP_404807732.1",
+        "rrf_score": 0.015613696648179406,
+        "model_support": 2,
+        "best_rank": 56,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 53,
+        "protein_id": "WP_400148081.1",
+        "rrf_score": 0.015516224188790562,
+        "model_support": 2,
+        "best_rank": 53,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 54,
+        "protein_id": "WP_400196945.1",
+        "rrf_score": 0.015231599886331344,
+        "model_support": 2,
+        "best_rank": 55,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 55,
+        "protein_id": "WP_373468878.1",
+        "rrf_score": 0.015219907407407408,
+        "model_support": 2,
+        "best_rank": 68,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 56,
+        "protein_id": "WP_048091229.1",
+        "rrf_score": 0.014249492900608519,
+        "model_support": 2,
+        "best_rank": 76,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 57,
+        "protein_id": "WP_048096544.1",
+        "rrf_score": 0.014212535154680593,
+        "model_support": 2,
+        "best_rank": 71,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 58,
+        "protein_id": "WP_048100713.1",
+        "rrf_score": 0.014138689048760991,
+        "model_support": 2,
+        "best_rank": 79,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 59,
+        "protein_id": "WP_171715465.1",
+        "rrf_score": 0.01406926406926407,
+        "model_support": 2,
+        "best_rank": 72,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 60,
+        "protein_id": "WP_414596337.1",
+        "rrf_score": 0.013992172211350292,
+        "model_support": 2,
+        "best_rank": 80,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 61,
+        "protein_id": "WP_400260130.1",
+        "rrf_score": 0.013808105168581832,
+        "model_support": 2,
+        "best_rank": 73,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 62,
+        "protein_id": "WP_218258068.1",
+        "rrf_score": 0.013804554079696395,
+        "model_support": 2,
+        "best_rank": 76,
+        "models": "F3 ReactZyme reaction_smi, epoch 28; R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 63,
+        "protein_id": "WP_013337401.1",
+        "rrf_score": 0.012658227848101266,
+        "model_support": 1,
+        "best_rank": 19,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 64,
+        "protein_id": "WP_413828481.1",
+        "rrf_score": 0.010638297872340425,
+        "model_support": 1,
+        "best_rank": 34,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 65,
+        "protein_id": "WP_371805967.1",
+        "rrf_score": 0.010309278350515464,
+        "model_support": 1,
+        "best_rank": 37,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 66,
+        "protein_id": "WP_016729728.1",
+        "rrf_score": 0.010101010101010102,
+        "model_support": 1,
+        "best_rank": 39,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 67,
+        "protein_id": "WP_218258059.1",
+        "rrf_score": 0.00980392156862745,
+        "model_support": 1,
+        "best_rank": 42,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 68,
+        "protein_id": "WP_014512405.1",
+        "rrf_score": 0.009615384615384616,
+        "model_support": 1,
+        "best_rank": 44,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 69,
+        "protein_id": "WP_119814819.1",
+        "rrf_score": 0.009523809523809525,
+        "model_support": 1,
+        "best_rank": 45,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 70,
+        "protein_id": "WP_156014423.1",
+        "rrf_score": 0.009523809523809525,
+        "model_support": 1,
+        "best_rank": 45,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 71,
+        "protein_id": "WP_456369378.1",
+        "rrf_score": 0.009433962264150943,
+        "model_support": 1,
+        "best_rank": 46,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 72,
+        "protein_id": "WP_168065122.1",
+        "rrf_score": 0.009345794392523364,
+        "model_support": 1,
+        "best_rank": 47,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 73,
+        "protein_id": "WP_181691596.1",
+        "rrf_score": 0.009259259259259259,
+        "model_support": 1,
+        "best_rank": 48,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 74,
+        "protein_id": "WP_280108228.1",
+        "rrf_score": 0.009259259259259259,
+        "model_support": 1,
+        "best_rank": 48,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 75,
+        "protein_id": "WP_456328520.1",
+        "rrf_score": 0.009174311926605505,
+        "model_support": 1,
+        "best_rank": 49,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 76,
+        "protein_id": "WP_369610125.1",
+        "rrf_score": 0.00909090909090909,
+        "model_support": 1,
+        "best_rank": 50,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 77,
+        "protein_id": "WP_259533844.1",
+        "rrf_score": 0.009009009009009009,
+        "model_support": 1,
+        "best_rank": 51,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 78,
+        "protein_id": "WP_457550534.1",
+        "rrf_score": 0.009009009009009009,
+        "model_support": 1,
+        "best_rank": 51,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 79,
+        "protein_id": "WP_014125970.1",
+        "rrf_score": 0.008928571428571428,
+        "model_support": 1,
+        "best_rank": 52,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 80,
+        "protein_id": "WP_457558913.1",
+        "rrf_score": 0.008928571428571428,
+        "model_support": 1,
+        "best_rank": 52,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 81,
+        "protein_id": "WP_456478095.1",
+        "rrf_score": 0.008771929824561403,
+        "model_support": 1,
+        "best_rank": 54,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 82,
+        "protein_id": "WP_457549712.1",
+        "rrf_score": 0.008771929824561403,
+        "model_support": 1,
+        "best_rank": 54,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 83,
+        "protein_id": "WP_117366912.1",
+        "rrf_score": 0.008547008547008548,
+        "model_support": 1,
+        "best_rank": 57,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 84,
+        "protein_id": "WP_015591799.1",
+        "rrf_score": 0.00847457627118644,
+        "model_support": 1,
+        "best_rank": 58,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 85,
+        "protein_id": "WP_400216736.1",
+        "rrf_score": 0.00819672131147541,
+        "model_support": 1,
+        "best_rank": 62,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 86,
+        "protein_id": "WP_456327459.1",
+        "rrf_score": 0.00819672131147541,
+        "model_support": 1,
+        "best_rank": 62,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 87,
+        "protein_id": "WP_013682857.1",
+        "rrf_score": 0.008130081300813009,
+        "model_support": 1,
+        "best_rank": 63,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 88,
+        "protein_id": "WP_457591501.1",
+        "rrf_score": 0.008130081300813009,
+        "model_support": 1,
+        "best_rank": 63,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 89,
+        "protein_id": "WP_086637000.1",
+        "rrf_score": 0.008064516129032258,
+        "model_support": 1,
+        "best_rank": 64,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 90,
+        "protein_id": "WP_253737494.1",
+        "rrf_score": 0.008064516129032258,
+        "model_support": 1,
+        "best_rank": 64,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 91,
+        "protein_id": "WP_120102555.1",
+        "rrf_score": 0.008,
+        "model_support": 1,
+        "best_rank": 65,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 92,
+        "protein_id": "WP_457549530.1",
+        "rrf_score": 0.008,
+        "model_support": 1,
+        "best_rank": 65,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 93,
+        "protein_id": "WP_011170767.1",
+        "rrf_score": 0.007936507936507936,
+        "model_support": 1,
+        "best_rank": 66,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 94,
+        "protein_id": "WP_315909329.1",
+        "rrf_score": 0.007936507936507936,
+        "model_support": 1,
+        "best_rank": 66,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 95,
+        "protein_id": "WP_135667537.1",
+        "rrf_score": 0.007874015748031496,
+        "model_support": 1,
+        "best_rank": 67,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 96,
+        "protein_id": "WP_422190883.1",
+        "rrf_score": 0.007874015748031496,
+        "model_support": 1,
+        "best_rank": 67,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 97,
+        "protein_id": "WP_422174488.1",
+        "rrf_score": 0.0078125,
+        "model_support": 1,
+        "best_rank": 68,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 98,
+        "protein_id": "WP_012940402.1",
+        "rrf_score": 0.007751937984496124,
+        "model_support": 1,
+        "best_rank": 69,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 99,
+        "protein_id": "WP_424030332.1",
+        "rrf_score": 0.007692307692307693,
+        "model_support": 1,
+        "best_rank": 70,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 100,
+        "protein_id": "WP_422152116.1",
+        "rrf_score": 0.007633587786259542,
+        "model_support": 1,
+        "best_rank": 71,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 101,
+        "protein_id": "WP_117362508.1",
+        "rrf_score": 0.007575757575757576,
+        "model_support": 1,
+        "best_rank": 72,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 102,
+        "protein_id": "WP_048092699.1",
+        "rrf_score": 0.007462686567164179,
+        "model_support": 1,
+        "best_rank": 74,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 103,
+        "protein_id": "WP_353544625.1",
+        "rrf_score": 0.007407407407407408,
+        "model_support": 1,
+        "best_rank": 75,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 104,
+        "protein_id": "WP_229121379.1",
+        "rrf_score": 0.0072992700729927005,
+        "model_support": 1,
+        "best_rank": 77,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 105,
+        "protein_id": "WP_424713895.1",
+        "rrf_score": 0.0072992700729927005,
+        "model_support": 1,
+        "best_rank": 77,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 106,
+        "protein_id": "WP_369609509.1",
+        "rrf_score": 0.007246376811594203,
+        "model_support": 1,
+        "best_rank": 78,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 107,
+        "protein_id": "WP_456370536.1",
+        "rrf_score": 0.007246376811594203,
+        "model_support": 1,
+        "best_rank": 78,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 108,
+        "protein_id": "WP_276411322.1",
+        "rrf_score": 0.007194244604316547,
+        "model_support": 1,
+        "best_rank": 79,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 109,
+        "protein_id": "WP_372960643.1",
+        "rrf_score": 0.007142857142857143,
+        "model_support": 1,
+        "best_rank": 80,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 110,
+        "protein_id": "WP_069281318.1",
+        "rrf_score": 0.0070921985815602835,
+        "model_support": 1,
+        "best_rank": 81,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 111,
+        "protein_id": "WP_424359556.1",
+        "rrf_score": 0.0070921985815602835,
+        "model_support": 1,
+        "best_rank": 81,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 112,
+        "protein_id": "WP_012965344.1",
+        "rrf_score": 0.007042253521126761,
+        "model_support": 1,
+        "best_rank": 82,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 113,
+        "protein_id": "WP_092701681.1",
+        "rrf_score": 0.007042253521126761,
+        "model_support": 1,
+        "best_rank": 82,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 114,
+        "protein_id": "WP_168064993.1",
+        "rrf_score": 0.006993006993006993,
+        "model_support": 1,
+        "best_rank": 83,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 115,
+        "protein_id": "WP_424727983.1",
+        "rrf_score": 0.006944444444444444,
+        "model_support": 1,
+        "best_rank": 84,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 116,
+        "protein_id": "WP_229124372.1",
+        "rrf_score": 0.006896551724137931,
+        "model_support": 1,
+        "best_rank": 85,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 117,
+        "protein_id": "WP_229111668.1",
+        "rrf_score": 0.00684931506849315,
+        "model_support": 1,
+        "best_rank": 86,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 118,
+        "protein_id": "WP_015233559.1",
+        "rrf_score": 0.006802721088435374,
+        "model_support": 1,
+        "best_rank": 87,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 119,
+        "protein_id": "WP_156006907.1",
+        "rrf_score": 0.006802721088435374,
+        "model_support": 1,
+        "best_rank": 87,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 120,
+        "protein_id": "WP_156014280.1",
+        "rrf_score": 0.006756756756756757,
+        "model_support": 1,
+        "best_rank": 88,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 121,
+        "protein_id": "WP_400207459.1",
+        "rrf_score": 0.006756756756756757,
+        "model_support": 1,
+        "best_rank": 88,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 122,
+        "protein_id": "WP_256406078.1",
+        "rrf_score": 0.006711409395973154,
+        "model_support": 1,
+        "best_rank": 89,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 123,
+        "protein_id": "WP_089789143.1",
+        "rrf_score": 0.006666666666666667,
+        "model_support": 1,
+        "best_rank": 90,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 124,
+        "protein_id": "WP_336325464.1",
+        "rrf_score": 0.006622516556291391,
+        "model_support": 1,
+        "best_rank": 91,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 125,
+        "protein_id": "WP_424733004.1",
+        "rrf_score": 0.006622516556291391,
+        "model_support": 1,
+        "best_rank": 91,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 126,
+        "protein_id": "WP_267162893.1",
+        "rrf_score": 0.006578947368421052,
+        "model_support": 1,
+        "best_rank": 92,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 127,
+        "protein_id": "WP_421078479.1",
+        "rrf_score": 0.006535947712418301,
+        "model_support": 1,
+        "best_rank": 93,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 128,
+        "protein_id": "WP_110379694.1",
+        "rrf_score": 0.006493506493506494,
+        "model_support": 1,
+        "best_rank": 94,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 129,
+        "protein_id": "WP_155863365.1",
+        "rrf_score": 0.0064516129032258064,
+        "model_support": 1,
+        "best_rank": 95,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 130,
+        "protein_id": "WP_324663420.1",
+        "rrf_score": 0.00641025641025641,
+        "model_support": 1,
+        "best_rank": 96,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 131,
+        "protein_id": "WP_324663421.1",
+        "rrf_score": 0.00641025641025641,
+        "model_support": 1,
+        "best_rank": 96,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 132,
+        "protein_id": "WP_048194693.1",
+        "rrf_score": 0.006369426751592357,
+        "model_support": 1,
+        "best_rank": 97,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 133,
+        "protein_id": "WP_440949454.1",
+        "rrf_score": 0.006369426751592357,
+        "model_support": 1,
+        "best_rank": 97,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 134,
+        "protein_id": "WP_253737493.1",
+        "rrf_score": 0.006329113924050633,
+        "model_support": 1,
+        "best_rank": 98,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 135,
+        "protein_id": "WP_445869589.1",
+        "rrf_score": 0.006329113924050633,
+        "model_support": 1,
+        "best_rank": 98,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      },
+      {
+        "consensus_rank": 136,
+        "protein_id": "WP_457591054.1",
+        "rrf_score": 0.006289308176100629,
+        "model_support": 1,
+        "best_rank": 99,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 137,
+        "protein_id": "WP_120102556.1",
+        "rrf_score": 0.00625,
+        "model_support": 1,
+        "best_rank": 100,
+        "models": "F3 ReactZyme reaction_smi, epoch 28"
+      },
+      {
+        "consensus_rank": 138,
+        "protein_id": "WP_431062218.1",
+        "rrf_score": 0.00625,
+        "model_support": 1,
+        "best_rank": 100,
+        "models": "R4 ReactZyme reaction_smi, epoch 11"
+      }
+    ]
+  }
+}

@@ -1,0 +1,104 @@
+variants:
+  - id: A0_mean_observed
+    label: A0
+    description: ProT5 mean baseline with observed-pairs MLNCE.
+    template: official
+    mode: standard
+    loss_name: FullBatchMLNCELoss
+    positive_pair_source: observed_pairs
+    hard_negative: false
+    structure: false
+    capability: false
+    block_dims: null
+    block_weights: null
+
+  - id: A1_sleec_block_observed
+    label: A1
+    description: Blockwise ProT5 core + SLEEC site with observed-pairs MLNCE.
+    template: sleec
+    mode: raw_mean_sleec_blockwise
+    loss_name: FullBatchMLNCELoss
+    positive_pair_source: observed_pairs
+    hard_negative: false
+    structure: false
+    capability: false
+    block_dims: {core: 384, site: 128}
+    block_weights: {core: 0.75, site: 0.25}
+
+  - id: A2_sleec_block_allknown
+    label: A2
+    description: A1 with all-known in-batch positives.
+    template: sleec
+    mode: raw_mean_sleec_blockwise
+    loss_name: FullBatchMLNCELoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: false
+    structure: false
+    capability: false
+    block_dims: {core: 384, site: 128}
+    block_weights: {core: 0.75, site: 0.25}
+
+  - id: A3_sleec_ec_block_allknown
+    label: A3
+    description: Blockwise ProT5 core + SLEEC site + EC-hyperbolic latent.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_blockwise
+    loss_name: FullBatchMLNCELoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: false
+    structure: false
+    capability: false
+    block_dims: {core: 288, site: 104, ec: 120}
+    block_weights: {core: 0.55, site: 0.20, ec: 0.25}
+
+  - id: A4_sleec_ec_block_hardneg
+    label: A4
+    description: A3 with R->E weighted MultiAlignment and hard negatives.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: false
+    capability: false
+    block_dims: {core: 288, site: 104, ec: 120}
+    block_weights: {core: 0.55, site: 0.20, ec: 0.25}
+
+  - id: A5_sleec_ec_block_structure
+    label: A5
+    description: A4 plus light RR/EE/GW structure regularization.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: false
+    block_dims: {core: 288, site: 104, ec: 120}
+    block_weights: {core: 0.55, site: 0.20, ec: 0.25}
+
+  - id: A6_sleec_ec_capability_block
+    label: A6
+    description: A4 with an additional frozen capability latent block.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: false
+    capability: true
+    block_dims: {core: 224, site: 96, ec: 96, capability: 96}
+    block_weights: {core: 0.45, site: 0.20, ec: 0.20, capability: 0.15}
+
+  - id: A7_sleec_ec_capability_structure
+    label: A7
+    description: Full blockwise model with capability and structure regularization.
+    template: sleec
+    mode: raw_mean_sleec_hyperbolic_capability_blockwise
+    loss_name: MultiAlignmentRetrievalLoss
+    positive_pair_source: all_known_in_batch
+    hard_negative: true
+    structure: true
+    capability: true
+    block_dims: {core: 224, site: 96, ec: 96, capability: 96}
+    block_weights: {core: 0.45, site: 0.20, ec: 0.20, capability: 0.15}

@@ -1,0 +1,13 @@
+{
+  "protein_id": "C1KKR1",
+  "rank": 13,
+  "sequence_length": 295,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 88.0411148071289,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.9451975226402283,
+  "elapsed_seconds": 2.470807129982859,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/13_C1KKR1.pdb"
+}

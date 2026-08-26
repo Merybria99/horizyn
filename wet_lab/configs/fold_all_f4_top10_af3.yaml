@@ -1,0 +1,20 @@
+ranking:
+  results: wet_lab/reports/tagatose_4_epimerase_all_f4/results.json
+  candidate_fasta: data/sota/prots.fasta
+  top_k: 10
+
+backend:
+  name: alphafold3
+  model_seeds: [1]
+
+  # Set prepare_only to false and point these paths at an official AF3
+  # installation, licensed model parameters, and sequence databases.
+  prepare_only: true
+  python: /path/to/alphafold3_venv/bin/python
+  script: /path/to/alphafold3/run_alphafold.py
+  model_dir: /path/to/alphafold3_models
+  database_dir: /path/to/alphafold3_databases
+  extra_args: []
+
+output:
+  directory: wet_lab/structures/tagatose_4_epimerase_all_f4_top10

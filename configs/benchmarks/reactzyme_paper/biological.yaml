@@ -1,0 +1,52 @@
+variants:
+  - &base
+    id: B0_unsupervised_control
+    label: B0
+    description: Fixed factorized ProT5/SLEEC/Lorentz architecture without biological supervision.
+    template: sleec
+    mode: raw_mean_sleec_biological_factorized
+    loss_name: FullBatchMLNCELoss
+    positive_pair_source: observed_pairs
+    hard_negative: false
+    structure: false
+    capability: false
+    biological: true
+    pretrain: false
+    pretrain_families: []
+    ec_pretrain: false
+    supervised_families: []
+    block_dims: &biological_dims {core: 288, site: 96, mechanism: 64, cofactor: 32, ec: 32}
+    block_weights: &biological_weights {core: 0.55, site: 0.20, mechanism: 0.12, cofactor: 0.08, ec: 0.05}
+
+  - <<: *base
+    id: B1_mechanism
+    label: B1
+    description: Enzyme-only mechanism pretraining followed by mechanism-supervised retrieval.
+    pretrain: true
+    pretrain_families: [mechanism]
+    supervised_families: [mechanism]
+
+  - <<: *base
+    id: B2_cofactor
+    label: B2
+    description: Enzyme-only cofactor pretraining followed by cofactor-supervised retrieval.
+    pretrain: true
+    pretrain_families: [cofactor]
+    supervised_families: [cofactor]
+
+  - <<: *base
+    id: B3_mechanism_cofactor
+    label: B3
+    description: Separate joint mechanism/cofactor pretraining followed by both auxiliary losses.
+    pretrain: true
+    pretrain_families: [mechanism, cofactor]
+    supervised_families: [mechanism, cofactor]
+
+  - <<: *base
+    id: B4_mechanism_cofactor_ec
+    label: B4
+    description: B3 with a split-specific train-only EC-supervised Lorentz initialization.
+    pretrain: true
+    pretrain_families: [mechanism, cofactor]
+    ec_pretrain: true
+    supervised_families: [mechanism, cofactor]

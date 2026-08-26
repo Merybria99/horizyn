@@ -1,0 +1,13 @@
+{
+  "protein_id": "Q9RLB8",
+  "rank": 7,
+  "sequence_length": 768,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 80.5418930053711,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.592157244682312,
+  "elapsed_seconds": 21.123912069946527,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/07_Q9RLB8.pdb"
+}

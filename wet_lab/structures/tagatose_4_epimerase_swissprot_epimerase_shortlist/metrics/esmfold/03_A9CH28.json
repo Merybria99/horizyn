@@ -1,0 +1,13 @@
+{
+  "protein_id": "A9CH28",
+  "rank": 3,
+  "sequence_length": 289,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 87.34501647949219,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.922441303730011,
+  "elapsed_seconds": 2.333537309896201,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_swissprot_epimerase_shortlist/structures/esmfold/03_A9CH28.pdb"
+}

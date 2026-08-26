@@ -1,0 +1,70 @@
+# Standalone unimodal enzyme pretraining in Lorentz space.
+# EC labels are used only as metadata for enzyme-enzyme hierarchy losses.
+
+data:
+  residue_embeddings_path: data/sota/prots_esm2_650m_residue.h5
+  sleec_logits_path: null
+  ec_labels_path: data/sota/uniprot_all_ec_labels.csv
+  id_column: null
+  ec_column: null
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+model:
+  input_dim: 1280
+  hyp_dim: 512
+  curvature: 0.25
+  tangent_clip: 5.0
+  tangent_clip_mode: hard
+  projector_input_normalization: none
+  eps: 0.000001
+  p0_sleec_threshold: 0.34
+  sleec_checkpoint_path: checkpoints/SLEEC/sleec_stage1_esm2_650m_paper_from0_50k_threshold_sweep_4gpu/best.ckpt
+  sleec_scorer_hidden_dim: 256
+  attention_bias: true
+  initial_prior_strength: 1.0
+  train_prior_strength: true
+  freeze_sleec: true
+
+loss:
+  base_margin: 0.05
+  max_triplets_per_anchor: 32
+  alpha_radial: 0.0
+  alpha_radius_target: 0.0
+  radius_target: 2.0
+  use_centroid_cone: false
+  alpha_centroid_cone: 0.0
+  use_ec_entailment: false
+  alpha_ec_entailment: 0.05
+  ec_entailment_warmup_epochs: 2
+  ec_entailment_eta: 1.0
+  ec_entailment_min_radius: 0.1
+  ec_entailment_min_group_size: 2
+  K: 0.1
+  eta: 1.0
+  cone_loss_power: 1.0
+  centroid_min_group_size: 2
+
+training:
+  batch_size: 64
+  lr: 0.0001
+  weight_decay: 0.0001
+  epochs: 20
+  seed: 42
+  device: auto
+  num_workers: 2
+  log_every: 25
+  max_steps: null
+
+logging:
+  output_checkpoint: checkpoints/hyperbolic_ec/hyperbolic_enzyme_pretrain_c0p25/last.ckpt
+
+wandb:
+  enabled: false
+  project: horizyn-hyperbolic-enzyme
+  entity: null
+  run_name: esm2-sleec-guided-lorentz-c0p25
+  mode: online
+  tags: [hyperbolic-enzyme, lorentz, esm2, sleec-prior, c0p25]
+  log_model: false
+  dir: logs/wandb

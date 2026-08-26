@@ -184,4 +184,7 @@ class EmbedDataset(BaseDataset[str]):
     def __del__(self):
         """Close HDF5 file when dataset is destroyed."""
         if hasattr(self, "file") and self.file is not None:
-            self.file.close()
+            try:
+                self.file.close()
+            except Exception:
+                pass

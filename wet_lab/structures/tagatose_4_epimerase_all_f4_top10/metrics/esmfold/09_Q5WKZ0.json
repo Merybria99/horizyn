@@ -1,0 +1,13 @@
+{
+  "protein_id": "Q5WKZ0",
+  "rank": 9,
+  "sequence_length": 271,
+  "selenocysteine_positions": [],
+  "esmfold_substitutions": [],
+  "model": "facebook/esmfold_v1",
+  "mean_plddt": 93.46533203125,
+  "plddt_scale_applied": 100.0,
+  "ptm": 0.961368978023529,
+  "elapsed_seconds": 2.165642520878464,
+  "structure_path": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/wet_lab/structures/tagatose_4_epimerase_all_f4_top10/structures/esmfold/09_Q5WKZ0.pdb"
+}

@@ -1,0 +1,56 @@
+# SLEEC stage-1 functional-residue classifier regularized ablation.
+
+seed: 42
+
+data:
+  residue_embeds_path: data/sleec_stage1/mcsa_cath_esm2_650m_residue.h5
+  mcsa_labels_path: data/sleec_stage1/mcsa_residue_labels.csv
+  pseudo_labels_path: data/sleec_stage1/msa_pseudo_residue_labels.balanced.csv
+  balance_pseudo_negatives: false
+  pseudo_negative_ratio: 1.0
+  strict_paper_mcsa_counts: false
+  num_workers: 4
+  pin_memory: true
+
+model:
+  name: SLEECStage1Classifier
+  variant: regularized
+  input_dim: auto
+  hidden_dim: 256
+  dropout: 0.1
+  layer_norm: true
+
+training:
+  device: auto
+  data_parallel: false
+  device_ids: null
+  max_steps: 10000
+  supervised_batch_size: 8192
+  pseudo_batch_size: 8192
+  eval_batch_size: 8192
+  learning_rate: 0.00001
+  weight_decay: 0.01
+  lambda_pseudo: 1.0
+  confidence_threshold: 0.9
+  supervised_pos_weight: auto
+  metric_for_best: f1
+  early_stopping_patience_evals: null
+  eval_every_steps: 500
+  save_every_steps: 1000
+
+logging:
+  output_dir: checkpoints/SLEEC/sleec_stage1_esm2_650m_regularized
+  log_every_steps: 50
+  wandb:
+    enabled: false
+    mode: online
+    project: horizyn-training
+    entity: null
+    run_name: null
+    tags:
+      - sleec
+      - stage1
+      - regularized
+      - esm2-650m
+      - uniref50
+    log_model: false

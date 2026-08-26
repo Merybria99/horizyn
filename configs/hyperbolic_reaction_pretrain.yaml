@@ -1,0 +1,66 @@
+# Standalone Stage 1 reaction pretraining in Lorentz space.
+# EC labels are derived only from train reaction-protein pairs:
+# reaction_id -> protein_id -> protein EC labels.
+
+data:
+  train_pairs_path: data/sota/train_pairs.csv
+  train_reactions_path: data/sota/train_rxns.csv
+  ec_labels_path: data/sota/uniprot_all_ec_labels.csv
+  pair_reaction_column: null
+  pair_protein_column: null
+  id_column: null
+  ec_column: null
+  reaction_id_column: reaction_id
+  reaction_smiles_column: reaction_smiles
+  bidirectional: true
+
+  rdkit_fp_dim: 1024
+  drfp_dim: 1024
+  standardize_reactions: true
+  standardize_hypervalent: true
+  standardize_remove_hs: true
+  standardize_kekulize: false
+  standardize_uncharge: true
+  standardize_metals: true
+
+model:
+  reaction_encoder_dims: [2048, 4096, 4096, 512]
+  hyp_dim: 512
+  curvature: 0.25
+  tangent_clip: 5.0
+  tangent_clip_mode: hard
+  projector_input_normalization: none
+  eps: 0.000001
+
+loss:
+  base_margin: 0.05
+  max_triplets_per_anchor: 32
+  alpha_radial: 0.0
+  alpha_radius_target: 0.0
+  radius_target: 2.0
+  use_centroid_cone: false
+  alpha_centroid_cone: 0.0
+  use_ec_entailment: false
+  alpha_ec_entailment: 0.05
+  ec_entailment_warmup_epochs: 2
+  ec_entailment_eta: 1.0
+  ec_entailment_min_radius: 0.1
+  ec_entailment_min_group_size: 2
+  K: 0.1
+  eta: 1.0
+  cone_loss_power: 1.0
+  centroid_min_group_size: 2
+
+training:
+  batch_size: 512
+  lr: 0.0001
+  weight_decay: 0.0001
+  epochs: 20
+  seed: 42
+  device: auto
+  num_workers: 0
+  log_every: 50
+  max_steps: null
+
+logging:
+  output_checkpoint: checkpoints/hyperbolic_ec/hyperbolic_reaction_pretrain_c0p25/last.ckpt

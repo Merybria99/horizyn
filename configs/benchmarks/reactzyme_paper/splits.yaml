@@ -1,0 +1,12 @@
+time:
+  official_template: configs/reactzyme_official_time_prott5_mean_reactiont5v2_unimol2_chiro_modality_mlp_attention_observed_mlnce.yaml
+  sleec_template: configs/reactzyme_clean_time_prott5_sleec_reactiont5v2_unimol2_chiro_observed_mlnce.yaml
+  tag: time-split
+enzyme_smi:
+  official_template: configs/reactzyme_official_enzyme_smi_prott5_mean_reactiont5v2_unimol2_chiro_modality_mlp_attention_observed_mlnce.yaml
+  sleec_template: configs/reactzyme_clean_enzyme_smi_prott5_sleec_reactiont5v2_unimol2_chiro_observed_mlnce.yaml
+  tag: enzyme-smi-split
+reaction_smi:
+  official_template: configs/reactzyme_official_reaction_smi_prott5_mean_reactiont5v2_unimol2_chiro_modality_mlp_attention_observed_mlnce.yaml
+  sleec_template: configs/reactzyme_clean_reaction_smi_prott5_sleec_reactiont5v2_unimol2_chiro_observed_mlnce.yaml
+  tag: reaction-smi-split

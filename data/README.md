@@ -1,142 +1,970 @@
-# Horizyn Data Directory
+# Horizyn Data Inventory
 
-This directory contains the datasets required for training and evaluating the Horizyn model. The data is organized into subdirectories for different use cases.
+Last updated: 2026-07-01.
 
-## Directory Structure
+This directory contains the local datasets used for Horizyn retrieval training,
+published benchmark evaluation, SLEEC functional-residue training, EC hierarchy
+pretraining, and data-overlap audits. The workspace also contains auxiliary raw
+datasets outside `horizyn/data`; those are summarized near the end.
 
+## Recommended Use
+
+| Goal | Recommended data |
+|---|---|
+| Reproduce original Horizyn-style retrieval | `data/sota` |
+| Evaluate on published benchmarks | `data/paper/reactzyme/eval`, `data/paper/clipzyme/eval`, `data/paper/sabio_rk/eval` |
+| Hyperbolic EC pretraining from Horizyn SOTA | `data/sota/uniprot_all_ec_labels.csv` plus a matching embedding/residue HDF5 |
+| Hyperbolic EC pretraining from AI4Protein without existing train overlap | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_strict` |
+| Hyperbolic EC pretraining from AI4Protein without train or benchmark-test overlap | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_or_test_strict` |
+| SLEEC stage-1 residue classification | `data/sleec_stage1` |
+
+## Current Source-Collapse Retrieval Runs
+
+Last updated for the active retrieval runs on 2026-06-12.
+
+The current Horizyn retrieval experiments train on the `nr90` collapsed
+source-combined training set, validate during training on the CLIPZyme
+EnzymeMap evaluation split, and test after training on the held-out Horizyn and
+ReactZyme splits.
+
+Active run family:
+
+```text
+horizyn-source-collapse-nr90-{esmc,esm2,prott5}-sleec-lorentz-c0p25-b128-validrxn-nonempty
 ```
-data/
-├── nanodata/          # Small test dataset for integration tests
-└── sota/              # Full SOTA dataset for production training
+
+Training config files:
+
+| Backbone | Config |
+|---|---|
+| ESMC | `configs/retrieval_source_collapse_nr90_esmc_sleec_hyperbolic_c0p25.yaml` |
+| ESM2 | `configs/retrieval_source_collapse_nr90_esm2_sleec_lorentz_c0p25.yaml` |
+| ProtT5 | `configs/retrieval_source_collapse_nr90_prott5_sleec_lorentz_c0p25.yaml` |
+
+Runner scripts:
+
+| Backbone | Script |
+|---|---|
+| ESMC | `scripts/run_retrieval_source_collapse_esmc_train_eval_chain.sh` |
+| ESM2 | `scripts/run_retrieval_source_collapse_train_eval_chain.sh` |
+| ProtT5 | `scripts/run_retrieval_source_collapse_prott5_train_eval_chain.sh` |
+
+### Training Data
+
+Base directory:
+
+```text
+data/standardized/retrieval_training_source_collapse/train_nr90
 ```
 
-## Expected Files
+The unfiltered `nr90` collapsed training split contains:
 
-Each dataset directory should contain five standardized files:
+| File | Rows | Meaning |
+|---|---:|---|
+| `train_pairs.csv` | 312,046 | Protein-reaction positive pairs after 90% sequence-identity protein collapse. |
+| `train_rxns.csv` | 35,223 | Collapsed-source training reactions before reaction-standardization filtering. |
+| `proteins.fasta` | 129,400 proteins | Representative proteins for the `nr90` collapsed training split. |
+| `fit_proteins_with_clipzyme_eval.fasta` | 391,307 proteins | Training proteins plus CLIPZyme validation proteins, used to build residue HDF5s for train/val. |
 
-### 1. `train_rxns.csv`
-CSV file containing training reactions with SMILES strings.
+The runs use valid-reaction-filtered files:
 
-**Columns:**
+| File | Rows | Meaning |
+|---|---:|---|
+| `train_pairs_valid_rxn.csv` | 190,818 | Training positives whose reaction can be parsed by Horizyn standardization. |
+| `train_rxns_valid_rxn.csv` | 27,493 | Valid standardized training reactions. |
+| `metadata_valid_rxn.json` | - | Filter audit. It records 7,730 invalid reactions and 121,228 dropped pairs. |
+
+Invalid reactions were removed because they either lacked reaction separators or
+failed the current Horizyn reaction standardizer:
+
+| Reason | Reactions |
+|---|---:|
+| `missing_reaction_separators` | 7,726 |
+| `ValueError` | 4 |
+
+For each protein backbone, the final training pair file is additionally filtered
+to proteins that have a non-empty residue embedding in that backbone HDF5:
+
+| Backbone | Pair file used for training | Status |
+|---|---|---|
+| ESMC | `train_pairs_valid_rxn_nonempty_esmc.csv` | Existing; 190,818 pairs, 0 dropped from valid-reaction pairs. |
+| ESM2 | `train_pairs_valid_rxn_nonempty_esm2.csv` | Generated after ESM2 HDF5 merge completes. |
+| ProtT5 | `train_pairs_valid_rxn_nonempty_prott5.csv` | Generated after ProtT5 HDF5 merge completes. |
+
+Training residue HDF5s:
+
+| Backbone | HDF5 path | Notes |
+|---|---|---|
+| ESMC | `train_nr90/fit_proteins_with_clipzyme_eval_esmc_6b_residue.h5` | Complete for 391,307 proteins; 391,235 have non-empty residue vectors. |
+| ESM2 | `train_nr90/fit_proteins_with_clipzyme_eval_esm2_650m_residue.h5` | Being generated by the active ESM2 chain if absent. |
+| ProtT5 | `train_nr90/fit_proteins_with_clipzyme_eval_prott5_residue.h5` | Being generated by the active ProtT5 chain if absent. |
+
+The older `data/sota/prots_esm2_650m_residue.h5` and
+`data/sota/prots_t5_residue.h5` caches are not used for these runs because they
+cover only 189,402 of the 391,307 proteins in
+`fit_proteins_with_clipzyme_eval.fasta`.
+
+### Enzyme-Reaction-EC Triple View
+
+For EC-aware auditing or future auxiliary objectives, treat each retrieval
+example as a triple:
+
+```text
+(enzyme, reaction, EC)
 ```
-rs_id,reaction_id,reaction_smiles
-0,Rh_10008,*N[C@@H](CS)C(*)=O...>>...
+
+The recommended canonical table schema is:
+
+```text
+triple_id
+dataset
+split
+protein_id
+protein_uid
+reaction_id
+reaction_smiles
+ec_numbers
+complete_ec_numbers
+ec_source
+ec_assignment_level
+ec_confidence
+ec_is_complete
+ec_is_multilabel
+source_pair_id
+source_entries
 ```
 
-**Usage:** Loaded by `CSVDataset` to retrieve reaction SMILES for fingerprint generation during training. The `reaction_id` column is used as the key.
+Use these EC-assignment rules by source:
 
-### 2. `test_rxns.csv`
-CSV file containing test reactions (same format as `train_rxns.csv`).
+| Source | EC source | Assignment level | Confidence |
+|---|---|---|---|
+| Horizyn | `data/sota/uniprot_all_ec_labels.csv`, joined by UniProt `protein_id` | enzyme-level | recovered |
+| CLIPZyme / EnzymeMap | direct `ec` column in pair/reaction files | pair/reaction-level | direct |
+| SABIO-RK | `ec_numbers_json` in pair files | pair/reaction-level | direct |
+| ReactZyme | no local EC field in the current pair/reaction CSVs | missing unless separately annotated | missing |
+| AI4Protein/EC | `*_with_ec.csv` EC metadata | enzyme-level only; no reaction pairs | auxiliary |
 
-**Usage:** Loaded separately for testing to ensure no reaction leakage between train and test.
+The active `nr90` retrieval training CSVs do not directly contain EC columns,
+but EC labels can be recovered from their `source_entries` provenance.
 
-### 3. `train_pairs.csv`
-CSV file containing training reaction-protein pairs.
+Active valid-reaction `nr90` train set:
 
-**Columns:**
+```text
+data/standardized/retrieval_training_source_collapse/train_nr90/train_pairs_valid_rxn_nonempty_prott5.csv
 ```
+
+| Original source | Active pairs | Unique collapsed proteins | Active reactions | Complete EC-4 rows | EC assignment |
+|---|---:|---:|---:|---:|---|
+| Horizyn train | 149,362 | 110,351 | 10,459 | 134,203 | recovered enzyme-level UniProt EC |
+| CLIPZyme / EnzymeMap train | 39,128 | 11,013 | 15,490 | 39,128 | direct pair/reaction EC |
+| SABIO-RK novelty90 | 2,290 | 722 | 1,566 | 1,759 | direct SABIO EC JSON |
+| CLIPZyme + Horizyn overlap | 38 | 29 | 24 | 38 | direct/recovered |
+| **Total** | **190,818** | **116,942** | **27,493** | **175,128** | mixed |
+
+The recovered active-train EC coverage is:
+
+| Metric | Value |
+|---|---:|
+| Active valid-reaction train pairs | 190,818 |
+| Pairs with complete EC-4 after recovery | 175,128 |
+| Pairs still missing complete EC-4 | 15,690 |
+| Unique complete EC-4 labels | 5,133 |
+
+This makes complete EC-4 metadata available for about 91.8% of the active
+training pairs. The main missing block is Horizyn proteins without complete
+UniProt EC labels. ReactZyme was included in the raw source pool, but it does
+not survive into the active valid-reaction training set because the current
+reaction standardizer removes those reactions.
+
+The `source_entries` field records source memberships that were collapsed into
+each representative row. For the active `nr90` valid-reaction set, the 190,818
+rows represent these original source memberships:
+
+| Original source membership | Original pair memberships represented |
+|---|---:|
+| `horizyn_train` | 257,733 |
+| `clipzyme_train` | 42,351 |
+| `sabio_rk_novelty90_train` | 2,335 |
+
+Horizyn EC recovery uses the broad UniProt cache:
+
+```text
+data/sota/uniprot_all_ec_labels.csv
+```
+
+Coverage on the original Horizyn SOTA pair files:
+
+| Horizyn split | Pairs | Unique proteins | Pairs with complete EC-4 | Proteins with complete EC-4 | Unique EC-4 |
+|---|---:|---:|---:|---:|---:|
+| Train | 257,733 | 192,769 | 232,203 | 176,243 | 4,546 |
+| Test | 33,996 | 32,100 | 31,686 | 29,870 | 1,176 |
+
+This is enzyme-side UniProt EC metadata. For multifunctional proteins, one
+enzyme can have multiple EC numbers, so these labels are recovered enzyme
+annotations rather than guaranteed pair-specific reaction labels.
+
+### Exact-Unique Versus Similarity-Collapsed Training
+
+If the goal is to use unique amino-acid sequences only, use the `train_exact`
+variant. It collapses exact duplicate protein sequences but does not merge
+close homologs. In contrast, `train_nr90` merges proteins by MMseqs 90%
+identity at 85% coverage, and `train_nr50` is stricter.
+
+| Variant | Raw pairs | Raw proteins | Raw reactions | Valid-reaction pairs | Valid proteins | Valid reactions |
+|---|---:|---:|---:|---:|---:|---:|
+| `train_exact` | 442,251 | 189,593 | 35,223 | 263,807 | 170,585 | 27,493 |
+| `train_nr90` | 312,046 | 129,400 | 35,223 | 190,818 | 116,942 | 27,493 |
+| `train_nr50` | 148,180 | 52,563 | 35,223 | 98,334 | 48,235 | 27,493 |
+
+Valid-reaction EC coverage by variant:
+
+| Variant | Valid-reaction pairs | Complete EC-4 rows | Unique complete EC-4 |
+|---|---:|---:|---:|
+| `train_exact` | 263,807 | 241,115 | 5,133 |
+| `train_nr90` | 190,818 | 175,128 | 5,133 |
+| `train_nr50` | 98,334 | 90,491 | 5,133 |
+
+Source composition for the exact-unique valid-reaction variant:
+
+| Original source | Valid exact-unique pairs | Complete EC-4 rows |
+|---|---:|---:|
+| Horizyn train | 219,407 | 197,264 |
+| CLIPZyme / EnzymeMap train | 42,033 | 42,033 |
+| SABIO-RK novelty90 | 2,333 | 1,784 |
+| CLIPZyme + Horizyn overlap | 34 | 34 |
+| **Total** | **263,807** | **241,115** |
+
+Compared with `train_nr90`, `train_exact` keeps 72,989 more valid training
+pairs and 53,643 more valid proteins, while covering the same 27,493 valid
+reactions and the same 5,133 complete EC-4 labels. Use `train_exact` when
+more data and only exact de-duplication are desired; use `train_nr90` when
+homolog redundancy should be reduced.
+
+### Validation Data
+
+Validation during training uses CLIPZyme/EnzymeMap eval as a validation set:
+
+```text
+data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval
+```
+
+| File | Rows | Meaning |
+|---|---:|---|
+| `pairs_horizyn.csv` | 48,074 | CLIPZyme eval positives converted to Horizyn pair schema. |
+| `reactions.csv` | 17,266 | CLIPZyme eval reactions. |
+| `pairs_horizyn_nonempty_esmc.csv` | 47,904 | ESMC validation pairs after removing proteins with missing/empty residue embeddings. |
+| `pairs_horizyn_nonempty_esm2.csv` | generated after HDF5 merge | ESM2 validation pairs used by the ESM2 run. |
+| `pairs_horizyn_nonempty_prott5.csv` | generated after HDF5 merge | ProtT5 validation pairs used by the ProtT5 run. |
+
+### Held-Out Test Data
+
+Final testing is controlled by:
+
+```text
+configs/benchmarks/retrieval_source_collapse_tests.yaml
+```
+
+The benchmark suite excludes CLIPZyme/EnzymeMap because that split is used for
+validation during training. Held-out tests are:
+
+| Task | Pair file | Reaction file | Pairs | Reactions | Candidate proteins |
+|---|---|---|---:|---:|---:|
+| Horizyn SOTA | `test/horizyn/test_pairs.csv` | `test/horizyn/test_rxns.csv` | 33,996 | 1,012 | 216,132 |
+| ReactZyme time | `test/reactzyme_time/test_pairs.csv` | `test/reactzyme_time/reactions.csv` | 12,287 | 7,726 | 178,327 |
+| ReactZyme enzyme_smi | `test/reactzyme_enzyme_smi/test_pairs.csv` | `test/reactzyme_enzyme_smi/reactions.csv` | 8,739 | 7,726 | 178,327 |
+| ReactZyme reaction_smi | `test/reactzyme_reaction_smi/test_pairs.csv` | `test/reactzyme_reaction_smi/reactions.csv` | 14,689 | 7,726 | 178,327 |
+
+Shared test candidate directory:
+
+```text
+data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates
+```
+
+Files:
+
+| File | Rows/proteins | Meaning |
+|---|---:|---|
+| `proteins.fasta` | 394,459 | Union of held-out Horizyn and ReactZyme candidate proteins. |
+| `candidate_ids.txt` | 394,459 | Full shared candidate ID list. |
+| `horizyn_sota_candidate_ids.txt` | 216,132 | Candidate proteins for Horizyn SOTA test. |
+| `reactzyme_time_candidate_ids.txt` | 178,327 | Candidate proteins for ReactZyme time test. |
+| `reactzyme_enzyme_smi_candidate_ids.txt` | 178,327 | Candidate proteins for ReactZyme enzyme_smi test. |
+| `reactzyme_reaction_smi_candidate_ids.txt` | 178,327 | Candidate proteins for ReactZyme reaction_smi test. |
+
+Held-out residue HDF5s used by benchmark evaluation:
+
+| Backbone | HDF5 path |
+|---|---|
+| ESMC | `test/horizyn_reactzyme_shared_candidates/proteins_esmc_6b_residue.h5` |
+| ESM2 | `test/horizyn_reactzyme_shared_candidates/proteins_esm2_650m_residue.h5` |
+| ProtT5 | `test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5` |
+
+## Standard Horizyn Dataset Layout
+
+Horizyn retrieval datasets normally expose:
+
+```text
+train_rxns.csv
+test_rxns.csv
+train_pairs.csv
+test_pairs.csv
+prots.fasta or proteins.fasta
+optional residue/sequence embedding HDF5
+```
+
+Pair files use:
+
+```text
 pr_id,reaction_id,protein_id
-0,Rh_10008,P12345
 ```
 
-**Usage:** Loaded by `HorizynDataModule` to define positive training pairs.
+Reaction files use:
 
-### 4. `test_pairs.csv`
-CSV file containing test reaction-protein pairs (same format as `train_pairs.csv`).
-
-**Usage:** Loaded by `HorizynDataModule` to evaluate model performance during training.
-
-### 5. `prots_t5.h5`
-HDF5 file containing pre-computed protein embeddings from the ProtT5 model.
-
-**Structure:**
-```
-/ids      # Dataset of protein IDs (strings)
-/vectors  # Dataset of embeddings (float32, shape: [N, 1024])
+```text
+rs_id,reaction_id,reaction_smiles
 ```
 
-**Usage:** Loaded by `EmbedDataset` to retrieve target protein embeddings.
+Residue embedding HDF5 files use the ragged schema:
 
-### 6. `prots.fasta` (optional)
-FASTA file containing protein sequences corresponding to the embeddings in the HDF5 file. This is provided for reference and is not used during training.
+```text
+/ids      string protein IDs, shape [N]
+/vectors  flattened residue embeddings, shape [sum_L, D]
+/offsets  integer offsets into vectors, shape [N + 1]
+```
 
-## Datasets
+Sequence-level embedding HDF5 files use:
 
-### Nanodata (Integration Tests)
+```text
+/ids      string protein IDs, shape [N]
+/vectors  sequence embeddings, shape [N, D]
+```
 
-A minimal dataset included in this repository for integration testing:
-- **Size:** ~80 KB total
-- **Train Reactions:** 9 from Rhea database
-- **Test Reactions:** 2 from Rhea database
-- **Proteins:** 11 from UniProt with ProtT5 embeddings
-- **Train Pairs:** 10 pairs
-- **Test Pairs:** 2 pairs
-- **Created:** July 2024
+## Original Horizyn SOTA Data
 
-**Purpose:** Fast integration tests to verify the training pipeline works end-to-end without errors. Not intended for scientific evaluation.
+Path:
 
-**Usage:**
+```text
+data/sota
+```
+
+| Split | Pairs | Reactions | Proteins |
+|---|---:|---:|---:|
+| train | 257,733 | 10,785 | 192,769 |
+| test | 33,996 | 1,012 | 32,100 |
+| all proteins | - | - | 216,132 records, 182,116 unique sequences |
+
+Important files:
+
+| File | Purpose |
+|---|---|
+| `train_pairs.csv` | Published train reaction-protein positives. |
+| `test_pairs.csv` | Published test positives. |
+| `train_rxns.csv` | Train reaction SMILES. |
+| `test_rxns.csv` | Test reaction SMILES. |
+| `prots.fasta` | Protein sequence catalog. |
+| `uniprot_all_ec_labels.csv` | UniProt EC cache for SOTA proteins. |
+| `uniprot_reviewed_ec_labels.csv` | Reviewed-only Swiss-Prot EC cache. |
+| `msas_ligns/horizyn_uniref90/horizyn_uniref90.fasta` | Ligns/MMseqs UniRef90 MSA output FASTA. |
+
+EC label coverage:
+
+| Cache | Rows | Unique proteins | Notes |
+|---|---:|---:|---|
+| `uniprot_all_ec_labels.csv` | 216,133 | 216,132 | Broad UniProtKB cache; best coverage. |
+| `uniprot_reviewed_ec_labels.csv` | 22,000 | 22,000 | Cleaner but too sparse for broad EC pretraining. |
+
+The previous cache generation summary recorded about 198k SOTA proteins with
+complete four-level EC labels in the all-UniProt cache.
+
+Note: the older `data/sota/prots_t5.h5`, `prots_esm2_650m_residue.h5`, and
+`prots_esmc_6B_residue.h5` files were not present/readable during the latest
+inventory scan. Use the FASTA to regenerate embeddings when needed.
+
+## Published Paper Benchmark Data
+
+Path:
+
+```text
+data/paper
+```
+
+Detailed benchmark evaluation notes live in:
+
+```text
+data/paper/README.md
+```
+
+### ReactZyme
+
+Path:
+
+```text
+data/paper/reactzyme/eval
+```
+
+| Task | Train pairs | Train reactions | Train proteins | Test pairs | Test reactions | Test proteins | Candidate proteins |
+|---|---:|---:|---:|---:|---:|---:|---:|
+| `time` | 166,172 | 7,726 | 166,084 | 12,287 | 2,634 | 12,277 | 178,327 |
+| `enzyme_smi` | 169,720 | 7,726 | 169,596 | 8,739 | 1,573 | 8,734 | 178,327 |
+| `reaction_smi` | 163,770 | 7,340 | 163,651 | 14,689 | 386 | 14,688 | 178,327 |
+
+ReactZyme is used as an external enzyme-reaction retrieval benchmark. The
+candidate FASTA is shared across the three splits:
+
+```text
+data/paper/reactzyme/eval/all_proteins.fasta
+```
+
+### ClipZyme / EnzymeMap
+
+Paths:
+
+```text
+data/paper/clipzyme/train/enzymemap
+data/paper/clipzyme/eval/enzymemap
+data/paper/clipzyme/files
+```
+
+| Split | Pairs | Reactions | Positive proteins |
+|---|---:|---:|---:|
+| train/upstream | 42,505 | 15,530 | 12,674 |
+| eval/test | 48,074 | 17,266 | 13,121 |
+
+The evaluation candidate FASTA contains 261,907 records and 222,919 unique
+sequences:
+
+```text
+data/paper/clipzyme/eval/enzymemap/proteins.fasta
+```
+
+The extracted source pickles are retained in `data/paper/clipzyme/files`,
+including `uniprot2sequence.p`, `ec2uniprot.p`, and `enzymemap.json`.
+
+### SABIO-RK
+
+Prepared evaluation path:
+
+```text
+data/paper/sabio_rk/eval
+```
+
+The SABIO-RK splits are novelty filters built from max sequence similarity to
+previous datasets.
+
+| Split | Rule | Pairs | Reactions | Proteins | Mean max similarity |
+|---|---|---:|---:|---:|---:|
+| `novelty90` | max similarity to previous data `< 90%` | 2,339 | 1,570 | 750 | 38.06 |
+| `novelty50` | max similarity to previous data `< 50%` | 1,358 | 885 | 475 | 13.85 |
+
+Raw SABIO download/cache files are outside this folder under:
+
+```text
+/datastor2/deep-proteins/EnzymeDiscovery/sabio_rk_download
+```
+
+Key raw files include:
+
+| File | Purpose |
+|---|---|
+| `parquet_cache/enzyme_reaction_uniprot_pairs.parquet` | SABIO UniProt-reaction pairs. |
+| `seqsim_fetch/new_sequences.tsv` | New SABIO sequences. |
+| `seqsim_fetch/old_sequences.tsv` | Previous-dataset sequence catalog. |
+| `seqsim_fetch/new_vs_old_max_similarity_by_source_dataset.csv` | Similarity audit used for novelty splits. |
+
+## AI4Protein/EC
+
+Path:
+
+```text
+data/huggingface/AI4Protein_EC
+```
+
+The HuggingFace dataset originally contains numeric labels in `label`, not EC
+strings. The local annotation pipeline extracts the UniProt accession from
+names such as `1s4d_A-P21631` and joins against UniProt EC labels.
+
+Annotated split counts:
+
+| Split | Rows | Unique sequences | Unique accessions | Rows with complete EC-4 |
+|---|---:|---:|---:|---:|
+| train | 13,090 | 12,957 | 11,555 | 10,512 |
+| valid | 1,465 | 1,463 | 1,453 | 1,155 |
+| test | 1,604 | 1,600 | 1,521 | 1,464 |
+| total | 16,159 | 15,946 | 13,897 | 13,131 |
+
+Files:
+
+| File | Purpose |
+|---|---|
+| `train_with_ec.csv` | Train split with UniProt EC metadata. |
+| `valid_with_ec.csv` | Validation split with UniProt EC metadata. |
+| `test_with_ec.csv` | Test split with UniProt EC metadata. |
+| `uniprot_ai4protein_ec_labels.csv` | UniProt EC cache for AI4Protein accessions. |
+| `ai4protein_uniprot_accessions.csv` | Unique accession list used by the downloader. |
+| `ec_label_coverage_summary.csv` | EC coverage summary. |
+
+Important: the numeric `label` column is preserved as the original
+AI4Protein target. It is not treated as an EC number because the mapping from
+numeric label ID to complete EC-4 labels is not unambiguous from the shipped
+dataset.
+
+### AI4Protein Overlap With Existing Data
+
+Exact sequence and UniProt accession overlap were audited under:
+
+```text
+results/sequence_overlap/ai4protein_existing_overlap
+```
+
+Union-level overlap:
+
+| Existing data | Exact AI sequence overlap | AI row overlap | UniProt accession overlap |
+|---|---:|---:|---:|
+| source retrieval train union | 4,545 sequences | 4,618 rows | 7,284 accessions / 8,539 rows |
+| source retrieval test union | 2,946 sequences | 2,995 rows | 3,758 accessions / 4,172 rows |
+| source train+test union | 4,600 sequences | 4,673 rows | 7,797 accessions / 9,102 rows |
+
+Because many AI4Protein entries are PDB-chain constructs or fragments, exact
+sequence filtering alone can miss same-UniProt overlap.
+
+### AI4Protein Hyperbolic Pretraining Subsets
+
+Path:
+
+```text
+data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets
+```
+
+| Policy | Kept unique proteins | Meaning |
+|---|---:|---|
+| `source_train_exact` | 8,755 | Remove exact sequence overlap with existing source train sets. |
+| `source_train_strict` | 4,772 | Remove exact sequence and UniProt accession overlap with source train sets. |
+| `source_train_or_test_exact` | 8,724 | Remove exact sequence overlap with source train and benchmark test sets. |
+| `source_train_or_test_strict` | 4,530 | Remove exact sequence and UniProt accession overlap with train and benchmark test sets. |
+| `horizyn_sota_all_strict` | 5,252 | Remove exact/accession overlap with original SOTA proteins. |
+
+Recommended for EC pretraining before retrieval:
+
+```text
+data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_strict
+```
+
+Use the stricter `source_train_or_test_strict` subset if benchmark-test
+protein leakage must be avoided too.
+
+Each subset contains:
+
+```text
+ai4protein_hyperbolic_ec_labels.csv
+ai4protein_hyperbolic_sequences.fasta
+summary.json
+```
+
+## SLEEC Functional-Residue Data
+
+Main paths:
+
+```text
+data/SLEEC
+data/sleec_stage1
+```
+
+| Dataset/artifact | Size |
+|---|---:|
+| `data/SLEEC/curated_data.csv` | 28,188 rows |
+| `data/SLEEC/New-392.csv` | 392 proteins |
+| `data/SLEEC/New-392.fasta` | 392 records, 386 unique sequences |
+| `data/sleec_stage1/fasta/mcsa_reference.full.fasta` | 983 proteins |
+| `data/sleec_stage1/mcsa_residue_labels.csv` | 410,639 residue rows |
+| `data/sleec_stage1/msa_pseudo_residue_labels.csv` | 410,639 UniRef50 pseudo-label rows |
+| `data/sleec_stage1/msa_pseudo_residue_labels.balanced.csv` | 83,044 balanced UniRef50 rows |
+| `data/sleec_stage1/msa_pseudo_residue_labels_uniref90.csv` | 410,639 UniRef90 pseudo-label rows |
+| `data/sleec_stage1/msa_pseudo_residue_labels_uniref90.balanced.csv` | 83,044 balanced UniRef90 rows |
+
+These files support SLEEC stage-1 functional-residue classifier training and
+SLEEC-guided attention pooling.
+
+## Nanodata
+
+Path:
+
+```text
+data/nanodata
+```
+
+Tiny smoke-test data for integration tests. It is not for scientific
+evaluation.
+
+Files:
+
+```text
+train_pairs.csv
+test_pairs.csv
+train_rxns.csv
+test_rxns.csv
+```
+
+## External Raw/Auxiliary Data In Workspace
+
+These directories are outside `horizyn/data` but available in the same
+workspace.
+
+### EnzymeCAGE
+
+Path:
+
+```text
+/datastor2/deep-proteins/EnzymeDiscovery/EnzymeCAGE/dataset
+```
+
+Major contents:
+
+| Folder/file | Notes |
+|---|---|
+| `training/train.csv`, `training/valid.csv` | Large EnzymeCAGE training/validation data. |
+| `RHEA/2023-07-12/rhea_rxn2uids.csv` | RHEA reaction-UniProt data. |
+| `RHEA/2025-02-05/rhea_rxn2uids.csv` | Newer RHEA reaction-UniProt data. |
+| `RHEA/2025-02-05/uid2seq.pkl` | UniProt sequence lookup. |
+| `RHEA/2025-02-05/pockets/` | Pocket metadata and many pocket PDB files. |
+| `domain-specific-ft/` | P450, phosphatase, terpene domain-specific fine-tuning data. |
+| `external-test-set/` | P450, phosphatase, terpene external tests. |
+| `internal-test-set/` | Enzyme-405 and Orphan-335 tests. |
+| `others/uid_to_ec.pkl` | Older local UniProt-to-EC mapping. |
+
+### VenusRXN
+
+Path:
+
+```text
+/datastor2/deep-proteins/EnzymeDiscovery/VenusRXN/data
+```
+
+Major contents:
+
+| File/folder | Notes |
+|---|---|
+| `train_pairs.tsv`, `test_pairs.tsv` | Original VenusRXN retrieval pairs. |
+| `reactions.tsv` | Original VenusRXN reactions. |
+| `enzymes.fasta` | Original enzyme sequence catalog. |
+| `data.zip` | Original archive. |
+| `horizyn_sota/` | Horizyn SOTA converted into VenusRXN format. |
+
+### Raw SABIO-RK Download
+
+Path:
+
+```text
+/datastor2/deep-proteins/EnzymeDiscovery/sabio_rk_download
+```
+
+Major contents:
+
+| File/folder | Notes |
+|---|---|
+| `parquet_cache/enzyme_reaction_pairs.parquet` | Raw enzyme-reaction pairs. |
+| `parquet_cache/enzyme_reaction_uniprot_pairs.parquet` | UniProt-resolved enzyme-reaction pairs. |
+| `parquet_cache/compound_smiles.parquet` | Compound SMILES cache. |
+| `seqsim_fetch/new_sequences.tsv` | New SABIO sequence set. |
+| `seqsim_fetch/old_sequences.tsv` | Previous-dataset sequence set. |
+| `seqsim_fetch/new_vs_old_max_similarity_by_source_dataset.csv` | Similarity audit. |
+| `seqsim_fetch/mmseqs_runs/full/hits.tsv` | MMseqs full sequence-similarity hits. |
+
+## Data Leakage Notes
+
+1. Original benchmark datasets overlap heavily by protein sequence and
+   accession. Do not train on naive unions if evaluating on published splits.
+2. AI4Protein overlaps existing data substantially. For hyperbolic EC
+   pretraining, use `source_train_strict` or `source_train_or_test_strict`.
+3. For PDB-chain or fragment datasets, exact sequence overlap can be weaker
+   than UniProt accession overlap. Prefer strict filters when EC supervision is
+   used before downstream retrieval evaluation.
+
+## Consolidated Data Split Summary (Expanded)
+
+### 1) Source/raw split families (input datasets)
+
+| Split family | Splits / locations | What each split stores | Intended meaning | Sizes / stats | Notes |
+|---|---|---|---|---|---|
+| Horizyn SOTA | `train`, `test`; path: `data/sota` | `train_pairs.csv`, `train_rxns.csv`, `test_pairs.csv`, `test_rxns.csv`, protein FASTA, UniProt EC cache files | Original project publication splits for single retrieval corpus | Train pairs: 257,733; Test pairs: 33,996; Train reactions: 10,785; Test reactions: 1,012 | Baseline retrieval corpus. EC labels are mainly in `uniprot_all_ec_labels.csv` (broadest) and `uniprot_reviewed_ec_labels.csv` (stricter). |
+| ReactZyme | `time`, `enzyme_smi`, `reaction_smi`; path: `data/paper/reactzyme/eval` | `train_pairs.csv`, `test_pairs.csv`, `reactions.csv`, plus split-specific `candidate_ids.txt`, FASTA | External benchmark with three published protocols: time split, enzyme-similarity split, reaction-similarity split | time: 166,172 train / 12,287 test; enzyme_smi: 169,720 / 8,739; reaction_smi: 163,770 / 14,689; candidates per split: 178,327 | Used for unified evaluation; some configs include bidirectional retrieval (`reaction_to_enzyme`, `enzyme_to_reaction`). |
+| CLIPZyme / EnzymeMap | `train/enzymemap`, `eval/enzymemap`; path: `data/paper/clipzyme` | `pairs.csv`, `reactions.csv`, and candidate protein FASTA/IDs + metadata in adjacent directories | Upstream source train + held-out screening-style evaluation | Train: 42,505 pairs / 15,530 reactions; Eval: 48,074 / 17,266 | Evaluated as reaction→protein screening against a fixed candidate pool. |
+| SABIO-RK | `novelty50`, `novelty90`; path: `data/paper/sabio_rk/eval` | `pairs.csv`, `reactions.csv` per novelty bucket | Novelty-filtered external benchmark where novelty is max similarity to prior datasets | novelty90: 2,339 pairs / 1,570 reactions; novelty50: 1,358 / 885 | Built from sequence-similarity audits in `sabio_rk_download`. |
+| AI4Protein/EC | `train`, `valid`, `test`; path: `data/huggingface/AI4Protein_EC` | Raw `train/valid/test.csv`, EC-annotated `*_with_ec.csv`, plus accession maps | Protein-level EC classification/auxiliary source, not core retrieval pairs | Train 13,090 / valid 1,465 / test 1,604 rows in EC-annotated files | Numeric class ids are preserved; UniProt mapping provides EC annotations. |
+| Nanodata (toy) | `train`, `test`; path: `data/nanodata` | `train_pairs.csv`, `test_pairs.csv`, `train_rxns.csv`, `test_rxns.csv` | Lightweight smoke-test data for integration and pipeline checks | Very small by design | Not intended for published benchmarking. |
+
+### 2) Standardized retrieval training/eval splits (working splits)
+
+| Split family | Location | Core files | Split generation logic | Sizes / status | Notes |
+|---|---|---|---|---|---|
+| `train_exact` | `standardized/retrieval_training_source_collapse/train_exact` | `train_pairs.csv`, `train_pairs_valid_rxn.csv`, `train_pairs_valid_rxn_nonempty_{esmc,esm2,prott5}.csv`, `train_rxns*.csv`, `train_proteins.fasta`, metadata | Exact-sequence deduplication only; then valid-reaction filtering and backbone non-empty residue checks | Raw: 442,251 pairs; Valid-reaction: 263,807 pairs | Maximum protein coverage among standard retrieval variants. |
+| `train_exact` Rhea reconstructed | `standardized/retrieval_training_source_collapse/train_exact` | `train_pairs_valid_rxn_rhea_reconstructed.csv`, `train_rxns_valid_rxn_rhea_reconstructed.csv`, `metadata_valid_rxn_rhea_reconstructed.json` | Replaces ReactZyme train molecule-set rows with train-side Rhea substrate/product reactions | 294,607 pairs; 28,529 all-directional reactions; 189,592 proteins | Preferred train table for enzyme-capability chemistry supervision. |
+| `train_nr90` | `standardized/retrieval_training_source_collapse/train_nr90` | Same schema as exact + feature and shard folders | MMseqs collapse at 90% identity / 85% coverage, then valid-reaction filtering + backbone non-empty checks | Raw: 312,046 pairs / 129,400 proteins / 35,223 reactions; Valid-reaction: 190,818 pairs / 116,942 proteins / 27,493 reactions | Active default family for current source-collapse retrieval experiments. |
+| `train_nr50` | `standardized/retrieval_training_source_collapse/train_nr50` | Same schema as exact/nr90 | MMseqs collapse at 50% identity / 85% coverage, then downstream filters | Raw: 148,180 pairs / 52,563 proteins / 35,223 reactions; Valid-reaction: 98,334 pairs / 48,235 proteins / 27,493 reactions | Most aggressive homology reduction among the three retrieval variants. |
+| `validation/clipzyme_eval` | `standardized/retrieval_training_source_collapse/validation/clipzyme_eval` | `pairs_horizyn.csv`, `pairs_horizyn_nonempty_{esmc,esm2,prott5}.csv`, `reactions.csv`, `proteins.fasta` | CLIPZyme/EnzymeMap eval converted to Horizyn schema and filtered for non-empty residue embeddings per backbone | 48,074 raw; 47,904 non-empty for ESMC | Used as validation during training in many retrieval configs. |
+| `test/horizyn` | `standardized/retrieval_training_source_collapse/test/horizyn` | `test_pairs.csv`, `test_rxns.csv`, `proteins.fasta`, `candidate_ids.txt` | Horizyn SOTA held-out pairs and candidate pool | 33,996 test pairs; 1,012 test reactions; 216,132 candidates | Primary in-domain held-out target in source-collapsed experiments. |
+| `test/reactzyme_time` | `standardized/retrieval_training_source_collapse/test/reactzyme_time` | `test_pairs.csv`, `reactions.csv`, linked `candidate_ids.txt` and shared FASTA | ReactZyme time split held-out with shared candidate linkage | 12,287 test pairs; 2,634 query reactions; 178,327 candidates | Candidate IDs point to shared ReactZyme pool. |
+| `test/reactzyme_enzyme_smi` | `standardized/retrieval_training_source_collapse/test/reactzyme_enzyme_smi` | Same schema as time split | ReactZyme enzyme similarity held-out protocol | 8,739 test pairs; 1,573 query reactions | Candidate IDs are task-specific subsets of shared ReactZyme candidates. |
+| `test/reactzyme_reaction_smi` | `standardized/retrieval_training_source_collapse/test/reactzyme_reaction_smi` | Same schema as time split | ReactZyme reaction similarity held-out protocol | 14,689 test pairs; 386 query reactions | Smallest query-count variant among ReactZyme settings. |
+| `test/horizyn_reactzyme_shared_candidates` | `standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates` | `proteins.fasta`, `candidate_ids.txt`, per-task subset candidate IDs | Shared candidate universe across Horizyn and ReactZyme tests | Total candidates: 394,459 | Enables consistent ranking space for held-out suites. |
+
+### 3) Leakage-control / non-overlap split families
+
+| Split family | Location | Policy | What is de-overlapped | Output artifacts | Intended use |
+|---|---|---|---|---|---|
+| Global unique train/test (main) | `standardized/global_unique_retrieval/{exact,nr90,nr50}` | exact / nr90 / nr50 | Train union vs test union across source train/eval corpora | `pairs/`, `proteins/`, overlap buckets and `summary.json` where present | Strict leakage-control for train/test experiments. |
+| Unified split index | `data/test/global_unique_train_test_splits/{exact,nr90,nr50}` | exact / nr90 / nr50 | Canonical bookkeeping across all train/eval tasks | train-unique, test-unique, overlap buckets + summary files | Recommended high-level reference for protocol-level train/test partitioning. |
+| Additional non-overlap trees | `standardized/global_nonoverlap_train_test_splits/{exact,nr90,nr50}` and `standardized/sabio_holdout_nonoverlap_splits/{exact,nr90,nr50}` | exact / nr90 / nr50 | Pair/protein partitions for global and SABIO-holdout styles | `summary.json`, `summary_counts.csv` and split contents | Generalized non-overlap artifacts and diagnostics for alternative analyses. |
+
+### 4) Evaluation index and manifest wiring
+
+| Split index | Location | What it points to | Contains | Why it exists |
+|---|---|---|---|---|
+| Benchmark evaluation index | `data/test` | Source and standardized split folders | `horizyn_sota`, `reactzyme/*`, `clipzyme_enzymemap`, `sabio_rk/*`, candidate/embedding pointers, split summaries | Central inspection/dispatch location for evaluators and benchmark orchestration. |
+| Benchmark manifests | `data/test/benchmark_suites` and `data/paper/manifests` | Dataset/task definitions | YAML manifest and dataset wiring metadata | Connects each task to split paths and metric/direction settings. |
+| Paper benchmark registry | `data/paper` | Source-specific normalized papers and provenance | ReactZyme and CLIPZyme evaluation files, manifests, train/eval source archives | Canonical source for externally reported benchmark definitions. |
+
+### 5) Common split data formats
+
+| Split component | Typical filename pattern | Meaning | Typical schema |
+|---|---|---|---|
+| Pair table | `*pairs*.csv` | Positive reaction-protein links | Horizyn-style: `pr_id,reaction_id,protein_id` (task variants can include `reaction_smiles`, `protein_sequence`, `ec`, `rxnid`, etc.) |
+| Reaction table | `*reactions*.csv` | Candidate reaction query universe | `rs_id,reaction_id,reaction_smiles` (or task-specific equivalents) |
+| Protein catalog | `proteins.fasta` | FASTA of proteins available for training/validation/eval | Protein IDs and sequences (often mapped to `uprot_<sha1>` style canonical IDs in unified pipelines) |
+| Candidate list | `candidate_ids.txt` | Ranking universe for task test suites | One protein identifier per line |
+| Residue embedding HDF5 | `*_residue.h5` | Per-residue ragged embeddings for backbone-specific scoring | Keys: `/ids`, `/vectors`, `/offsets` |
+| Sequence embedding HDF5 | `*_sequence*.h5` | Per-protein embeddings | Keys: `/ids`, `/vectors` |
+
+### Requested aggregate split totals
+
+#### Overall test data (what is used for benchmark evaluation)
+
+| Split family | Path | Pairs | Query reactions | Candidate proteins |
+|---|---|---:|---:|---:|
+| Horizyn SOTA | `data/test/global_nonoverlap_test/horizyn` and `standardized/retrieval_training_source_collapse/test/horizyn` | 33,996 | 1,012 | 216,132 |
+| ReactZyme time | `data/paper/reactzyme/eval/time` and `standardized/retrieval_training_source_collapse/test/reactzyme_time` | 12,287 | 2,634 | 178,327 |
+| ReactZyme enzyme_smi | `data/paper/reactzyme/eval/enzyme_smi` and `standardized/retrieval_training_source_collapse/test/reactzyme_enzyme_smi` | 8,739 | 1,573 | 178,327 |
+| ReactZyme reaction_smi | `data/paper/reactzyme/eval/reaction_smi` and `standardized/retrieval_training_source_collapse/test/reactzyme_reaction_smi` | 14,689 | 386 | 178,327 |
+| CLIPZyme / EnzymeMap | `data/paper/clipzyme/eval/enzymemap` and `standardized/global_nonoverlap_test_splits/clipzyme_enzymemap` | 48,074 | 17,266 | 261,835 |
+| SABIO-RK novelty90 | `data/paper/sabio_rk/eval/novelty90` and `standardized/sabio_holdout_nonoverlap_splits/novelty90` | 2,339 | 1,570 | 750 |
+| SABIO-RK novelty50 | `data/paper/sabio_rk/eval/novelty50` and `standardized/sabio_holdout_nonoverlap_splits/novelty50` | 1,358 | 885 | 475 |
+| **Overall listed test suites total** |  | **121,582** | **24,826** | — |
+
+#### Overall training data used for Hyperbolic encoder
+
+| Dataset view | Path | Key rows | Unique proteins | What it feeds |
+|---|---|---:|---:|---|
+| Horizyn source pretraining backbone | `data/sota/train_pairs.csv` | 257,733 pairs | 192,769 proteins | Primary retrieval-source supervision used as EC-bearing backbone for hyperbolic pretraining |
+| AI4Protein EC raw training split | `data/huggingface/AI4Protein_EC/train_with_ec.csv` | 13,090 rows | 12,957 unique sequences | Auxiliary EC sequence pretraining source before overlap filtering |
+| `source_train_exact` subset | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_exact` | 8,755 proteins | 8,755 proteins | Hyperbolic EC subset removing exact-sequence overlap |
+| `source_train_strict` subset (recommended) | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_strict` | 4,772 proteins | 4,772 proteins | Removes exact-sequence + UniProt accession overlap with source train |
+| `source_train_or_test_exact` subset | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_or_test_exact` | 8,724 proteins | 8,724 proteins | Also removes exact overlap against benchmark test sets |
+| `source_train_or_test_strict` subset | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_or_test_strict` | 4,530 proteins | 4,530 proteins | Strictest EC subset (exact + accession + train/test overlap removal) |
+| `horizyn_sota_all_strict` subset | `data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/horizyn_sota_all_strict` | 5,252 proteins | 5,252 proteins | Alternative strict filter aligned to Horizyn SOTA protein universe |
+
+#### Overall training data used for retrieval pipeline
+
+| Variant | Path | Raw pairs | Raw proteins | Raw reactions | Valid-reaction pairs | Valid proteins | Valid reactions |
+|---|---|---:|---:|---:|---:|---:|---:|
+| `train_exact` | `standardized/retrieval_training_source_collapse/train_exact` | 442,251 | 189,593 | 35,223 | 263,807 | 170,585 | 27,493 |
+| `train_exact_rhea_reconstructed` | `standardized/retrieval_training_source_collapse/train_exact` | 294,607 | 189,592 | 28,529 | 294,607 | 189,592 | 28,529 |
+| `train_nr90` | `standardized/retrieval_training_source_collapse/train_nr90` | 312,046 | 129,400 | 35,223 | 190,818 | 116,942 | 27,493 |
+| `train_nr50` | `standardized/retrieval_training_source_collapse/train_nr50` | 148,180 | 52,563 | 35,223 | 98,334 | 48,235 | 27,493 |
+
+### Current Enzyme-Capability Annotation Artifacts
+
+The preferred current capability-pretraining input is:
+
+```text
+data/processed/capability_features/train_exact_rhea_reconstructed/
+```
+
+It contains 28,529 all-directional reaction feature rows, demand vectors with
+shape `(28,529, 2,434)`, 189,592 train-only enzyme capability label rows, and
+294,607 train pair-capability rows. RXNMapper was run on the recovered Rhea
+directional reactions; 28,152 reactions have reaction-center status `ok`, 27,029
+have non-empty reaction-center labels, and 377 long/complex reactions are
+explicitly marked as reaction-center failures.
+
+The expanded dictionary snapshot used for this refresh is written to
+`annotation_dictionaries.json` with version `expanded_20260701`. It records 164
+ChEBI cofactor-role terms, 94 alias labels, 34 core cofactor labels, 18
+metal/ion labels, 30 reaction-center coarse families, 39 substrate/product
+SMARTS labels, and 24 directional transition rules. The realized demand-vector
+vocabulary is smaller where no train reaction expresses a dictionary entry.
+
+The current biology-focused annotation refresh splits cofactors into:
+
+| Tier | Reaction rows | Enzyme rows | Meaning |
+|---|---:|---:|---|
+| mixed `cofactor_labels` | 15,295 | 133,949 | Legacy mixed view containing core cofactors, metals/ions, and auxiliary participants. |
+| `core_cofactor_labels` | 13,245 | 108,922 | Main enzyme-capability targets: NAD/NADP, FAD/FMN, PLP, TPP, SAM, CoA, FeS, heme-like/carrier cofactors, quinone, glutathione, etc. |
+| `metal_ion_labels` | 725 | 9,439 | Metal/ion context such as Mg2+, Zn2+, Fe2+/Fe3+, Mn2+, Cu2+, Na+, K+. |
+| `auxiliary_participant_labels` | 2,516 | 47,521 | ChEBI cofactor-role or reaction-context participants kept separate from core cofactors. |
+
+An additional enzyme-side cofactor refresh is available in the same directory.
+It joins train enzymes to UniProt accessions through collapsed `source_entries`
+and through ReactZyme-style sequence hashes rebuilt from
+`data/paper/reactzyme/raw/cleaned_uniprot_rhea.tsv`, then scans
+`data/paper/reactzyme/raw/uniprot_molecules.tsv` with the same cofactor
+dictionary and structural rules. This evidence is enzyme-side by accession, but
+it is still molecule/reaction-universe evidence, not UniProt free-text cofactor
+comments or binding-site features.
+
+| Enzyme cofactor source | Enzyme rows |
+|---|---:|
+| source-entry UniProt accession recovered | 170,585 |
+| sequence-hash UniProt accession recovered | 178,425 |
+| UniProt molecule record available | 178,416 |
+| reaction-derived any cofactor labels | 133,949 |
+| reaction-derived core cofactor labels | 108,922 |
+| enzyme-side molecule any cofactor labels | 128,071 |
+| enzyme-side molecule core cofactor labels | 105,405 |
+| combined any cofactor labels | 133,949 |
+| combined core cofactor labels | 108,922 |
+
+The combined coverage does not exceed the reaction-derived coverage on
+`train_exact_rhea_reconstructed`; the local UniProt molecule table mostly
+confirms cofactors already present in the train reaction annotations. To rescue
+additional missing prosthetic cofactors, the next required data source is an
+explicit enzyme annotation source such as UniProt `CC -!- COFACTOR`,
+`FT BINDING`, or InterPro/Pfam cofactor-binding motifs.
+
+Substrate/product SMARTS classes are now computed after removing currency
+molecules and detected core/metal/common auxiliary cofactor molecules. The
+unfiltered classes remain available as audit columns. The refreshed artifact
+has 27,232 reactions with cofactor-filtered substrate/product classes and
+24,078 reactions with directional substrate-product transition labels.
+
+The older pseudo-reaction artifact remains available at:
+
+```text
+data/processed/capability_features/train_exact/
+```
+
+That older directory keeps ReactZyme molecule-set rows as non-directional pseudo
+chemistry and should be used only for experiments that intentionally keep those
+rows.
+
+Label construction is two-stage. First, each directional reaction is annotated
+with deterministic chemistry labels: canonical reaction SMILES, DRFP,
+cofactors from ChEBI/alias/structure evidence, cofactor tiers,
+cofactor-filtered substrate/product SMARTS classes, substrate-product
+transitions, RXNMapper-derived reaction centers, weak rule-derived reaction
+types, and EC labels joined from train-pair source provenance. Second, enzyme
+labels are built by grouping train pairs by `enzyme_id` and unioning only the
+labels of that enzyme's train-positive reactions. Validation and test pairs
+never contribute to `enzyme_capability_labels.parquet`.
+
+Missing labels mean "unknown or not confidently asserted", not a negative
+class. Reaction centers can be missing because atom mapping failed or the
+reaction is too long/complex. Cofactors can be missing because the source data
+does not list participants, because the molecule is outside the curated
+dictionary, or because the pipeline refuses to infer cofactors from EC alone.
+EC can be missing when source provenance lacks an EC field. Auxiliary label
+losses should mask missing families rather than treating them as all-zero
+targets.
+
+## Regeneration Scripts
+
+Useful scripts:
+
+| Script | Purpose |
+|---|---|
+| `scripts/download_uniprot_ec_labels.py` | Download UniProt EC labels for protein IDs. |
+| `scripts/annotate_ai4protein_ec_labels.py` | Add UniProt EC labels to AI4Protein CSV splits. |
+| `scripts/evaluate_ai4protein_overlap.py` | Audit AI4Protein overlap with existing data. |
+| `scripts/filter_ai4protein_for_hyperbolic_pretrain.py` | Build AI4Protein EC-pretraining subsets. |
+| `scripts/extract_esm2_residue_embeddings.py` | Extract ragged ESM2 residue embeddings from FASTA. |
+| `scripts/run_extract_esm2_residue_embeddings_4gpu.sh` | Multi-GPU ESM2 extraction wrapper. |
+| `scripts/extract_chiro_reaction_embeddings.py` | Extract ChIRo chirality molecule embeddings into the reaction-side ragged HDF5 schema. |
+| `scripts/reconstruct_reactzyme_rhea_directional_train.py` | Reconstruct train-side ReactZyme molecule-set rows into Rhea-backed directional reactions. |
+| `scripts/build_rhea_reconstructed_capability_artifacts.py` | Build capability artifacts for the Rhea-reconstructed train split. |
+| `scripts/fill_reaction_center_annotations.py` | Fill missing reaction-center labels with RXNMapper and mark unmappable rows explicitly. |
+| `scripts/refresh_revised_capability_annotations.py` | Add/recompute cofactor tiers, cofactor-filtered substrate/product classes, substrate-product transitions, demand vectors, and train-only enzyme labels without rerunning RXNMapper. |
+| `scripts/enhance_enzyme_cofactor_annotations.py` | Add enzyme-side and combined cofactor labels from UniProt molecule evidence linked by source-entry accessions and sequence hashes. |
+
+## ChIRo Reaction Chirality Features
+
+The multimodal reaction encoder now treats the third molecule-set branch as a
+generic chirality branch and uses ChIRo by default. ChIRo features use the same
+ragged HDF5 schema as Uni-Mol2 reaction features:
+
+```text
+/ids
+/reactant_vectors, /reactant_offsets
+/product_vectors, /product_offsets
+```
+
+Expected training cache:
+
+```text
+data/standardized/retrieval_training_source_collapse/train_nr90/rxns_chiro_256_nr90_plus_clipzyme_eval.h5
+```
+
+Expected held-out benchmark cache:
+
+```text
+data/standardized/retrieval_training_source_collapse/test/reaction_features/rxns_chiro_256_test_suite_raw.h5
+```
+
+Extraction commands:
 
 ```bash
+cd /datastor2/deep-proteins/EnzymeDiscovery/horizyn
+PYTHONPATH=. /datastor2/deep-proteins/EnzymeDiscovery/env/bin/python \
+  scripts/extract_chiro_reaction_embeddings.py \
+  --reactions \
+    data/standardized/retrieval_training_source_collapse/train_nr90/train_rxns_valid_rxn.csv \
+    data/standardized/retrieval_training_source_collapse/validation/clipzyme_eval/reactions.csv \
+  --output data/standardized/retrieval_training_source_collapse/train_nr90/rxns_chiro_256_nr90_plus_clipzyme_eval.h5 \
+  --allow-pseudo-reactions \
+  --force
+
+PYTHONPATH=. /datastor2/deep-proteins/EnzymeDiscovery/env/bin/python \
+  scripts/extract_chiro_reaction_embeddings.py \
+  --reactions \
+    data/standardized/retrieval_training_source_collapse/test/horizyn/test_rxns.csv \
+    data/standardized/retrieval_training_source_collapse/test/reactzyme_time/reactions.csv \
+    data/standardized/retrieval_training_source_collapse/test/reactzyme_enzyme_smi/reactions.csv \
+    data/standardized/retrieval_training_source_collapse/test/reactzyme_reaction_smi/reactions.csv \
+  --output data/standardized/retrieval_training_source_collapse/test/reaction_features/rxns_chiro_256_test_suite_raw.h5 \
+  --no-bidirectional \
+  --force
+```
+
+The extractor uses the upstream ChIRo checkpoint at:
+
+```text
+.deps/ChIRo/paper_results/RS_experiment/ChIRo/results_RS_ChIRo_seed1/best_model.pt
+```
+
+## Quick Commands
+
+Train on the original tiny test data:
+
+```bash
+cd /datastor2/deep-proteins/EnzymeDiscovery/horizyn
 python train.py --config configs/nano.yaml
 ```
 
-### SOTA (Production Training)
-
-The full dataset used in the Horizyn publication:
-- **Size:** ~1 GB total
-- **Train Reactions:** 10,785 from Rhea
-- **Test Reactions:** 1,012 from Rhea
-- **Proteins:** 216,132 from UniProt with ProtT5 embeddings (192,769 train, 32,100 test)
-- **Train Pairs:** 257,733 pairs
-- **Test Pairs:** 33,996 pairs
-- **Embeddings:** ProtT5-XL (Rostlab/prot_t5_xl_half_uniref50-enc)
-
-**Purpose:** Training the SOTA model for publication results.
-
-**Training:**
+Train on original SOTA:
 
 ```bash
+cd /datastor2/deep-proteins/EnzymeDiscovery/horizyn
 python train.py --config configs/sota.yaml
 ```
 
-## Data Splitting Strategy
+Extract ESM2 residue embeddings for an AI4Protein hyperbolic subset:
 
-**Critical:** Pairs are split **by reaction ID** to prevent data leakage. All pairs for a given reaction must be in either the training set OR the test set, never both. This ensures the model is evaluated on truly unseen reactions.
-
-The separate `train_rxns.csv` and `test_rxns.csv` files enforce this split at the data level.
-
-## Creating Custom Datasets
-
-If you want to use Horizyn with your own data:
-
-1. **Prepare reactions**: Create `train_rxns.csv` and `test_rxns.csv` with your reaction SMILES
-2. **Prepare proteins**: Create `prots_t5.h5` with ProtT5 embeddings for all proteins
-3. **Define pairs**: Create `train_pairs.csv` and `test_pairs.csv` with positive examples
-4. **Split by reaction**: Ensure all pairs for a reaction go to train OR test, not both
-
-## Configuration
-
-Update your config YAML to point to your dataset:
-
-```yaml
-data:
-  train_pairs_path: "data/my_dataset/train_pairs.csv"
-  test_pairs_path: "data/my_dataset/test_pairs.csv"
-  train_reactions_path: "data/my_dataset/train_rxns.csv"
-  test_reactions_path: "data/my_dataset/test_rxns.csv"
-  protein_embeds_path: "data/my_dataset/prots_t5.h5"
+```bash
+cd /datastor2/deep-proteins/EnzymeDiscovery/horizyn
+scripts/run_extract_esm2_residue_embeddings_4gpu.sh \
+  --fasta data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_strict/ai4protein_hyperbolic_sequences.fasta \
+  --output data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_strict/ai4protein_esm2_650m_residue.h5
 ```
 
-## Storage Requirements
+Then use the matching EC-label CSV:
 
-- **Nanodata:** ~80 KB (minimal test data, included in git)
-- **SOTA:** ~1 GB uncompressed
-
-The embeddings file is the largest component (~900 MB for SOTA).
-
-## Notes
-
-- All data is loaded into memory at the start of training for maximum throughput
-- Nanodata files are tracked in git for easy integration testing
-- SOTA data should be downloaded separately due to size
+```text
+data/huggingface/AI4Protein_EC/hyperbolic_pretrain_subsets/source_train_strict/ai4protein_hyperbolic_ec_labels.csv
+```

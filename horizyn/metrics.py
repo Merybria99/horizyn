@@ -203,6 +203,69 @@ def top_k_hit_rate(scores: Tensor, target_idx: Tensor, k: int = 100) -> Tensor:
     return torch.tensor(1.0 if hit else 0.0, device=scores.device)
 
 
+def reciprocal_rank(scores: Tensor, target_idx: Tensor) -> Tensor:
+    """Compute reciprocal rank of the highest-ranked relevant item."""
+    if scores.dim() != 1 or target_idx.dim() != 1:
+        raise ValueError(
+            "reciprocal_rank expects 1D tensors. "
+            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
+        )
+
+    valid_targets = target_idx[target_idx >= 0]
+    if len(valid_targets) == 0:
+        return torch.tensor(0.0, device=scores.device)
+    if valid_targets.dtype != torch.long:
+        raise ValueError("target_idx must be dtype torch.long")
+
+    num_items = scores.shape[0]
+    if int(valid_targets.max().item()) >= num_items:
+        raise ValueError(
+            f"target_idx contains out-of-range values: max={int(valid_targets.max().item())} >= num_items={num_items}"
+        )
+
+    sorted_indices = torch.argsort(scores, descending=True)
+    relevant_positions = torch.nonzero(torch.isin(sorted_indices, valid_targets), as_tuple=False)
+    if relevant_positions.numel() == 0:
+        return torch.tensor(0.0, device=scores.device)
+    rank = relevant_positions[0, 0].to(dtype=torch.float32) + 1.0
+    return 1.0 / rank
+
+
+def reactzyme_mean_reciprocal_rank(scores: Tensor, target_idx: Tensor) -> Tensor:
+    """Compute ReactZyme's mean reciprocal rank over all relevant items.
+
+    ReactZyme averages ``1 / rank`` across every positive candidate for one
+    query. This differs from conventional reciprocal rank when a query has
+    multiple positives, because conventional RR uses only the first positive.
+    """
+    if scores.dim() != 1 or target_idx.dim() != 1:
+        raise ValueError(
+            "reactzyme_mean_reciprocal_rank expects 1D tensors. "
+            f"Got scores.dim()={scores.dim()}, target_idx.dim()={target_idx.dim()}"
+        )
+
+    # ReactZyme uses a binary relevance matrix, so duplicate pair rows must not
+    # increase a target's contribution.
+    valid_targets = torch.unique(target_idx[target_idx >= 0])
+    if len(valid_targets) == 0:
+        return torch.tensor(0.0, device=scores.device)
+    if valid_targets.dtype != torch.long:
+        raise ValueError("target_idx must be dtype torch.long")
+
+    num_items = scores.shape[0]
+    if int(valid_targets.max().item()) >= num_items:
+        raise ValueError(
+            "target_idx contains out-of-range values: "
+            f"max={int(valid_targets.max().item())} >= num_items={num_items}"
+        )
+
+    sorted_indices = torch.argsort(scores, descending=True)
+    ranks = torch.empty(num_items, dtype=torch.long, device=scores.device)
+    ranks[sorted_indices] = torch.arange(num_items, device=scores.device)
+    positive_ranks = ranks[valid_targets].to(dtype=torch.float32) + 1.0
+    return torch.reciprocal(positive_ranks).mean()
+
+
 def r_precision(scores: Tensor, target_idx: Tensor) -> Tensor:
     """
     Compute R-precision.
