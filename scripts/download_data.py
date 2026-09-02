@@ -178,6 +178,18 @@ def verify_checksum(file_path: Path, expected_checksum: str) -> bool:
         return False
 
 
+def file_matches_md5(file_path: Path, expected_hash: str) -> bool:
+    """Return whether a regular file has the expected MD5 content identity."""
+
+    if not file_path.is_file():
+        return False
+    hasher = hashlib.md5()
+    with file_path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(8192), b""):
+            hasher.update(chunk)
+    return hasher.hexdigest() == expected_hash
+
+
 def decompress_gz(gz_path: Path, out_path: Path) -> None:
     """Decompress a .gz file to out_path and remove the .gz file."""
     print(f"Decompressing: {gz_path.name} -> {out_path.name}")
@@ -325,8 +337,14 @@ def main():
         for zenodo_key, (out_name, expected_md5) in DATASET_FILES.items():
             out_path = output_dir / out_name
             if not args.force and out_path.exists():
-                print(f"Skipping (exists): {out_name}\n")
-                continue
+                expected_output_md5 = DATASET_CONFIG["file_checksums"].get(out_name)
+                if args.skip_checksum or (
+                    expected_output_md5 is not None
+                    and file_matches_md5(out_path, expected_output_md5)
+                ):
+                    print(f"Skipping (verified): {out_name}\n")
+                    continue
+                print(f"Existing file is invalid; re-downloading: {out_name}\n")
 
             url = f"{ZENODO_API_BASE}/files/{zenodo_key}/content"
             is_gz = zenodo_key.endswith(".gz")
@@ -339,6 +357,10 @@ def main():
 
             if not args.skip_checksum:
                 if not verify_checksum(download_path, f"md5:{expected_md5}"):
+                    try:
+                        download_path.unlink()
+                    except FileNotFoundError:
+                        pass
                     print("Error: Checksum verification failed!")
                     print("The downloaded file may be corrupted.")
                     sys.exit(1)
@@ -352,7 +374,9 @@ def main():
             sys.exit(1)
 
         # Verify individual file checksums
-        if not verify_file_checksums(output_dir, DATASET_CONFIG["file_checksums"]):
+        if not args.skip_checksum and not verify_file_checksums(
+            output_dir, DATASET_CONFIG["file_checksums"]
+        ):
             print("Error: File checksum verification failed!")
             print("One or more files may be corrupted.")
             sys.exit(1)

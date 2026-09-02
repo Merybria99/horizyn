@@ -40,6 +40,8 @@ DESCRIPTOR_NAMES = (
 )
 AGGREGATIONS = ("sum", "mean", "max", "std")
 COFACTOR_CAPACITY = 37
+REACTION_SET_BASE_DIM = 512 + len(DESCRIPTOR_NAMES) * len(AGGREGATIONS) + 4
+REACTION_SET_FULL_DIM = REACTION_SET_BASE_DIM + COFACTOR_CAPACITY
 
 
 def _canonical_component(smiles: str) -> tuple[str, Chem.Mol | None]:
@@ -337,12 +339,74 @@ def materialize_reaction_set_features(
     }
 
 
+def materialize_reaction_set_features_without_cofactors(
+    *,
+    source_path: str | Path,
+    output_path: str | Path,
+) -> dict[str, Any]:
+    """Remove only the fixed-capacity cofactor indicator block from set features.
+
+    The v1 set representation stores cofactor indicators in its final 37
+    columns.  This transformation intentionally retains the Morgan average,
+    standardized descriptor aggregates, set statistics, IDs, and validity
+    mask unchanged.
+    """
+
+    source = Path(source_path)
+    with np.load(source, allow_pickle=True) as payload:
+        required = {"ids", "vectors", "mask"}
+        missing = required - set(payload.files)
+        if missing:
+            raise ValueError(f"{source} is missing arrays: {sorted(missing)}")
+        ids = np.asarray(payload["ids"], dtype=object)
+        vectors = np.asarray(payload["vectors"], dtype=np.float32)
+        mask = np.asarray(payload["mask"], dtype=bool)
+
+    if vectors.ndim != 2 or vectors.shape[1] != REACTION_SET_FULL_DIM:
+        raise ValueError(
+            f"Expected reaction-set vectors with shape [N, {REACTION_SET_FULL_DIM}], "
+            f"got {vectors.shape} from {source}"
+        )
+    if ids.ndim != 1 or mask.ndim != 1 or len(ids) != len(vectors) or len(mask) != len(vectors):
+        raise ValueError(
+            f"Mismatched ids/vectors/mask lengths in {source}: "
+            f"{len(ids)}, {len(vectors)}, {len(mask)}"
+        )
+    if not np.isfinite(vectors).all():
+        raise ValueError(f"Non-finite reaction-set features in {source}")
+
+    removed = vectors[:, REACTION_SET_BASE_DIM:]
+    if not np.logical_or(removed == 0.0, removed == 1.0).all():
+        raise ValueError(
+            f"The final {COFACTOR_CAPACITY} columns of {source} are not binary; "
+            "refusing to treat them as cofactor indicators"
+        )
+    retained = vectors[:, :REACTION_SET_BASE_DIM].copy()
+
+    destination = Path(output_path)
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    np.savez_compressed(destination, ids=ids, vectors=retained, mask=mask)
+    return {
+        "source": str(source),
+        "output": str(destination),
+        "num_reactions": int(len(ids)),
+        "source_dimension": int(vectors.shape[1]),
+        "output_dimension": int(retained.shape[1]),
+        "removed_dimension": int(removed.shape[1]),
+        "num_with_cofactor_indicator": int(np.any(removed > 0.0, axis=1).sum()),
+        "num_valid": int(mask.sum()),
+    }
+
+
 __all__ = [
     "DESCRIPTOR_NAMES",
     "COFACTOR_CAPACITY",
+    "REACTION_SET_BASE_DIM",
+    "REACTION_SET_FULL_DIM",
     "aggregate_descriptors",
     "build_reaction_set_feature_splits",
     "materialize_reaction_set_features",
+    "materialize_reaction_set_features_without_cofactors",
     "molecule_descriptors",
     "molecule_set_components",
 ]

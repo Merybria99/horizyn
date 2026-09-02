@@ -42,8 +42,13 @@ data:
   validation_reaction_unimol2_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/unimol2.h5
   train_reaction_chiro_embeds_path: runs/horizyn_f4_in_domain_v1/features/train/chiro.h5
   validation_reaction_chiro_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/chiro.h5
+  # Explicit inference paths used by the unified published-test evaluator.
+  reaction_t5v2_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/reactiont5v2.h5
+  reaction_unimol2_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/unimol2.h5
+  reaction_chiro_embeds_path: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/chiro.h5
   train_reaction_chemistry_vectors_path: runs/horizyn_f3_f4_paper_v1/features/reaction_set/train_reaction_set_features.npz
   validation_reaction_chemistry_vectors_path: runs/horizyn_f3_f4_paper_v1/features/reaction_set/validation_reaction_set_features.npz
+  reaction_chemistry_vectors_path: runs/horizyn_f3_f4_paper_v1/features/reaction_set/test_reaction_set_features.npz
   reaction_model_dim: 768
   reaction_unimol_dim: 768
   reaction_chiro_dim: 256

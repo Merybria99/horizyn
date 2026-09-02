@@ -199,6 +199,26 @@ class TestCachedMethod:
         assert result3 == 15
         assert len(calc._cache) == 2
 
+    def test_mapping_arguments_support_heterogeneous_key_types(self):
+        class Calculator:
+            def __init__(self):
+                self._cache = InMemoryCache()
+                self.calls = 0
+
+            @cached_method()
+            def compute(self, key, options):
+                self.calls += 1
+                return tuple(options.values())
+
+        calc = Calculator()
+        options = {1: "integer", "1": "string"}
+
+        first = calc.compute("key", options)
+        second = calc.compute("key", {"1": "string", 1: "integer"})
+
+        assert first == second
+        assert calc.calls == 1
+
 
 class TestCollation:
     """Tests for collation functions."""

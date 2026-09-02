@@ -154,6 +154,24 @@ class TestHorizynDataModule:
             len(dm._val_retrieval_targets) == 4
         )  # One target list per unique query (bidirectional)
 
+    def test_fixed_epoch_refit_skips_validation_data(self, mock_data_files):
+        dm = HorizynDataModule(
+            train_pairs_path=mock_data_files["train_pairs"],
+            test_pairs_path=mock_data_files["test_pairs"],
+            train_reactions_path=mock_data_files["train_reactions"],
+            test_reactions_path=mock_data_files["test_reactions"],
+            protein_embeds_path=mock_data_files["protein_embeds"],
+            train_batch_size=2,
+            retrieval_batch_size=1,
+            validation_enabled=False,
+        )
+
+        dm.setup("fit")
+
+        assert dm._train_data is not None
+        assert dm._val_data is None
+        assert dm.val_dataloader() == []
+
     def test_validation_query_grouping(self, mock_data_files):
         """Test that validation pairs are correctly grouped by query."""
         dm = HorizynDataModule(

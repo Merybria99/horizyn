@@ -43,6 +43,12 @@ project_root = Path(__file__).parent.parent
 sys.path.insert(0, str(project_root))
 
 from horizyn.config import load_config
+from horizyn.benchmarks.retrieval import (
+    evaluate_retrieval as unified_evaluate_retrieval,
+    evaluate_screening as unified_evaluate_screening,
+    rank_metrics_for_query as unified_rank_metrics_for_query,
+    screening_metrics_for_query as unified_screening_metrics_for_query,
+)
 from horizyn.datasets.base import BaseDataset
 from horizyn.datasets.csv import CSVDataset
 from horizyn.datasets.residue_hdf5 import ResidueEmbedDataset
@@ -64,6 +70,7 @@ PAPER_BENCHMARKS = {
             "esm2": "reactzyme/eval/all_proteins_esm2_650m_residue.h5",
         },
         "reaction_embeds_h5": "reactzyme/eval/reactzyme_unimol2_reaction_sets.h5",
+        "candidates_from_test_positives": True,
     },
     "reactzyme_enzyme_smi": {
         "setting": "reactzyme",
@@ -77,6 +84,7 @@ PAPER_BENCHMARKS = {
             "esm2": "reactzyme/eval/all_proteins_esm2_650m_residue.h5",
         },
         "reaction_embeds_h5": "reactzyme/eval/reactzyme_unimol2_reaction_sets.h5",
+        "candidates_from_test_positives": True,
     },
     "reactzyme_reaction_smi": {
         "setting": "reactzyme",
@@ -90,6 +98,7 @@ PAPER_BENCHMARKS = {
             "esm2": "reactzyme/eval/all_proteins_esm2_650m_residue.h5",
         },
         "reaction_embeds_h5": "reactzyme/eval/reactzyme_unimol2_reaction_sets.h5",
+        "candidates_from_test_positives": True,
     },
     "clipzyme_enzymemap": {
         "setting": "enzymemap",
@@ -145,7 +154,19 @@ def read_id_list(path: str | None, column: str | None = None) -> list[str] | Non
                 raise ValueError(
                     f"Column '{column}' not found in {id_path}; columns={reader.fieldnames}"
                 )
-            return [row[column] for row in reader if row.get(column)]
+            ids = []
+            for row_number, row in enumerate(reader, start=2):
+                raw_id = row.get(column)
+                if raw_id is None:
+                    raise ValueError(
+                        f"Candidate ID file {id_path} has a missing cell at row {row_number}"
+                    )
+                identifier = raw_id.strip()
+                if identifier:
+                    ids.append(identifier)
+            if len(ids) != len(set(ids)):
+                raise ValueError(f"Candidate ID file {id_path} contains duplicate IDs")
+            return ids
 
     ids = []
     with id_path.open("r", encoding="utf-8") as handle:
@@ -154,6 +175,8 @@ def read_id_list(path: str | None, column: str | None = None) -> list[str] | Non
             if not line or line.startswith("#"):
                 continue
             ids.append(line.split(",")[0].split()[0])
+    if len(ids) != len(set(ids)):
+        raise ValueError(f"Candidate ID file {id_path} contains duplicate IDs")
     return ids
 
 
@@ -176,11 +199,21 @@ def read_pairs(
             raise ValueError(
                 f"Missing columns in {pairs_path}: {missing}; available={reader.fieldnames}"
             )
-        for row in reader:
-            reaction_id = row.get(reaction_id_col)
-            protein_id = row.get(protein_id_col)
-            if reaction_id and protein_id:
-                pairs.append((reaction_id, protein_id))
+        seen_pairs = set()
+        for row_number, row in enumerate(reader, start=2):
+            raw_reaction_id = row.get(reaction_id_col)
+            raw_protein_id = row.get(protein_id_col)
+            reaction_id = "" if raw_reaction_id is None else raw_reaction_id.strip()
+            protein_id = "" if raw_protein_id is None else raw_protein_id.strip()
+            if not reaction_id or not protein_id:
+                raise ValueError(f"Pair file {pairs_path} has an empty ID at row {row_number}")
+            pair = (reaction_id, protein_id)
+            if pair in seen_pairs:
+                raise ValueError(f"Pair file {pairs_path} contains duplicate pair {pair}")
+            seen_pairs.add(pair)
+            pairs.append(pair)
+    if not pairs:
+        raise ValueError(f"Pair file contains no positive pairs: {pairs_path}")
     return pairs
 
 
@@ -227,6 +260,9 @@ def resolve_paper_benchmark_args(args: argparse.Namespace) -> None:
     args.reactions = args.reactions or str(data_root / preset["reactions"])
     args.candidate_ids = args.candidate_ids or str(data_root / preset["candidate_ids"])
     args.paper_split = args.paper_split or preset["split"]
+    args.candidates_from_test_positives = bool(
+        args.candidates_from_test_positives or preset.get("candidates_from_test_positives", False)
+    )
     if args.train_pairs is None and preset.get("train_pairs") is not None:
         args.train_pairs = str(data_root / preset["train_pairs"])
     if args.candidate_residue_h5 is None:
@@ -314,11 +350,7 @@ def load_candidate_keys(
     candidate_ids_path: str | None,
     candidate_id_col: str | None,
 ) -> list[str]:
-    residue_lengths = residue_dataset.offsets[1:] - residue_dataset.offsets[:-1]
-    length_by_key = {
-        protein_id: int(length.item())
-        for protein_id, length in zip(residue_dataset.keys, residue_lengths)
-    }
+    length_by_key = residue_dataset.length_by_key
     hdf5_keys = set(residue_dataset.keys)
     requested_ids = read_id_list(candidate_ids_path, candidate_id_col)
     if requested_ids is None:
@@ -349,11 +381,9 @@ def load_candidate_keys(
             protein_id in hdf5_keys and length_by_key.get(protein_id, 0) <= 0
             for protein_id in requested_ids
         )
-        print(
-            "Warning: "
-            f"{missing} candidate IDs were skipped "
-            f"({missing_ids} missing from residue HDF5, {empty_ids} zero-length embeddings)",
-            flush=True,
+        raise ValueError(
+            f"Candidate manifest cannot be represented exactly: {missing} invalid IDs "
+            f"({missing_ids} missing, {empty_ids} zero-length)"
         )
     if not candidate_keys:
         raise ValueError("No candidate IDs overlap with non-empty residue HDF5 IDs")
@@ -377,11 +407,7 @@ def validate_paper_inputs(
     missing_hdf5_proteins = pair_proteins - residue_key_set
     candidate_hdf5_overlap = len(candidate_key_set & residue_key_set)
 
-    residue_lengths = residue_dataset.offsets[1:] - residue_dataset.offsets[:-1]
-    length_by_key = {
-        protein_id: int(length.item())
-        for protein_id, length in zip(residue_dataset.keys, residue_lengths)
-    }
+    length_by_key = residue_dataset.length_by_key
     zero_length_candidates = sum(
         length_by_key.get(protein_id, 0) <= 0 for protein_id in candidate_keys
     )
@@ -410,25 +436,25 @@ def validate_paper_inputs(
         f"missing_hdf5_positives={stats['missing_hdf5_positive_count']}",
         flush=True,
     )
-    if candidate_hdf5_overlap <= 0:
-        raise ValueError("Candidate ID file has no overlap with non-empty residue HDF5 IDs")
+    if candidate_hdf5_overlap != len(candidate_keys):
+        raise ValueError("Candidate IDs are not fully represented by the residue HDF5")
     if missing_reactions:
-        examples = sorted(missing_reactions)[:5]
-        print(
-            f"Warning: {len(missing_reactions)} pair reactions missing from reaction inputs; examples={examples}"
+        raise ValueError(
+            f"{len(missing_reactions)} pair reactions are missing from reaction inputs: "
+            f"{sorted(missing_reactions)[:5]}"
         )
     if missing_candidate_proteins:
-        examples = sorted(missing_candidate_proteins)[:5]
-        print(
-            f"Warning: {len(missing_candidate_proteins)} positive proteins are outside "
-            f"candidate pool after filtering; examples={examples}"
+        raise ValueError(
+            f"{len(missing_candidate_proteins)} positive proteins are outside the "
+            f"candidate pool: {sorted(missing_candidate_proteins)[:5]}"
         )
     if missing_hdf5_proteins:
-        examples = sorted(missing_hdf5_proteins)[:5]
-        print(
-            f"Warning: {len(missing_hdf5_proteins)} positive proteins are missing from "
-            f"candidate residue HDF5; examples={examples}"
+        raise ValueError(
+            f"{len(missing_hdf5_proteins)} positive proteins are missing from the "
+            f"candidate residue HDF5: {sorted(missing_hdf5_proteins)[:5]}"
         )
+    if zero_length_candidates:
+        raise ValueError(f"Candidate pool contains {zero_length_candidates} zero-length proteins")
     return stats
 
 
@@ -752,52 +778,12 @@ def screening_metrics_for_query(
     bedroc_alphas: list[float],
     ef_fractions: list[float],
 ) -> dict[str, float]:
-    metrics: dict[str, float] = {}
-    num_mol = int(scores.numel())
-    num_actives = len(positive_indices)
-    if num_mol == 0:
-        raise ValueError("score list is empty")
-    if num_actives == 0:
-        for alpha in bedroc_alphas:
-            alpha_key = f"{alpha:g}".replace(".", "_")
-            metrics[f"bedroc_{alpha_key}"] = 0.0
-        for fraction in ef_fractions:
-            fraction_key = f"{fraction:g}".replace(".", "_")
-            metrics[f"ef_{fraction_key}"] = 0.0
-        return metrics
-
-    order = torch.argsort(scores, descending=True)
-    ranks = torch.empty_like(order)
-    ranks[order] = torch.arange(num_mol, device=scores.device, dtype=order.dtype)
-    positive_tensor = torch.as_tensor(positive_indices, device=scores.device, dtype=torch.long)
-    positive_ranks = ranks[positive_tensor]
-
-    for alpha in bedroc_alphas:
-        alpha_key = f"{alpha:g}".replace(".", "_")
-        if alpha <= 0:
-            raise ValueError("BEDROC alpha must be greater than zero")
-        ratio = float(num_actives) / float(num_mol)
-        denom = (1.0 / num_mol) * ((-math.expm1(-alpha)) / math.expm1(alpha / num_mol))
-        sum_exp = torch.exp(-alpha * (positive_ranks.to(torch.float64) + 1.0) / num_mol).sum()
-        rie = float(sum_exp.item()) / (num_actives * denom)
-        rie_max = (-math.expm1(-alpha * ratio)) / (ratio * (-math.expm1(-alpha)))
-        rie_min = math.expm1(alpha * ratio) / (ratio * math.expm1(alpha))
-        if rie_max != rie_min:
-            metrics[f"bedroc_{alpha_key}"] = float((rie - rie_min) / (rie_max - rie_min))
-        else:
-            metrics[f"bedroc_{alpha_key}"] = 1.0
-
-    for fraction in ef_fractions:
-        if fraction < 0 or fraction > 1:
-            raise ValueError("enrichment fractions must be between [0, 1]")
-        fraction_key = f"{fraction:g}".replace(".", "_")
-        cutoff = math.ceil(num_mol * fraction)
-        if cutoff <= 0:
-            metrics[f"ef_{fraction_key}"] = 0.0
-            continue
-        hits = int((positive_ranks < cutoff).sum().item())
-        metrics[f"ef_{fraction_key}"] = float(hits * num_mol / (cutoff * num_actives))
-    return metrics
+    return unified_screening_metrics_for_query(
+        scores,
+        positive_indices,
+        bedroc_alphas,
+        ef_fractions,
+    )
 
 
 def rank_metrics_for_query(
@@ -805,26 +791,12 @@ def rank_metrics_for_query(
     positive_indices: list[int],
     top_k_values: list[int],
 ) -> dict[str, float]:
-    if not positive_indices:
-        return {}
-
-    order = torch.argsort(scores, descending=True)
-    ranks = torch.empty_like(order)
-    ranks[order] = torch.arange(scores.numel(), device=scores.device, dtype=order.dtype)
-    positive_tensor = torch.as_tensor(positive_indices, device=scores.device, dtype=torch.long)
-    positive_ranks = ranks[positive_tensor].to(torch.float32) + 1.0
-    if positive_ranks.numel() == 0:
-        return {}
-
-    metrics: dict[str, float] = {
-        "mean_rank": float(positive_ranks.mean().item()),
-        "mrr": float((1.0 / positive_ranks.min()).item()),
-    }
-    for k in top_k_values:
-        hits = int((positive_ranks <= k).sum().item())
-        metrics[f"top_{k}"] = float(hits > 0)
-        metrics[f"top_{k}_n"] = float(hits / k)
-    return metrics
+    return unified_rank_metrics_for_query(
+        scores,
+        positive_indices,
+        top_k_values,
+        metric_protocol="reactzyme",
+    )
 
 
 def mean_dict(metric_rows: list[dict[str, float]]) -> dict[str, float]:
@@ -845,52 +817,18 @@ def evaluate_enzymemap(
     bedroc_alphas: list[float],
     ef_fractions: list[float],
 ) -> dict:
-    candidate_to_idx = {protein_id: idx for idx, protein_id in enumerate(candidate_keys)}
-    reaction_key_set = set(reaction_inputs.keys)
-    query_ids = [
-        reaction_id
-        for reaction_id in sorted(reaction_to_proteins)
-        if reaction_id in reaction_key_set
-        and any(protein_id in candidate_to_idx for protein_id in reaction_to_proteins[reaction_id])
-    ]
-    if not query_ids:
-        raise ValueError("No evaluable reaction queries after applying candidate/positive filters")
-
-    target_embeds_for_scoring = (
-        target_embeds.to(device) if target_embeds.device.type == "cpu" else target_embeds
+    results = unified_evaluate_screening(
+        module,
+        reaction_inputs,
+        target_embeds,
+        candidate_keys,
+        reaction_to_proteins,
+        device,
+        batch_size,
+        tuple(bedroc_alphas),
+        tuple(ef_fractions),
     )
-    metric_rows: list[dict[str, float]] = []
-    with torch.inference_mode():
-        for query_start in tqdm(range(0, len(query_ids), batch_size), desc="Screening reactions"):
-            query_end = min(query_start + batch_size, len(query_ids))
-            batch_ids = query_ids[query_start:query_end]
-            query_vecs = build_query_inputs(reaction_inputs, batch_ids, device)
-            query_embeds = module.model.encode_queries(query_vecs)
-            score_batch = torch.matmul(query_embeds, target_embeds_for_scoring.T)
-
-            for row_idx, reaction_id in enumerate(batch_ids):
-                positives = [
-                    candidate_to_idx[protein_id]
-                    for protein_id in reaction_to_proteins[reaction_id]
-                    if protein_id in candidate_to_idx
-                ]
-                metric_rows.append(
-                    screening_metrics_for_query(
-                        score_batch[row_idx],
-                        positives,
-                        bedroc_alphas=bedroc_alphas,
-                        ef_fractions=ef_fractions,
-                    )
-                )
-
-    results = mean_dict(metric_rows)
-    results.update(
-        {
-            "setting": "enzymemap_screening",
-            "num_queries": len(metric_rows),
-            "num_targets": len(candidate_keys),
-        }
-    )
+    results["setting"] = "enzymemap_screening"
     return results
 
 
@@ -904,13 +842,15 @@ def evaluate_reactzyme_direction(
     candidate_to_idx = {candidate_id: idx for idx, candidate_id in enumerate(candidate_ids)}
     metric_rows: list[dict[str, float]] = []
     for row_idx, query_id in enumerate(tqdm(query_ids, desc="Computing retrieval metrics")):
-        positives = [
-            candidate_to_idx[candidate_id]
-            for candidate_id in query_to_candidates.get(query_id, [])
-            if candidate_id in candidate_to_idx
-        ]
+        declared_positives = query_to_candidates.get(query_id, [])
+        missing = [item for item in declared_positives if item not in candidate_to_idx]
+        if missing:
+            raise ValueError(
+                f"Query {query_id!r} has positives outside the candidate IDs: {missing[:10]}"
+            )
+        positives = [candidate_to_idx[candidate_id] for candidate_id in declared_positives]
         if not positives:
-            continue
+            raise ValueError(f"Query {query_id!r} has no declared positive candidates")
         metric_rows.append(
             rank_metrics_for_query(
                 score_matrix[row_idx],
@@ -937,76 +877,24 @@ def evaluate_reactzyme(
     top_k_values: list[int],
     e2r_target_embeds: torch.Tensor | None = None,
 ) -> dict:
-    reaction_key_set = set(reaction_inputs.keys)
-    reaction_ids = sorted({rid for rid in reaction_to_proteins if rid in reaction_key_set})
-    reaction_embeds = encode_reactions(
-        module=module,
-        reaction_inputs=reaction_inputs,
-        reaction_ids=reaction_ids,
-        device=device,
-        batch_size=batch_size,
-        retrieval_direction="reaction_to_enzyme",
+    directions = (
+        ("reaction_to_enzyme", "enzyme_to_reaction") if direction == "both" else (direction,)
     )
-    protein_embeds = (
-        target_embeds.to(device) if target_embeds.device.type == "cpu" else target_embeds
+    results = unified_evaluate_retrieval(
+        module,
+        reaction_inputs,
+        target_embeds,
+        candidate_keys,
+        reaction_to_proteins,
+        protein_to_reactions,
+        directions,
+        tuple(top_k_values),
+        device,
+        batch_size,
+        e2r_target_embeds=e2r_target_embeds,
+        metric_protocol="reactzyme",
     )
-    e2r_protein_embeds = (
-        protein_embeds
-        if e2r_target_embeds is None
-        else (
-            e2r_target_embeds.to(device)
-            if e2r_target_embeds.device.type == "cpu"
-            else e2r_target_embeds
-        )
-    )
-    e2r_reaction_embeds = (
-        encode_reactions(
-            module=module,
-            reaction_inputs=reaction_inputs,
-            reaction_ids=reaction_ids,
-            device=device,
-            batch_size=batch_size,
-            retrieval_direction="enzyme_to_reaction",
-        )
-        if direction in {"enzyme_to_reaction", "both"}
-        else reaction_embeds
-    )
-
-    results: dict[str, dict | str] = {"setting": "reactzyme_retrieval"}
-    with torch.inference_mode():
-        if direction in {"reaction_to_enzyme", "both"}:
-            scores = torch.matmul(reaction_embeds, protein_embeds.T)
-            results["reaction_to_enzyme"] = evaluate_reactzyme_direction(
-                query_ids=reaction_ids,
-                candidate_ids=candidate_keys,
-                score_matrix=scores,
-                query_to_candidates=reaction_to_proteins,
-                top_k_values=top_k_values,
-            )
-
-        if direction in {"enzyme_to_reaction", "both"}:
-            reaction_id_set = set(reaction_ids)
-            protein_query_ids = [
-                protein_id
-                for protein_id in candidate_keys
-                if any(
-                    reaction_id in reaction_id_set
-                    for reaction_id in protein_to_reactions.get(protein_id, [])
-                )
-            ]
-            protein_to_idx = {protein_id: idx for idx, protein_id in enumerate(candidate_keys)}
-            protein_rows = [protein_to_idx[protein_id] for protein_id in protein_query_ids]
-            scores = torch.matmul(
-                e2r_protein_embeds[protein_rows],
-                e2r_reaction_embeds.T,
-            )
-            results["enzyme_to_reaction"] = evaluate_reactzyme_direction(
-                query_ids=protein_query_ids,
-                candidate_ids=reaction_ids,
-                score_matrix=scores,
-                query_to_candidates=protein_to_reactions,
-                top_k_values=top_k_values,
-            )
+    results["setting"] = "reactzyme_retrieval"
     return results
 
 
@@ -1045,6 +933,11 @@ def main() -> None:
     parser.add_argument("--candidate-residue-h5", default=None)
     parser.add_argument(
         "--candidate-ids", default=None, help="Optional paper candidate pool ID file"
+    )
+    parser.add_argument(
+        "--candidates-from-test-positives",
+        action="store_true",
+        help="Restrict candidates to proteins occurring in the evaluation positives",
     )
     parser.add_argument("--candidate-id-col", default=None)
     parser.add_argument("--reaction-embeds-h5", default=None)
@@ -1127,20 +1020,47 @@ def main() -> None:
         candidate_ids_path=args.candidate_ids,
         candidate_id_col=args.candidate_id_col,
     )
+    eval_pairs = read_pairs(args.pairs, args.reaction_id_col, args.protein_id_col)
+    train_pairs = (
+        read_pairs(args.train_pairs, args.reaction_id_col, args.protein_id_col)
+        if args.train_pairs is not None
+        else None
+    )
+    train_eval_overlap = set(train_pairs or []) & set(eval_pairs)
+    if train_eval_overlap:
+        raise ValueError(
+            f"Evaluation split leaks {len(train_eval_overlap)} exact positive training pairs"
+        )
+    if args.candidates_from_test_positives:
+        positive_proteins = {protein_id for _reaction_id, protein_id in eval_pairs}
+        candidate_set = set(candidate_keys)
+        missing_positive_candidates = sorted(positive_proteins - candidate_set)
+        if missing_positive_candidates:
+            raise ValueError(
+                f"Published test-positive candidate pool is missing "
+                f"{len(missing_positive_candidates)} proteins: "
+                f"{missing_positive_candidates[:10]}"
+            )
+        candidate_keys = [key for key in candidate_keys if key in positive_proteins]
 
     excluded_proteins: set[str] | None = None
     if args.exclude_train_proteins:
-        if args.train_pairs is None:
+        if train_pairs is None:
             raise ValueError("--exclude-train-proteins requires --train-pairs")
-        train_pairs = read_pairs(args.train_pairs, args.reaction_id_col, args.protein_id_col)
         excluded_proteins = {protein_id for _reaction_id, protein_id in train_pairs}
         candidate_keys = [
             protein_id for protein_id in candidate_keys if protein_id not in excluded_proteins
         ]
-        print(f"Excluded {len(excluded_proteins)} train-seen proteins")
+        original_eval_pair_count = len(eval_pairs)
+        eval_pairs = [pair for pair in eval_pairs if pair[1] not in excluded_proteins]
+        if not eval_pairs:
+            raise ValueError("No evaluation pairs remain after excluding train-seen proteins")
+        print(
+            f"Excluded {len(excluded_proteins)} train-seen proteins and "
+            f"{original_eval_pair_count - len(eval_pairs)} affected evaluation pairs"
+        )
 
     print(f"Candidate proteins: {len(candidate_keys)}")
-    eval_pairs = read_pairs(args.pairs, args.reaction_id_col, args.protein_id_col)
     validation_stats = validate_paper_inputs(
         reaction_inputs=reaction_inputs,
         residue_dataset=residue_dataset,
@@ -1148,6 +1068,16 @@ def main() -> None:
         eval_pairs=eval_pairs,
         reaction_id_col=args.reaction_id_col,
         protein_id_col=args.protein_id_col,
+    )
+    validation_stats["train_eval_pair_overlap_count"] = len(train_eval_overlap)
+    candidate_pool_policy = (
+        "train_unseen_test_positive_entities"
+        if args.candidates_from_test_positives and args.exclude_train_proteins
+        else (
+            "published_test_positive_entities"
+            if args.candidates_from_test_positives
+            else ("explicit_candidate_manifest" if args.candidate_ids else "full_embedding_store")
+        )
     )
     reaction_to_proteins, protein_to_reactions = group_pairs(
         eval_pairs,
@@ -1169,6 +1099,7 @@ def main() -> None:
             "candidate_residue_h5": residue_h5,
             "candidate_ids": args.candidate_ids,
             "candidate_pool_size": len(candidate_keys),
+            "candidate_pool_policy": candidate_pool_policy,
             "excluded_train_proteins": bool(args.exclude_train_proteins),
             "reaction_input_mode": reaction_mode,
             "reaction_embeds_h5": args.reaction_embeds_h5,
@@ -1281,6 +1212,7 @@ def main() -> None:
     results["reactions"] = args.reactions
     results["candidate_residue_h5"] = residue_h5
     results["candidate_ids"] = args.candidate_ids
+    results["candidate_pool_policy"] = candidate_pool_policy
     results["candidate_pool_size"] = len(candidate_keys)
     results["excluded_train_proteins"] = bool(args.exclude_train_proteins)
     results["reaction_input_mode"] = reaction_mode

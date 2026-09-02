@@ -1,14 +1,45 @@
+import os
 from types import SimpleNamespace
 
 import torch
 
 from wet_lab.query import (
+    _configure_cpu_threads,
     _load_fasta_sequences,
     bucket_candidate_keys_by_residue_length,
     candidate_pool_with_root_override,
     streaming_topk,
     validate_reaction_smiles,
 )
+
+
+def test_configure_cpu_threads_caps_torch_and_native_pools(monkeypatch):
+    calls = {}
+    for variable in (
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+    ):
+        monkeypatch.delenv(variable, raising=False)
+    monkeypatch.setattr(torch, "set_num_threads", lambda value: calls.setdefault("intra", value))
+    monkeypatch.setattr(
+        torch,
+        "set_num_interop_threads",
+        lambda value: calls.setdefault("interop", value),
+    )
+    monkeypatch.setattr(torch, "get_num_interop_threads", lambda: 96)
+
+    _configure_cpu_threads({"cpu_threads": 16})
+
+    assert calls == {"intra": 16, "interop": 4}
+    for variable in (
+        "OMP_NUM_THREADS",
+        "MKL_NUM_THREADS",
+        "OPENBLAS_NUM_THREADS",
+        "NUMEXPR_NUM_THREADS",
+    ):
+        assert os.environ[variable] == "16"
 
 
 def test_streaming_topk_matches_dense_cosine():

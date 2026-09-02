@@ -1071,6 +1071,10 @@ class EnzymeBiologicalFactorizedEncoder(nn.Module):
             weight = current_weights[block_index]
             blocks.append(block * weight.sqrt())
             if return_details:
+                # Expose the normalized, unweighted block so auxiliary
+                # objectives can act on the same inference-time coordinates
+                # without changing the encoder input path.
+                details[f"enzyme_block_{name}"] = block
                 details[f"enzyme_block_norm_{name}"] = block.norm(dim=-1)
                 details[f"enzyme_block_weight_{name}"] = weight.expand(batch_size)
         output = F.normalize(torch.cat(blocks, dim=-1), p=2, dim=-1, eps=1e-12)
@@ -1553,6 +1557,11 @@ class SLEECGuidedAttentionPool(nn.Module):
     """
     Trainable residue attention pooling guided by a frozen SLEEC stage-1 scorer.
 
+    The learned attention and pooled values use ``residue_embeddings``. When
+    ``score_hidden_dim`` and ``score_embeddings`` are supplied, only the SLEEC
+    scorer uses that aligned external representation. This permits, for
+    example, EnzGFM values with a frozen ProtT5-based SLEEC prior.
+
     The learned attention logit is combined with a centered SLEEC prior before
     softmax:
 
@@ -1565,6 +1574,7 @@ class SLEECGuidedAttentionPool(nn.Module):
         self,
         hidden_dim: int,
         scorer_hidden_dim: int = 256,
+        score_hidden_dim: int | None = None,
         threshold: float = 0.34,
         checkpoint_path: str | None = None,
         freeze_scorer: bool = True,
@@ -1582,11 +1592,16 @@ class SLEECGuidedAttentionPool(nn.Module):
             raise ValueError("initial_sleec_bias_scale must be positive")
 
         self.hidden_dim = int(hidden_dim)
+        self.score_hidden_dim = (
+            self.hidden_dim if score_hidden_dim is None else int(score_hidden_dim)
+        )
+        if self.score_hidden_dim <= 0:
+            raise ValueError("score_hidden_dim must be positive")
         self.threshold = float(threshold)
         self.eps = float(eps)
         self.attention = nn.Linear(hidden_dim, 1, bias=attention_bias)
         self.sleec_scorer = FunctionalResidueScorer(
-            hidden_dim=hidden_dim,
+            hidden_dim=self.score_hidden_dim,
             scorer_hidden_dim=scorer_hidden_dim,
         )
         if checkpoint_path:
@@ -1631,6 +1646,8 @@ class SLEECGuidedAttentionPool(nn.Module):
         residue_embeddings: torch.Tensor,
         attention_mask: torch.Tensor | None = None,
         return_details: bool = False,
+        score_embeddings: torch.Tensor | None = None,
+        score_attention_mask: torch.Tensor | None = None,
     ) -> torch.Tensor | tuple[torch.Tensor, dict[str, torch.Tensor]]:
         if residue_embeddings.ndim != 3:
             raise ValueError(
@@ -1647,9 +1664,33 @@ class SLEECGuidedAttentionPool(nn.Module):
         if valid_mask.sum(dim=1).eq(0).any():
             raise ValueError("Each protein must have at least one valid residue")
 
+        if score_embeddings is None:
+            score_embeddings = residue_embeddings
+            score_attention_mask = valid_mask
+        if score_embeddings.ndim != 3:
+            raise ValueError(
+                "score_embeddings must have shape [batch, seq_len, score_hidden_dim], "
+                f"got {tuple(score_embeddings.shape)}"
+            )
+        if score_embeddings.shape[:2] != residue_embeddings.shape[:2]:
+            raise ValueError(
+                "score_embeddings must align with residue_embeddings in batch and length: "
+                f"score={tuple(score_embeddings.shape)}, value={tuple(residue_embeddings.shape)}"
+            )
+        if score_embeddings.shape[-1] != self.score_hidden_dim:
+            raise ValueError(
+                f"Expected score hidden_dim={self.score_hidden_dim}, "
+                f"got {score_embeddings.shape[-1]}"
+            )
+        if score_attention_mask is None:
+            score_attention_mask = valid_mask
+        score_valid_mask = self._valid_mask(score_embeddings, score_attention_mask)
+        if not torch.equal(score_valid_mask, valid_mask):
+            raise ValueError("score_attention_mask must match value residue validity")
+
         sleec_logits, sleec_scores = self.sleec_scorer(
-            residue_embeddings,
-            attention_mask=valid_mask,
+            score_embeddings,
+            attention_mask=score_valid_mask,
         )
         learned_logits = self.attention(residue_embeddings).squeeze(-1)
         sleec_prior = sleec_logits - self.threshold_logit.to(
@@ -4219,6 +4260,7 @@ class ProteinPooledDualModel(BaseModel):
             self.pooling = SLEECGuidedAttentionPool(
                 hidden_dim=residue_dim,
                 scorer_hidden_dim=sleec_scorer_hidden_dim,
+                score_hidden_dim=sleec_score_hidden_dim,
                 threshold=sleec_threshold,
                 checkpoint_path=(
                     None
@@ -4681,6 +4723,8 @@ class ProteinPooledDualModel(BaseModel):
                 residue_embeddings,
                 attention_mask=attention_mask,
                 return_details=return_details or return_attention,
+                score_embeddings=score_residue_embeddings,
+                score_attention_mask=score_attention_mask,
             )
             if return_details:
                 return result

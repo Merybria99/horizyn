@@ -27,6 +27,7 @@ from horizyn.datasets.base import BaseDataset
 from horizyn.datasets.csv import CSVDataset
 from horizyn.datasets.residue_hdf5 import ResidueEmbedDataset
 from horizyn.protein_pooling_lightning_module import ProteinPooledLitModule
+from horizyn.reaction_conditioned_data_module import DualResidueEmbedDataset
 from horizyn.reaction_features import build_reaction_feature_dataset
 from horizyn.utils import residue_collate_fn, unimol2_reaction_collate_fn
 
@@ -332,6 +333,17 @@ def encode_targets(
         batch = residue_collate_fn(samples)
         residues = batch["residue_embeddings"].to(device, non_blocking=True)
         mask = batch["residue_padding_mask"].to(device, non_blocking=True)
+        score_residues = None
+        score_mask = None
+        if "score_residue_embeddings" in batch:
+            score_residues = batch["score_residue_embeddings"].to(
+                device,
+                non_blocking=True,
+            )
+            score_mask = batch["score_residue_padding_mask"].to(
+                device,
+                non_blocking=True,
+            )
         enzyme_input_mode = getattr(module.model, "enzyme_input_mode", "")
         needs_capability = "capability" in str(enzyme_input_mode)
         capability_vectors = None
@@ -371,6 +383,8 @@ def encode_targets(
         encoded = module.model.encode_targets(
             residues,
             residue_padding_mask=mask,
+            score_residue_embeddings=score_residues,
+            score_residue_padding_mask=score_mask,
             capability_vectors=capability_vectors,
             capability_mask=capability_mask,
             factorized_capability_vectors=factorized_capability_vectors,
@@ -612,6 +626,18 @@ def evaluate_checkpoint(
         max_tokens=config.data.get("max_protein_tokens", 1024),
         truncation=config.data.get("protein_truncation", "ends_center"),
     )
+    score_residue_path = config.data.get("protein_score_residue_embeds_path", None)
+    if score_residue_path:
+        score_residue_dataset = ResidueEmbedDataset(
+            file_path=score_residue_path,
+            in_memory=False,
+            max_tokens=config.data.get("max_protein_tokens", 1024),
+            truncation=config.data.get("protein_truncation", "ends_center"),
+        )
+        residue_dataset = DualResidueEmbedDataset(
+            value_dataset=residue_dataset,
+            score_dataset=score_residue_dataset,
+        )
     candidate_ids_path = config.data.get(
         "validation_retrieval_candidate_ids_path",
         config.data.get("candidate_ids_path", None),

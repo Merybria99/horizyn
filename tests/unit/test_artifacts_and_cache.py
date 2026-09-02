@@ -1,9 +1,19 @@
 import json
+import os
+import socket
+import subprocess
+from pathlib import Path
 
 import pytest
 import torch
 
-from horizyn.artifacts import ArtifactManifestV2, sha256_strings, write_manifest
+from horizyn.artifacts import (
+    ArtifactManifestV2,
+    current_git_revision,
+    sha256_file,
+    sha256_strings,
+    write_manifest,
+)
 from horizyn.benchmarks.retrieval import (
     _target_cache_base_metadata,
     _target_cache_paths,
@@ -125,3 +135,99 @@ def test_target_cache_rejects_tampered_tensor(tmp_path):
         assert miss_info["status"] == "miss_encode"
     finally:
         release_target_embedding_cache_lock(miss_info)
+
+
+def test_target_cache_rejects_payload_sidecar_manifest_disagreement(tmp_path):
+    base_metadata = _cache_metadata(tmp_path / "sources", direction="reaction_to_enzyme")
+    cache_dir = tmp_path / "cache"
+    keys = ["p1", "p2"]
+    embeddings = torch.tensor([[1.0, 0.0], [0.0, 1.0]])
+    _, cache_info = prepare_target_embedding_cache(
+        cache_dir, base_metadata, keys, device="cpu", store_on_device=False
+    )
+    write_target_embedding_cache(cache_info, base_metadata, keys, embeddings)
+    tensor_path = next(cache_dir.glob("*.pt"))
+    sidecar_path = next(cache_dir.glob("*.json"))
+    payload = torch.load(tensor_path, map_location="cpu", weights_only=True)
+    payload["artifact_manifest"] = dict(payload["artifact_manifest"])
+    payload["artifact_manifest"]["role"] = "untrusted_role"
+    torch.save(payload, tensor_path)
+    sidecar = json.loads(sidecar_path.read_text(encoding="utf-8"))
+    sidecar["tensor_sha256"] = sha256_file(tensor_path)
+    sidecar_path.write_text(json.dumps(sidecar), encoding="utf-8")
+
+    cached, miss_info = prepare_target_embedding_cache(
+        cache_dir, base_metadata, keys, device="cpu", store_on_device=False
+    )
+    try:
+        assert cached is None
+        assert miss_info["status"] == "miss_encode"
+    finally:
+        release_target_embedding_cache_lock(miss_info)
+
+
+def test_target_cache_lock_wait_has_a_timeout(tmp_path):
+    base_metadata = _cache_metadata(tmp_path / "sources", direction="reaction_to_enzyme")
+    keys = ["p1"]
+    cache_dir = tmp_path / "cache"
+    cache_dir.mkdir()
+    lock_path = _target_cache_paths(cache_dir, base_metadata, keys)[3]
+    lock_path.write_text(
+        json.dumps(
+            {
+                "pid": os.getpid(),
+                "hostname": socket.gethostname(),
+                "created_at": 0,
+            }
+        ),
+        encoding="utf-8",
+    )
+
+    with pytest.raises(TimeoutError, match="Timed out"):
+        prepare_target_embedding_cache(
+            cache_dir,
+            base_metadata,
+            keys,
+            device="cpu",
+            store_on_device=False,
+            lock_timeout_seconds=0.01,
+        )
+
+
+def test_target_cache_write_failure_releases_owned_lock(tmp_path):
+    base_metadata = _cache_metadata(tmp_path / "sources", direction="reaction_to_enzyme")
+    cache_dir = tmp_path / "cache"
+    keys = ["p1"]
+    _, cache_info = prepare_target_embedding_cache(
+        cache_dir, base_metadata, keys, device="cpu", store_on_device=False
+    )
+
+    with pytest.raises(ValueError, match="non-finite"):
+        write_target_embedding_cache(
+            cache_info,
+            base_metadata,
+            keys,
+            torch.tensor([[float("nan")]]),
+        )
+
+    assert not Path(cache_info["lock_path"]).exists()
+
+
+def test_current_git_revision_distinguishes_tracked_dirty_state(tmp_path):
+    subprocess.run(["git", "init", "-q", str(tmp_path)], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "config", "user.name", "Test"], check=True)
+    subprocess.run(
+        ["git", "-C", str(tmp_path), "config", "user.email", "test@example.com"],
+        check=True,
+    )
+    source = tmp_path / "source.py"
+    source.write_text("value = 1\n", encoding="utf-8")
+    subprocess.run(["git", "-C", str(tmp_path), "add", "source.py"], check=True)
+    subprocess.run(["git", "-C", str(tmp_path), "commit", "-qm", "baseline"], check=True)
+
+    clean_revision = current_git_revision(tmp_path)
+    source.write_text("value = 2\n", encoding="utf-8")
+    dirty_revision = current_git_revision(tmp_path)
+
+    assert "+dirty." not in clean_revision
+    assert dirty_revision.startswith(clean_revision + "+dirty.")

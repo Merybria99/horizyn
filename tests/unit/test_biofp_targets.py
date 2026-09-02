@@ -277,3 +277,112 @@ def test_biofp_auxiliary_loss_has_rank_stable_schema_without_valid_labels():
     assert empty_components["biofp_mechanism_active"].item() == 0.0
     assert empty_components["biofp_mechanism_active_labels"].item() == 0.0
     assert empty_components["weighted_biofp_mechanism"].item() == 0.0
+
+
+def _cross_tower_alignment_module() -> ProteinPooledLitModule:
+    return ProteinPooledLitModule(
+        query_encoder_dims=[3, 6],
+        target_encoder_dims=[6, 6],
+        embedding_dim=6,
+        residue_dim=4,
+        pooling="sleec_guided_attention",
+        enzyme_input_mode="raw_mean_sleec_biological_factorized",
+        enzyme_block_dims={
+            "core": 2,
+            "site": 1,
+            "mechanism": 2,
+            "cofactor": 1,
+        },
+        enzyme_block_weights={
+            "core": 0.4,
+            "site": 0.2,
+            "mechanism": 0.25,
+            "cofactor": 0.15,
+        },
+        biofp_family_dims={"mechanism": 2, "cofactor": 1},
+        biofp_family_weights={"mechanism": 0.65, "cofactor": 0.35},
+        biofp_aux_weight=1.0,
+        cross_tower_alignment_weight=0.1,
+        cross_tower_alignment_family_weights={"mechanism": 0.65, "cofactor": 0.35},
+        beta=10.0,
+        loss_name="FullBatchMLNCELoss",
+    )
+
+
+def test_cross_tower_factor_alignment_uses_positive_confidence_gates():
+    module = _cross_tower_alignment_module()
+    query_embeds = torch.tensor(
+        [[0.0, 0.0, 0.0, 1.0, 0.0, 1.0], [0.0, 0.0, 0.0, 0.0, 1.0, 1.0]],
+        requires_grad=True,
+    )
+    mechanism_block = torch.tensor(
+        [[1.0, 0.0], [1.0, 0.0]],
+        requires_grad=True,
+    )
+    cofactor_block = torch.ones(2, 1, requires_grad=True)
+    targets = {
+        "biofp_mechanism_targets": torch.tensor([[1.0, 0.0], [0.0, 1.0]]),
+        "biofp_mechanism_mask": torch.ones(2, 2, dtype=torch.bool),
+        "biofp_mechanism_denominator": torch.ones(2, 2),
+        "biofp_mechanism_confidence": torch.tensor([[1.0, 1.0], [0.5, 0.5]]),
+        "biofp_cofactor_targets": torch.tensor([[1.0], [0.0]]),
+        "biofp_cofactor_mask": torch.ones(2, 1, dtype=torch.bool),
+        "biofp_cofactor_denominator": torch.ones(2, 1),
+        "biofp_cofactor_confidence": torch.ones(2, 1),
+    }
+
+    loss, components = module._cross_tower_factor_alignment_loss(
+        query_embeds=query_embeds,
+        pooling_details={
+            "enzyme_block_mechanism": mechanism_block,
+            "enzyme_block_cofactor": cofactor_block,
+        },
+        biofp_targets=targets,
+        query_indices=torch.tensor([0, 1]),
+        target_indices=torch.tensor([0, 1]),
+    )
+
+    assert loss is not None
+    assert loss.item() == pytest.approx(0.65 / 3.0)
+    assert components["cross_tower_alignment_mechanism_active_pairs"].item() == 2
+    assert components["cross_tower_alignment_mechanism_mean_gate"].item() == pytest.approx(0.75)
+    assert components["cross_tower_alignment_cofactor_active_pairs"].item() == 1
+    loss.backward()
+    assert query_embeds.grad is not None
+    assert query_embeds.grad[:, 3:5].abs().sum().item() > 0
+    assert mechanism_block.grad is not None
+    assert mechanism_block.grad.abs().sum().item() > 0
+
+
+def test_cross_tower_factor_alignment_has_stable_zero_without_positive_labels():
+    module = _cross_tower_alignment_module()
+    query_embeds = torch.randn(2, 6, requires_grad=True)
+    mechanism_block = torch.randn(2, 2, requires_grad=True)
+    cofactor_block = torch.randn(2, 1, requires_grad=True)
+    empty_targets = {
+        "biofp_mechanism_targets": torch.zeros(2, 2),
+        "biofp_mechanism_mask": torch.ones(2, 2, dtype=torch.bool),
+        "biofp_mechanism_denominator": torch.ones(2, 2),
+        "biofp_cofactor_targets": torch.zeros(2, 1),
+        "biofp_cofactor_mask": torch.ones(2, 1, dtype=torch.bool),
+        "biofp_cofactor_denominator": torch.ones(2, 1),
+    }
+
+    loss, components = module._cross_tower_factor_alignment_loss(
+        query_embeds=query_embeds,
+        pooling_details={
+            "enzyme_block_mechanism": mechanism_block,
+            "enzyme_block_cofactor": cofactor_block,
+        },
+        biofp_targets=empty_targets,
+        query_indices=torch.tensor([0, 1]),
+        target_indices=torch.tensor([0, 1]),
+    )
+
+    assert loss is not None
+    assert loss.item() == 0.0
+    assert components["cross_tower_alignment_mechanism_active_pairs"].item() == 0.0
+    assert components["cross_tower_alignment_cofactor_active_pairs"].item() == 0.0
+    loss.backward()
+    assert query_embeds.grad is not None
+    assert mechanism_block.grad is not None

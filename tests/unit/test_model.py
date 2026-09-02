@@ -1115,6 +1115,15 @@ class TestProteinPooledDualModelHybridEnzymeInput:
         ][1]
         assert mechanism_projection.weight.grad is not None
         for name in ("core", "site", "mechanism", "cofactor", "ec"):
+            assert details[f"enzyme_block_{name}"].shape == (
+                2,
+                model.biological_factorized_encoder.block_dims[name],
+            )
+            assert torch.allclose(
+                details[f"enzyme_block_{name}"].norm(dim=-1),
+                torch.ones(2, device=device),
+                atol=1e-5,
+            )
             assert f"enzyme_block_norm_{name}" in details
         assert all(not parameter.requires_grad for parameter in model.target_encoder.parameters())
 

@@ -9,10 +9,61 @@ from scripts.evaluate_protein_pooling import (
     LEGACY_ALL_CANDIDATES,
     PAPER_TEST_CANDIDATES,
     append_retrieval_metrics,
+    encode_targets,
     format_results_table,
     load_target_embedding_cache,
     select_candidate_keys,
 )
+
+
+def test_encode_targets_forwards_external_score_residues():
+    class TargetEncoder:
+        output_dim = 2
+
+    class Model:
+        target_encoder = TargetEncoder()
+        enzyme_input_mode = "raw_mean_sleec_biological_factorized"
+
+        def encode_targets(
+            self,
+            residue_embeddings,
+            *,
+            residue_padding_mask,
+            score_residue_embeddings,
+            score_residue_padding_mask,
+            **kwargs,
+        ):
+            del kwargs
+            assert residue_embeddings.shape == (1, 2, 3)
+            assert score_residue_embeddings.shape == (1, 2, 4)
+            assert torch.equal(residue_padding_mask, score_residue_padding_mask)
+            return torch.tensor([[0.25, 0.75]])
+
+    class Module:
+        model = Model()
+
+    class Dataset:
+        keys = ["p1"]
+
+        def __len__(self):
+            return 1
+
+        def __getitem__(self, key):
+            assert key == "p1"
+            return {
+                "residue_embeddings": torch.ones(2, 3),
+                "score_residue_embeddings": torch.ones(2, 4),
+            }
+
+    result = encode_targets(
+        module=Module(),
+        residue_dataset=Dataset(),
+        device="cpu",
+        target_batch_size=1,
+        store_on_device=False,
+    )
+
+    assert result.tolist() == [[0.25, 0.75]]
 
 
 def test_hit_rate_metrics_include_tiger_appendix_cutoffs():

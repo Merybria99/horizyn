@@ -64,6 +64,7 @@ class ResidueEmbedDataset(BaseDataset[str]):
         max_tokens: int | None = None,
         truncation: str = "ends_center",
         drop_empty: bool = True,
+        validate_finite_on_access: bool = True,
         transforms: Optional[Callable[[str, Any], Any]] = None,
         **kwargs,
     ):
@@ -77,6 +78,9 @@ class ResidueEmbedDataset(BaseDataset[str]):
         self.max_tokens = max_tokens
         self.truncation = truncation
         self.drop_empty = drop_empty
+        if type(validate_finite_on_access) is not bool:
+            raise TypeError("validate_finite_on_access must be boolean")
+        self.validate_finite_on_access = validate_finite_on_access
         self.file: h5py.File | None = None
         self._file_pid: int | None = None
         self.data: torch.Tensor | None = None
@@ -94,10 +98,14 @@ class ResidueEmbedDataset(BaseDataset[str]):
             vectors_shape = h5_file["vectors"].shape
             if len(vectors_shape) != 2:
                 raise ValueError(f"'vectors' must be rank-2, got shape={vectors_shape}")
+            if vectors_shape[1] == 0:
+                raise ValueError(f"'vectors' embedding dimension must be positive: {vectors_shape}")
             if h5_file["vectors"].dtype.kind not in {"f", "i", "u"}:
                 raise ValueError("'vectors' must have a numeric dtype")
             self.num_residues, self.vec_dim = vectors_shape
 
+            if h5_file["ids"].ndim != 1:
+                raise ValueError(f"'ids' must be rank-1, got shape={h5_file['ids'].shape}")
             ids_data = h5_file["ids"][:]
             if ids_data.dtype.kind in {"S", "O"}:
                 keys = [
@@ -192,6 +200,8 @@ class ResidueEmbedDataset(BaseDataset[str]):
             max_tokens=self.max_tokens,
             strategy=self.truncation,
         )
+        if self.validate_finite_on_access and not torch.isfinite(residue_embeddings).all():
+            raise ValueError(f"Residue embeddings for {actual_key!r} contain non-finite values")
         sample = {"residue_embeddings": residue_embeddings}
         return self._apply_transforms(actual_key, sample)
 

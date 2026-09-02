@@ -152,9 +152,10 @@ def apply_overrides(config: DotDict, overrides: Dict[str, Any]) -> DotDict:
         overrides: Dictionary of overrides with dot notation keys.
 
     Returns:
-        Updated configuration.
+        The same configuration object, updated in place.  This preserves the
+        public API used by command-line and integration callers.
     """
-    result = DotDict(config)
+    result = config
     for key, value in overrides.items():
         keys = key.split(".")
         current = result
@@ -172,6 +173,12 @@ def apply_overrides(config: DotDict, overrides: Dict[str, Any]) -> DotDict:
         current[keys[-1]] = value
 
     return result
+
+
+def apply_overrides_copy(config: DotDict, overrides: Dict[str, Any]) -> DotDict:
+    """Return an independently copied configuration with overrides applied."""
+
+    return apply_overrides(DotDict(config), overrides)
 
 
 def _has_any_config_value(config: DotDict, names: tuple[str, ...]) -> bool:
@@ -233,15 +240,26 @@ def validate_config(config: DotDict) -> None:
                 f"Missing required data config parameter: 'data.{key}'\n"
                 f"Required data parameters: {required_data_keys}"
             )
-    for test_key, validation_key in (
-        ("test_pairs_path", "validation_pairs_path"),
-        ("test_reactions_path", "validation_reactions_path"),
-    ):
-        if test_key not in config.data and validation_key not in config.data:
+    validation_enabled = config.training.get("validation_enabled", True)
+    if type(validation_enabled) is not bool:
+        raise ValueError("'training.validation_enabled' must be boolean")
+    if validation_enabled:
+        for test_key, validation_key in (
+            ("test_pairs_path", "validation_pairs_path"),
+            ("test_reactions_path", "validation_reactions_path"),
+        ):
+            if test_key not in config.data and validation_key not in config.data:
+                raise ValueError(
+                    "Missing required data config parameter: "
+                    f"provide either 'data.{validation_key}' or 'data.{test_key}'"
+                )
+    else:
+        if config.training.get("validation_retrieval_metrics", False):
             raise ValueError(
-                "Missing required data config parameter: "
-                f"provide either 'data.{validation_key}' or 'data.{test_key}'"
+                "training.validation_retrieval_metrics must be false when validation is disabled"
             )
+        if config.training.get("early_stopping", {}).get("enabled", False):
+            raise ValueError("early stopping cannot be enabled when validation is disabled")
     if (
         "enzyme_ec_labels_path" in config.data
         and config.data.enzyme_ec_labels_path is not None
@@ -867,6 +885,51 @@ def validate_config(config: DotDict) -> None:
         confidence_cap = loss_config.get("biofp_confidence_cap", 8.0)
         if not _is_number(confidence_cap) or float(confidence_cap) <= 0:
             raise ValueError("'training.loss.biofp_confidence_cap' must be positive")
+    loss_config = config.training.get("loss", {})
+    alignment_weight = loss_config.get("cross_tower_alignment_weight", 0.0)
+    if not _is_number(alignment_weight) or float(alignment_weight) < 0:
+        raise ValueError("'training.loss.cross_tower_alignment_weight' must be non-negative")
+    alignment_family_weights = loss_config.get("cross_tower_alignment_family_weights", {})
+    if not isinstance(alignment_family_weights, dict):
+        raise ValueError("'training.loss.cross_tower_alignment_family_weights' must be a mapping")
+    for family, weight in alignment_family_weights.items():
+        if not _is_number(weight) or float(weight) < 0:
+            raise ValueError(
+                "'training.loss.cross_tower_alignment_family_weights."
+                f"{family}' must be non-negative"
+            )
+    if float(alignment_weight) > 0:
+        if config.model.get("enzyme_input_mode") != "raw_mean_sleec_biological_factorized":
+            raise ValueError(
+                "training.loss.cross_tower_alignment_weight > 0 requires "
+                "model.enzyme_input_mode='raw_mean_sleec_biological_factorized'"
+            )
+        if not config.data.get("protein_biofp_targets_path", None):
+            raise ValueError(
+                "data.protein_biofp_targets_path is required when "
+                "training.loss.cross_tower_alignment_weight > 0"
+            )
+        block_dims = config.model.get("enzyme_block_fusion", {}).get("dims", {})
+        biological_families = set(block_dims) - {"core", "site", "ec"}
+        unknown_families = set(alignment_family_weights) - biological_families
+        if unknown_families:
+            raise ValueError(
+                "cross-tower alignment families have no matching enzyme block: "
+                f"{sorted(unknown_families)}"
+            )
+        family_dims = config.model.get("biofp", {}).get("family_dims", {})
+        if not isinstance(family_dims, dict):
+            raise ValueError("'model.biofp.family_dims' must be a mapping")
+        supervised_weight = sum(
+            float(weight)
+            for family, weight in alignment_family_weights.items()
+            if isinstance(family_dims.get(family), int) and family_dims[family] > 0
+        )
+        if supervised_weight <= 0:
+            raise ValueError(
+                "cross-tower factor alignment requires at least one positive-weight "
+                "family with annotation targets"
+            )
     if "reaction_pooling" in config.model and config.model.reaction_pooling not in {
         "attention",
         "mean",
@@ -1391,7 +1454,7 @@ def validate_config(config: DotDict) -> None:
             "'model.sleec_pooling.score_embedding_source' must be one of: same, external"
         )
     if (
-        config.model.get("pooling", None) == "sleec"
+        config.model.get("pooling", None) in {"sleec", "sleec_guided_attention"}
         and sleec_pooling_config.get("score_embedding_source", "same") == "external"
     ):
         if "protein_score_residue_embeds_path" not in config.data:

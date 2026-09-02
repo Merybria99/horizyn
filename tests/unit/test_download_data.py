@@ -242,6 +242,41 @@ class TestMainFunction:
 
             assert exc_info.value.code == 1
 
+    def test_corrupt_existing_file_is_redownloaded(self, tmp_path):
+        for filename in DATASET_CONFIG["files"]:
+            (tmp_path / filename).write_bytes(b"existing")
+
+        def matches(path, _expected):
+            return path.name != "train_pairs.csv"
+
+        with patch("sys.argv", ["download_data.py", "--output-dir", str(tmp_path)]):
+            with patch("download_data.verify_dataset_files", return_value=True):
+                with patch("download_data.verify_file_checksums", side_effect=[False, True]):
+                    with patch("download_data.file_matches_md5", side_effect=matches):
+                        with patch("download_data.verify_checksum", return_value=True):
+                            with patch("download_data.download_file") as mock_download:
+                                from download_data import main
+
+                                main()
+
+        assert mock_download.call_count == 1
+        assert mock_download.call_args.args[1].name == "train_pairs.csv"
+
+    def test_checksum_failed_download_is_removed_for_recovery(self, tmp_path):
+        def write_bad_download(_url, output_path, _expected_size):
+            output_path.write_bytes(b"corrupt")
+
+        with patch("sys.argv", ["download_data.py", "--output-dir", str(tmp_path)]):
+            with patch("download_data.download_file", side_effect=write_bad_download):
+                with patch("download_data.verify_checksum", return_value=False):
+                    from download_data import main
+
+                    with pytest.raises(SystemExit) as exc_info:
+                        main()
+
+        assert exc_info.value.code == 1
+        assert not (tmp_path / "train_pairs.csv").exists()
+
     def test_default_output_directory(self):
         """Test default output directory is data/sota."""
         source = (Path(__file__).parents[2] / "scripts" / "download_data.py").read_text(

@@ -43,6 +43,25 @@ class DualResidueEmbedDataset(BaseDataset[str]):
         common_keys = sorted(set(value_dataset.keys) & set(score_dataset.keys))
         if not common_keys:
             raise ValueError("No common protein IDs found between value and score residue HDF5s")
+        mismatched_lengths = [
+            (
+                protein_id,
+                value_dataset.length_by_key[protein_id],
+                score_dataset.length_by_key[protein_id],
+            )
+            for protein_id in common_keys
+            if value_dataset.length_by_key[protein_id]
+            != score_dataset.length_by_key[protein_id]
+        ]
+        if mismatched_lengths:
+            preview = ", ".join(
+                f"{protein_id} (value={value_length}, score={score_length})"
+                for protein_id, value_length, score_length in mismatched_lengths[:5]
+            )
+            raise ValueError(
+                "Value and score residue HDF5s must contain one embedding per residue "
+                f"before truncation; mismatched proteins: {preview}"
+            )
         super().__init__(keys=common_keys, use_key_to_idx=True, **kwargs)
 
     def __getitem__(self, key: str | int) -> dict[str, Any]:
@@ -539,6 +558,7 @@ class ReactionConditionedDataModule(HorizynDataModule):
         reaction_balanced_degree_exponent: float = 0.5,
         reaction_balanced_seed: int = 42,
         reaction_direction_mode: str = "bidirectional",
+        validation_enabled: bool = True,
     ):
         super().__init__(
             train_pairs_path=train_pairs_path,
@@ -622,6 +642,7 @@ class ReactionConditionedDataModule(HorizynDataModule):
             protein_biofp_vocab_path=protein_biofp_vocab_path,
             biofp_missing_policy=biofp_missing_policy,
             reaction_direction_mode=reaction_direction_mode,
+            validation_enabled=validation_enabled,
         )
         self.protein_residue_embeds_path = Path(protein_residue_embeds_path)
         self.protein_score_residue_embeds_path = (
@@ -976,6 +997,8 @@ class ReactionConditionedDataModule(HorizynDataModule):
         )
 
     def val_dataloader(self) -> List[DataLoader]:
+        if not self.validation_enabled:
+            return []
         if self._val_data is None:
             raise RuntimeError("Validation data not setup. Call setup() first.")
 

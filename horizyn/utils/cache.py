@@ -11,10 +11,8 @@ def _freeze_cache_value(value: Any) -> Hashable:
     """Convert common containers to an immutable, collision-resistant cache key."""
 
     if isinstance(value, dict):
-        return tuple(
-            sorted(
-                (_freeze_cache_value(key), _freeze_cache_value(item)) for key, item in value.items()
-            )
+        return frozenset(
+            (_freeze_cache_value(key), _freeze_cache_value(item)) for key, item in value.items()
         )
     if isinstance(value, (list, tuple)):
         return tuple(_freeze_cache_value(item) for item in value)

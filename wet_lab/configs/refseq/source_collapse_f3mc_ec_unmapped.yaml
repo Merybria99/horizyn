@@ -1,0 +1,42 @@
+reaction:
+  id: tagatose_4_epimerase
+  smiles: "O=C(CO)[C@@H](O)[C@@H](O)[C@H](O)CO>>O=C(CO)[C@@H](O)[C@H](O)[C@H](O)CO"
+
+model:
+  name: F3-MC-EC lambda=3 source-collapse aggregate, epoch 30
+  config: runs/source_collapse_f3mc_ec_lambda3_95_5_v1/configs/train.yaml
+  checkpoint: runs/source_collapse_f3mc_ec_lambda3_95_5_v1/checkpoints/train/last.ckpt
+
+candidate_pool:
+  ids: wet_lab/databases/refseq/prokaryotes/five_shards/candidate_ids_prott5_order.txt
+  residue_embeddings: wet_lab/databases/refseq/prokaryotes/five_shards/proteins_prott5_residue.h5
+  fasta: wet_lab/databases/refseq/prokaryotes/five_shards/proteins.fasta
+  metadata_csv: wet_lab/databases/refseq/prokaryotes/five_shards/proteins.csv
+  metadata_id_column: protein_id
+  target_cache_dir: wet_lab/cache/refseq/prokaryotes/source_collapse_f3mc_ec_unmapped
+  protein_embedding: prott5
+  score_protein_embedding: prott5
+  residue_load_dtype: float16
+  validate_finite_on_access: false
+  encoding_batch_size: 1024
+  encoding_length_bucket_window: 8192
+  encoding_progress_every_batches: 25
+
+feature_generation:
+  reaction_t5_model: ../hf_cache/hub/models--sagawa--ReactionT5v2-forward/snapshots/933114058cb2604dc1bf536dbebdfcefbe83d4fc
+  reaction_t5_max_length: 512
+  reaction_t5_pooling: mean
+  unimol_weight_dir: ../unimol_weights
+  chiro_num_workers: 1
+  chemistry_python: ../.capability-run-py/bin/python
+  reaction_chemistry_schema: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/schema.json
+  cofactor_dictionary: data/processed/capability_features/train_exact_rhea_reconstructed/cofactor_dictionary.csv
+
+inference:
+  device: cuda
+  cpu_threads: 16
+  top_k: [1, 5, 10, 20, 25, 50, 100]
+  score_batch_size: 32768
+
+output:
+  directory: wet_lab/runs/refseq/prokaryotes/source_collapse_f3mc_ec_unmapped_shards

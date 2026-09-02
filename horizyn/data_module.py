@@ -257,6 +257,7 @@ class HorizynDataModule(pl.LightningDataModule):
         protein_biofp_vocab_path: str | None = None,
         biofp_missing_policy: str = "zero_with_mask",
         reaction_direction_mode: str = "bidirectional",
+        validation_enabled: bool = True,
     ):
         super().__init__()
         self.save_hyperparameters()
@@ -267,6 +268,7 @@ class HorizynDataModule(pl.LightningDataModule):
         self.train_reactions_path = Path(train_reactions_path)
         self.test_reactions_path = Path(test_reactions_path)
         self.protein_embeds_path = Path(protein_embeds_path)
+        self.validation_enabled = bool(validation_enabled)
 
         # Batch sizes
         self.train_batch_size = train_batch_size
@@ -667,7 +669,8 @@ class HorizynDataModule(pl.LightningDataModule):
         """
         if stage in (None, "fit", "validate"):
             self._setup_training_data()
-            self._setup_validation_data()
+            if self.validation_enabled:
+                self._setup_validation_data()
 
     def _augment_pairs_bidirectional(self, pairs: BaseDataset) -> BaseDataset:
         """
@@ -1451,6 +1454,8 @@ class HorizynDataModule(pl.LightningDataModule):
         Returns:
             List of DataLoaders for validation.
         """
+        if not self.validation_enabled:
+            return []
         if self._val_data is None or self._screening_target_data is None:
             raise RuntimeError("Validation data not setup. Call setup() first.")
 

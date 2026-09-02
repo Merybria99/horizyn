@@ -59,17 +59,26 @@ def fingerprint_file(path: str | Path) -> dict[str, Any]:
 
 
 def current_git_revision(project_root: str | Path | None = None) -> str:
-    """Resolve the exact Git revision used to generate an artifact."""
+    """Resolve the Git revision and tracked-worktree state of an artifact."""
 
     root = Path(project_root or Path(__file__).resolve().parents[1])
     try:
-        return subprocess.run(
+        revision = subprocess.run(
             ["git", "-C", str(root), "rev-parse", "HEAD"],
             check=True,
             stdout=subprocess.PIPE,
             stderr=subprocess.DEVNULL,
             text=True,
         ).stdout.strip()
+        diff = subprocess.run(
+            ["git", "-C", str(root), "diff", "--binary", "HEAD", "--"],
+            check=True,
+            stdout=subprocess.PIPE,
+            stderr=subprocess.DEVNULL,
+        ).stdout
+        if diff:
+            return f"{revision}+dirty.{hashlib.sha256(diff).hexdigest()[:16]}"
+        return revision
     except (OSError, subprocess.CalledProcessError):
         return "unavailable"
 

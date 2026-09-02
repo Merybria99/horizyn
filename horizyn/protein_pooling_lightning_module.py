@@ -96,6 +96,8 @@ class ProteinPooledLitModule(pl.LightningModule):
         biofp_cofactor_weight: float = 0.20,
         biofp_family_weights: dict[str, float] | None = None,
         biofp_confidence_cap: float = 8.0,
+        cross_tower_alignment_weight: float = 0.0,
+        cross_tower_alignment_family_weights: dict[str, float] | None = None,
         reaction_attention_entropy_weight: float = 0.0,
         reaction_attention_min_normalized_entropy: float = 0.75,
         reaction_chemistry_consistency_weight: float = 0.0,
@@ -408,6 +410,40 @@ class ProteinPooledLitModule(pl.LightningModule):
             raise ValueError("biofp_aux_weight must be non-negative")
         if biofp_confidence_cap <= 0:
             raise ValueError("biofp_confidence_cap must be positive")
+        if cross_tower_alignment_weight < 0:
+            raise ValueError("cross_tower_alignment_weight must be non-negative")
+        alignment_family_weights = {
+            str(name): float(weight)
+            for name, weight in (cross_tower_alignment_family_weights or {}).items()
+        }
+        if any(weight < 0 for weight in alignment_family_weights.values()):
+            raise ValueError("cross_tower_alignment_family_weights must be non-negative")
+        if cross_tower_alignment_weight > 0:
+            if enzyme_input_mode != "raw_mean_sleec_biological_factorized":
+                raise ValueError(
+                    "cross-tower factor alignment requires "
+                    "enzyme_input_mode='raw_mean_sleec_biological_factorized'"
+                )
+            biological_families = {
+                name for name in (enzyme_block_dims or {}) if name not in {"core", "site", "ec"}
+            }
+            unknown_families = set(alignment_family_weights) - biological_families
+            if unknown_families:
+                raise ValueError(
+                    "cross_tower_alignment_family_weights contains unconfigured family blocks: "
+                    f"{sorted(unknown_families)}"
+                )
+            family_dims = biofp_family_dims or {}
+            supervised_weight = sum(
+                weight
+                for family, weight in alignment_family_weights.items()
+                if int(family_dims.get(family, 0)) > 0
+            )
+            if supervised_weight <= 0:
+                raise ValueError(
+                    "cross-tower factor alignment requires at least one positive-weight "
+                    "family with annotation targets"
+                )
         if reaction_attention_entropy_weight < 0:
             raise ValueError("reaction_attention_entropy_weight must be non-negative")
         if reaction_chemistry_consistency_weight < 0:
@@ -779,6 +815,17 @@ class ProteinPooledLitModule(pl.LightningModule):
             }
         )
         self.biofp_confidence_cap = float(biofp_confidence_cap)
+        self.cross_tower_alignment_weight = float(cross_tower_alignment_weight)
+        alignment_weight_sum = sum(alignment_family_weights.values())
+        self.cross_tower_alignment_family_weights = (
+            {
+                family: weight / alignment_weight_sum
+                for family, weight in alignment_family_weights.items()
+                if weight > 0
+            }
+            if alignment_weight_sum > 0
+            else {}
+        )
         self.reaction_attention_entropy_weight = float(reaction_attention_entropy_weight)
         self.reaction_attention_min_normalized_entropy = float(
             reaction_attention_min_normalized_entropy
@@ -2423,6 +2470,147 @@ class ProteinPooledLitModule(pl.LightningModule):
             return None, components
         return total, components
 
+    def _cross_tower_factor_alignment_loss(
+        self,
+        *,
+        query_embeds: torch.Tensor,
+        pooling_details: dict[str, torch.Tensor] | None,
+        biofp_targets: dict[str, torch.Tensor],
+        query_indices: torch.Tensor,
+        target_indices: torch.Tensor,
+    ) -> tuple[torch.Tensor | None, dict[str, torch.Tensor]]:
+        """Align annotation-gated reaction slices with enzyme factor blocks.
+
+        The reaction tower already retrieves against the enzyme tower's fixed
+        block layout. Consequently, its coordinates in each family range are
+        the corresponding implicit reaction factor. This loss makes that
+        correspondence explicit only for observed pairs with positive family
+        annotations; labels remain supervision and are never encoder inputs.
+        """
+        if self.cross_tower_alignment_weight <= 0:
+            return None, {}
+        if pooling_details is None:
+            raise RuntimeError("Cross-tower factor alignment requires enzyme block details")
+        encoder = self.model.biological_factorized_encoder
+        if encoder is None:
+            raise RuntimeError("Cross-tower factor alignment requires the factorized encoder")
+        if query_embeds.ndim != 2 or query_embeds.shape[1] != encoder.output_dim:
+            raise ValueError(
+                "Cross-tower factor alignment requires reaction embeddings to match the "
+                f"factorized layout ({encoder.output_dim} dimensions)"
+            )
+        if query_indices.shape != target_indices.shape:
+            raise ValueError("Cross-tower alignment pair indices must have the same shape")
+
+        block_slices: dict[str, slice] = {}
+        offset = 0
+        for name in encoder.block_names:
+            block_dim = encoder.block_dims[name]
+            block_slices[name] = slice(offset, offset + block_dim)
+            offset += block_dim
+
+        total = None
+        components: dict[str, torch.Tensor] = {}
+        for family, family_weight in self.cross_tower_alignment_family_weights.items():
+            enzyme_block = pooling_details.get(f"enzyme_block_{family}")
+            if enzyme_block is None:
+                raise RuntimeError(f"Cross-tower factor alignment requires enzyme_block_{family}")
+            reaction_block = F.normalize(
+                query_embeds[:, block_slices[family]],
+                p=2,
+                dim=-1,
+                eps=1e-12,
+            )
+            if enzyme_block.shape != (
+                len(enzyme_block),
+                encoder.block_dims[family],
+            ):
+                raise ValueError(f"enzyme_block_{family} has an invalid shape")
+
+            # Initialize every component from both towers so ranks without
+            # annotated pairs retain an identical logging and gradient schema.
+            loss = reaction_block.sum() * 0.0 + enzyme_block.sum() * 0.0
+            active_pairs = loss.detach()
+            mean_gate = loss.detach()
+            targets = biofp_targets.get(f"biofp_{family}_targets")
+            mask = biofp_targets.get(f"biofp_{family}_mask")
+            denominator = biofp_targets.get(f"biofp_{family}_denominator")
+            explicit_confidence = biofp_targets.get(f"biofp_{family}_confidence")
+            if targets is not None and mask is not None and denominator is not None:
+                targets = targets.to(device=enzyme_block.device, dtype=enzyme_block.dtype)
+                mask = mask.to(device=enzyme_block.device, dtype=torch.bool)
+                denominator = denominator.to(
+                    device=enzyme_block.device,
+                    dtype=enzyme_block.dtype,
+                )
+                expected_rows = enzyme_block.shape[0]
+                if targets.ndim != 2 or targets.shape[0] != expected_rows:
+                    raise ValueError(
+                        f"BioFP {family} targets must have {expected_rows} rows"
+                    )
+                if mask.ndim == 1:
+                    mask = mask.unsqueeze(1).expand_as(targets)
+                if denominator.ndim == 1:
+                    denominator = denominator.unsqueeze(1).expand_as(targets)
+                if mask.shape != targets.shape:
+                    raise ValueError(
+                        f"BioFP {family} mask must be row-wise or match targets"
+                    )
+                if denominator.shape != targets.shape:
+                    raise ValueError(
+                        f"BioFP {family} denominator must be row-wise or match targets"
+                    )
+                if explicit_confidence is None:
+                    confidence = (
+                        denominator.clamp(min=1.0, max=self.biofp_confidence_cap)
+                        / self.biofp_confidence_cap
+                    )
+                else:
+                    confidence = explicit_confidence.to(
+                        device=enzyme_block.device,
+                        dtype=enzyme_block.dtype,
+                    )
+                    if confidence.ndim == 1:
+                        confidence = confidence.unsqueeze(1).expand_as(targets)
+                    if confidence.shape != targets.shape:
+                        raise ValueError(
+                            f"BioFP {family} confidence must be row-wise or match targets"
+                        )
+                    confidence = confidence.clamp_min(0.0)
+
+                positive = targets.gt(0) & mask & denominator.gt(0) & confidence.gt(0)
+                positive_strength = targets.clamp_min(0.0) * positive.to(targets.dtype)
+                positive_mass = positive_strength.sum(dim=1)
+                row_gate = (confidence * positive_strength).sum(dim=1) / positive_mass.clamp_min(
+                    1e-12
+                )
+                row_valid = positive_mass.gt(0)
+                pair_valid = row_valid[target_indices]
+                pair_gates = row_gate[target_indices] * pair_valid.to(row_gate.dtype)
+                if bool(pair_valid.any()):
+                    pair_cosine = F.cosine_similarity(
+                        reaction_block[query_indices],
+                        enzyme_block[target_indices],
+                        dim=-1,
+                        eps=1e-12,
+                    )
+                    loss = ((1.0 - pair_cosine) * pair_gates).sum() / pair_gates.sum().clamp_min(
+                        1e-12
+                    )
+                    active_pairs = pair_valid.sum().to(dtype=enzyme_block.dtype).detach()
+                    mean_gate = pair_gates[pair_valid].mean().detach()
+
+            weighted = loss * float(family_weight)
+            total = weighted if total is None else total + weighted
+            components[f"cross_tower_alignment_{family}"] = loss
+            components[f"weighted_cross_tower_alignment_{family}"] = weighted
+            components[f"cross_tower_alignment_{family}_active_pairs"] = active_pairs
+            components[f"cross_tower_alignment_{family}_mean_gate"] = mean_gate
+
+        if total is None:
+            return None, components
+        return total, components
+
     def _reaction_chemistry_consistency_loss(
         self,
         *,
@@ -2587,12 +2775,14 @@ class ProteinPooledLitModule(pl.LightningModule):
             "raw_mean_sleec_biofp_split",
             "raw_mean_sleec_biological_factorized",
         }
+        needs_cross_tower_details = self.cross_tower_alignment_weight > 0
         needs_sleec_details = self.model.pooling_name == "sleec" and (
             return_attention_stats or self.lambda_residue > 0 or needs_r2e_adapter_details
         )
         needs_guided_details = self.model.pooling_name == "sleec_guided_attention" and (
             return_attention_stats
             or needs_biofp_details
+            or needs_cross_tower_details
             or self.enzyme_block_weight_kl_weight > 0
             or needs_r2e_adapter_details
         )
@@ -2652,6 +2842,8 @@ class ProteinPooledLitModule(pl.LightningModule):
                 target_embeds, pooling_details = self.model.encode_targets(
                     unique_residues,
                     residue_padding_mask=unique_masks,
+                    score_residue_embeddings=unique_score_residues,
+                    score_residue_padding_mask=unique_score_masks,
                     capability_vectors=unique_capability_vectors,
                     capability_mask=unique_capability_mask,
                     factorized_capability_vectors=unique_factorized_capability_vectors,
@@ -2717,6 +2909,8 @@ class ProteinPooledLitModule(pl.LightningModule):
             target_embeds, pooling_details = self.model.encode_targets(
                 unique_residues,
                 residue_padding_mask=unique_masks,
+                score_residue_embeddings=unique_score_residues,
+                score_residue_padding_mask=unique_score_masks,
                 capability_vectors=unique_capability_vectors,
                 capability_mask=unique_capability_mask,
                 factorized_capability_vectors=unique_factorized_capability_vectors,
@@ -2995,6 +3189,28 @@ class ProteinPooledLitModule(pl.LightningModule):
             weighted_biofp = biofp_loss * self.biofp_aux_weight
             loss_components["weighted_biofp"] = weighted_biofp
             loss_value = loss_value + weighted_biofp
+        if self.cross_tower_alignment_weight > 0:
+            alignment_query_idx, alignment_target_idx = self._positive_pair_indices(
+                unique_query_ids,
+                unique_target_ids,
+                query_ids,
+                target_ids,
+                positive_pair_source="observed_pairs",
+            )
+            alignment_loss, alignment_components = self._cross_tower_factor_alignment_loss(
+                query_embeds=query_embeds,
+                pooling_details=pooling_details,
+                biofp_targets=unique_biofp_targets,
+                query_indices=alignment_query_idx,
+                target_indices=alignment_target_idx,
+            )
+            if alignment_loss is None:
+                raise RuntimeError("Cross-tower factor alignment produced no loss")
+            loss_components.update(alignment_components)
+            loss_components["cross_tower_alignment"] = alignment_loss
+            weighted_alignment = alignment_loss * self.cross_tower_alignment_weight
+            loss_components["weighted_cross_tower_alignment"] = weighted_alignment
+            loss_value = loss_value + weighted_alignment
         if self.reaction_attention_entropy_weight > 0:
             if not isinstance(query_attention_details, dict):
                 raise RuntimeError(

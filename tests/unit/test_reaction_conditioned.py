@@ -15,9 +15,11 @@ from horizyn.model import (
     ReactionConditionedAttentionPooling,
     ReactionConditionedDualModel,
     SLEECFunctionalPool,
+    SLEECGuidedAttentionPool,
 )
 from horizyn.protein_pooling_lightning_module import ProteinPooledLitModule
 from horizyn.reaction_conditioned_data_module import (
+    DualResidueEmbedDataset,
     DirectionalHardNegativeBatchSampler,
     ReactionConditionedDataModule,
     ReactionDegreeBalancedBatchSampler,
@@ -72,6 +74,35 @@ def test_residue_hdf5_loader_reads_ragged_vectors(tmp_path):
     assert dataset.vec_dim == 3
     assert torch.equal(dataset["p1"]["residue_embeddings"], torch.from_numpy(vectors[:2]))
     assert torch.equal(dataset["p2"]["residue_embeddings"], torch.from_numpy(vectors[2:]))
+
+
+def test_residue_hdf5_rejects_non_finite_rows_on_access(tmp_path):
+    h5_path = tmp_path / "non_finite_residues.h5"
+    with h5py.File(h5_path, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"p1"]))
+        h5_file.create_dataset("vectors", data=np.array([[float("inf"), 0.0]], dtype=np.float32))
+        h5_file.create_dataset("offsets", data=np.array([0, 1], dtype=np.int64))
+
+    dataset = ResidueEmbedDataset(str(h5_path), in_memory=False)
+
+    with pytest.raises(ValueError, match="non-finite"):
+        dataset["p1"]
+
+
+def test_residue_hdf5_can_skip_per_access_finite_validation(tmp_path):
+    h5_path = tmp_path / "trusted_non_finite_residues.h5"
+    with h5py.File(h5_path, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"p1"]))
+        h5_file.create_dataset("vectors", data=np.array([[float("inf"), 0.0]], dtype=np.float32))
+        h5_file.create_dataset("offsets", data=np.array([0, 1], dtype=np.int64))
+
+    dataset = ResidueEmbedDataset(
+        str(h5_path),
+        in_memory=False,
+        validate_finite_on_access=False,
+    )
+
+    assert torch.isinf(dataset["p1"]["residue_embeddings"]).any()
 
 
 def test_residue_hdf5_drop_empty_preserves_source_lengths(tmp_path):
@@ -387,6 +418,92 @@ def test_sleec_functional_pool_rejects_misaligned_score_embeddings():
 
     with pytest.raises(ValueError, match="align"):
         pooler(residues, score_embeddings=score_residues)
+
+
+def test_sleec_guided_attention_uses_external_prott5_score_embeddings(tmp_path):
+    checkpoint = tmp_path / "stage1.ckpt"
+    _write_stage1_checkpoint(checkpoint, input_dim=4, hidden_dim=5)
+    pooler = SLEECGuidedAttentionPool(
+        hidden_dim=3,
+        score_hidden_dim=4,
+        scorer_hidden_dim=5,
+        threshold=0.34,
+        checkpoint_path=str(checkpoint),
+        freeze_scorer=True,
+    )
+    residues = torch.randn(2, 6, 3)
+    score_residues = torch.randn(2, 6, 4)
+    mask = torch.tensor(
+        [
+            [True, True, True, True, False, False],
+            [True, True, True, True, True, False],
+        ]
+    )
+
+    pooled, details = pooler(
+        residues,
+        attention_mask=mask,
+        score_embeddings=score_residues,
+        score_attention_mask=mask,
+        return_details=True,
+    )
+    expected_logits, _expected_scores = pooler.sleec_scorer(
+        score_residues,
+        attention_mask=mask,
+    )
+
+    assert pooled.shape == (2, 3)
+    assert torch.allclose(details["logits"], expected_logits)
+    assert torch.allclose(details["weights"].sum(dim=1), torch.ones(2))
+    assert details["weights"][~mask].sum().item() == 0.0
+    assert all(not parameter.requires_grad for parameter in pooler.sleec_scorer.parameters())
+
+
+def test_sleec_guided_attention_model_forwards_external_scores(tmp_path):
+    checkpoint = tmp_path / "stage1.ckpt"
+    _write_stage1_checkpoint(checkpoint, input_dim=4, hidden_dim=5)
+    model = ProteinPooledDualModel(
+        query_encoder_kwargs={
+            "input_dim": 2,
+            "output_dim": 3,
+            "num_layers": 0,
+            "widths": [],
+            "normalise_output": True,
+        },
+        target_encoder_kwargs={
+            "input_dim": 3,
+            "output_dim": 3,
+            "num_layers": 0,
+            "widths": [],
+            "normalise_output": True,
+        },
+        residue_dim=3,
+        pooling="sleec_guided_attention",
+        sleec_score_hidden_dim=4,
+        sleec_scorer_hidden_dim=5,
+        sleec_checkpoint_path=str(checkpoint),
+        sleec_freeze_scorer=True,
+    )
+    residues = torch.randn(2, 5, 3)
+    score_residues = torch.randn(2, 5, 4)
+    mask = torch.tensor(
+        [[True, True, True, False, False], [True, True, True, True, False]]
+    )
+
+    pooled, details = model.pool_residues(
+        residues,
+        attention_mask=mask,
+        score_residue_embeddings=score_residues,
+        score_attention_mask=mask,
+        return_details=True,
+    )
+
+    expected_logits, _expected_scores = model.pooling.sleec_scorer(
+        score_residues,
+        attention_mask=mask,
+    )
+    assert pooled.shape == (2, 3)
+    assert torch.allclose(details["logits"], expected_logits)
 
 
 def test_protein_pooled_dual_model_score_shapes_for_pooling_modes():
@@ -987,6 +1104,51 @@ def test_protein_pooled_lightning_sleec_with_external_score_embeddings(tmp_path)
     )
 
 
+def test_protein_pooled_lightning_guided_attention_logs_with_external_scores(tmp_path):
+    checkpoint = tmp_path / "stage1.ckpt"
+    _write_stage1_checkpoint(checkpoint, input_dim=4, hidden_dim=5)
+    module = ProteinPooledLitModule(
+        query_encoder_dims=[2, 3],
+        target_encoder_dims=[3, 3],
+        embedding_dim=3,
+        residue_dim=3,
+        pooling="sleec_guided_attention",
+        sleec_threshold=0.34,
+        sleec_scorer_hidden_dim=5,
+        sleec_score_hidden_dim=4,
+        sleec_checkpoint_path=str(checkpoint),
+        sleec_freeze_scorer=True,
+        attention_logging_interval=1,
+    )
+    batch = residue_collate_fn(
+        [
+            {
+                "query_id": "q1",
+                "target_id": "p1",
+                "query_vec": torch.randn(2),
+                "residue_embeddings": torch.randn(3, 3),
+                "score_residue_embeddings": torch.randn(3, 4),
+            },
+            {
+                "query_id": "q2",
+                "target_id": "p2",
+                "query_vec": torch.randn(2),
+                "residue_embeddings": torch.randn(2, 3),
+                "score_residue_embeddings": torch.randn(2, 4),
+            },
+        ]
+    )
+
+    loss = module.training_step(batch, batch_idx=0)
+
+    assert loss.dim() == 0
+    assert torch.isfinite(loss)
+    assert all(
+        not parameter.requires_grad
+        for parameter in module.model.pooling.sleec_scorer.parameters()
+    )
+
+
 def test_reaction_conditioned_data_module_smoke(tmp_path):
     train_pairs = tmp_path / "train_pairs.csv"
     test_pairs = tmp_path / "test_pairs.csv"
@@ -1144,6 +1306,24 @@ def test_reaction_conditioned_data_module_dual_residue_sources(tmp_path):
     assert batch["score_residue_embeddings"].shape[2] == 5
     assert batch["residue_embeddings"].shape[:2] == batch["score_residue_embeddings"].shape[:2]
     assert torch.equal(batch["residue_padding_mask"], batch["score_residue_padding_mask"])
+
+
+def test_dual_residue_sources_reject_length_mismatch_before_truncation(tmp_path):
+    value_h5 = tmp_path / "value.h5"
+    score_h5 = tmp_path / "score.h5"
+    with h5py.File(value_h5, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"protein"]))
+        h5_file.create_dataset("vectors", data=np.zeros((8, 3), dtype=np.float32))
+        h5_file.create_dataset("offsets", data=np.array([0, 8], dtype=np.int64))
+    with h5py.File(score_h5, "w") as h5_file:
+        h5_file.create_dataset("ids", data=np.array([b"protein"]))
+        h5_file.create_dataset("vectors", data=np.zeros((9, 4), dtype=np.float32))
+        h5_file.create_dataset("offsets", data=np.array([0, 9], dtype=np.int64))
+
+    value_dataset = ResidueEmbedDataset(str(value_h5), max_tokens=4)
+    score_dataset = ResidueEmbedDataset(str(score_h5), max_tokens=4)
+    with pytest.raises(ValueError, match="before truncation"):
+        DualResidueEmbedDataset(value_dataset, score_dataset)
 
 
 def test_reaction_conditioned_config_validation_accepts_residue_path():

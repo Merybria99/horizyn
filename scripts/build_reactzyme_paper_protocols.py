@@ -28,6 +28,13 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--out-root", type=Path, default=DEFAULT_OUTPUT_ROOT)
     parser.add_argument("--validation-fraction", type=float, default=0.10)
     parser.add_argument("--seed", type=int, default=42)
+    parser.add_argument(
+        "--protocols",
+        nargs="+",
+        choices=REACTZYME_SPLITS,
+        default=list(REACTZYME_SPLITS),
+        help="ReactZyme split protocols to materialize.",
+    )
     parser.add_argument("--overwrite", action="store_true")
     return parser.parse_args()
 
@@ -40,7 +47,7 @@ def main() -> None:
         validation_fraction=args.validation_fraction,
         seed=args.seed,
         overwrite=args.overwrite,
-        protocols=REACTZYME_SPLITS,
+        protocols=args.protocols,
     )
     print(json.dumps(manifest, indent=2, sort_keys=True))
 

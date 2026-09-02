@@ -18,9 +18,14 @@ from horizyn.capability.enzyme_capability_dataset import (
 )
 from horizyn.benchmarks.retrieval import (
     BenchmarkTask,
+    _target_cache_base_metadata,
+    attach_benchmark_artifact_manifest,
+    benchmark_artifact_inputs,
     build_reaction_inputs,
+    candidate_pool_policy,
     evaluate_retrieval,
     evaluate_screening,
+    expand_bidirectional_pairs,
     filter_candidate_keys_by_score_residue,
     group_pairs,
     load_benchmark_suite,
@@ -31,6 +36,7 @@ from horizyn.benchmarks.retrieval import (
     needs_score_residue_embeddings,
     reaction_input_mode,
     read_pairs,
+    restrict_candidates_to_test_positives,
     select_residue_h5,
     select_score_residue_h5,
     task_to_dict,
@@ -113,6 +119,60 @@ def score_h5_key(
     return select_score_residue_h5(task, score_protein_embedding).resolve()
 
 
+def cached_target_encoding_metadata(
+    *,
+    task: BenchmarkTask,
+    config: Any,
+    kind: str,
+    checkpoint: str,
+    config_path: str,
+    protein_embedding: str,
+    score_protein_embedding: str,
+    retrieval_direction: str,
+) -> dict[str, Any]:
+    """Describe the source inputs used for one cached-union target encoding."""
+
+    if kind == "pooled":
+        return _target_cache_base_metadata(
+            kind=kind,
+            checkpoint=checkpoint,
+            config_path=config_path,
+            protein_embedding=protein_embedding,
+            score_protein_embedding=score_protein_embedding,
+            candidate_embedding_h5=candidate_h5_key(task, kind, protein_embedding),
+            retrieval_direction=retrieval_direction,
+        )
+    capability_path = config.data.get("protein_capability_vectors_path", None)
+    text_path = config.data.get("protein_text_vectors_path", None)
+    return _target_cache_base_metadata(
+        kind=kind,
+        checkpoint=checkpoint,
+        config_path=config_path,
+        protein_embedding=protein_embedding,
+        score_protein_embedding=score_protein_embedding,
+        residue_h5=candidate_h5_key(task, kind, protein_embedding),
+        score_residue_h5=score_h5_key(
+            task,
+            config,
+            kind,
+            score_protein_embedding,
+        ),
+        capability_vectors_path=capability_path,
+        capability_missing_policy=(
+            config.data.get("capability_missing_policy", "zero_with_mask")
+            if capability_path
+            else None
+        ),
+        text_vectors_path=text_path,
+        text_vector_missing_policy=(
+            config.data.get("text_vector_missing_policy", "zero_with_mask") if text_path else None
+        ),
+        max_tokens=config.data.get("max_protein_tokens", 1024),
+        truncation=config.data.get("protein_truncation", "ends_center"),
+        retrieval_direction=retrieval_direction,
+    )
+
+
 def maybe_attach_capability_vectors(target_dataset, config: Any):
     capability_path = config.data.get("protein_capability_vectors_path", None)
     if not capability_path:
@@ -183,6 +243,7 @@ def build_candidate_cache(
     progress_every_batches: int,
 ) -> tuple[
     torch.Tensor,
+    torch.Tensor | None,
     dict[str, int],
     dict[tuple[str, str], list[str]],
     dict[tuple[str, str], dict[str, int]],
@@ -190,6 +251,11 @@ def build_candidate_cache(
     list[str],
 ]:
     all_tasks = [task for _label, _suite, tasks in tasks_by_suite for task in tasks]
+    needs_directional_e2r = getattr(module.model, "r2e_adapter", None) is not None and any(
+        "enzyme_to_reaction" in task.directions for task in all_tasks
+    )
+    if kind == "pooled" and needs_directional_e2r:
+        raise ValueError("R2E adapters require residue-level enzyme inputs")
     candidate_paths = {candidate_h5_key(task, kind, protein_embedding) for task in all_tasks}
     if len(candidate_paths) != 1:
         raise ValueError(f"Cached benchmark expects one candidate HDF5; got {candidate_paths}")
@@ -216,6 +282,11 @@ def build_candidate_cache(
                     target_dataset,
                     task.candidate_ids,
                 )
+                eval_pairs = expand_bidirectional_pairs(
+                    task,
+                    read_pairs(task.pairs, task.reaction_id_col, task.protein_id_col),
+                )
+                keys, stats = restrict_candidates_to_test_positives(task, eval_pairs, keys, stats)
                 task_candidate_keys[(suite_label, task.name)] = keys
                 task_candidate_stats[(suite_label, task.name)] = stats
     else:
@@ -239,6 +310,11 @@ def build_candidate_cache(
         for suite_label, _suite_path, tasks in tasks_by_suite:
             for task in tasks:
                 keys, stats = load_candidate_keys_from_residue(target_dataset, task.candidate_ids)
+                eval_pairs = expand_bidirectional_pairs(
+                    task,
+                    read_pairs(task.pairs, task.reaction_id_col, task.protein_id_col),
+                )
+                keys, stats = restrict_candidates_to_test_positives(task, eval_pairs, keys, stats)
                 if score_dataset is not None:
                     keys, score_stats = filter_candidate_keys_by_score_residue(keys, score_dataset)
                     stats.update(score_stats)
@@ -275,6 +351,7 @@ def build_candidate_cache(
                 store_on_device=not store_targets_on_cpu,
                 progress_every_batches=progress_every_batches,
             )
+            e2r_target_embeds = None
         else:
             target_embeds = encode_residue_targets_with_progress(
                 module,
@@ -285,10 +362,27 @@ def build_candidate_cache(
                 store_on_device=not store_targets_on_cpu,
                 score_dataset=score_dataset,
                 progress_every_batches=progress_every_batches,
+                retrieval_direction="reaction_to_enzyme",
+            )
+            e2r_target_embeds = (
+                encode_residue_targets_with_progress(
+                    module,
+                    target_dataset,
+                    union_keys,
+                    device,
+                    target_batch_size,
+                    store_on_device=not store_targets_on_cpu,
+                    score_dataset=score_dataset,
+                    progress_every_batches=progress_every_batches,
+                    retrieval_direction="enzyme_to_reaction",
+                )
+                if needs_directional_e2r
+                else None
             )
     key_to_idx = {key: idx for idx, key in enumerate(union_keys)}
     return (
         target_embeds,
+        e2r_target_embeds,
         key_to_idx,
         task_candidate_keys,
         task_candidate_stats,
@@ -355,9 +449,18 @@ def encode_residue_targets_with_progress(
     store_on_device: bool,
     score_dataset: ResidueEmbedDataset | None,
     progress_every_batches: int,
+    retrieval_direction: str = "reaction_to_enzyme",
 ) -> torch.Tensor:
     output: list[torch.Tensor] = []
     storage_device = device if store_on_device else "cpu"
+    model_dtype = next(
+        (
+            parameter.dtype
+            for parameter in module.model.parameters()
+            if parameter.is_floating_point()
+        ),
+        torch.float32,
+    )
     total_batches = (len(target_keys) + batch_size - 1) // batch_size
     with torch.inference_mode():
         for batch_idx, batch_start in enumerate(range(0, len(target_keys), batch_size), start=1):
@@ -371,12 +474,20 @@ def encode_residue_targets_with_progress(
                 sample["target_id"] = target_id
                 samples.append(sample)
             batch = residue_collate_fn(samples)
-            residues = batch["residue_embeddings"].to(device, non_blocking=True)
+            residues = batch["residue_embeddings"].to(
+                device=device,
+                dtype=model_dtype,
+                non_blocking=True,
+            )
             mask = batch["residue_padding_mask"].to(device, non_blocking=True)
             score_residues = batch.get("score_residue_embeddings")
             score_mask = batch.get("score_residue_padding_mask")
             if score_residues is not None:
-                score_residues = score_residues.to(device, non_blocking=True)
+                score_residues = score_residues.to(
+                    device=device,
+                    dtype=model_dtype,
+                    non_blocking=True,
+                )
                 if score_mask is not None:
                     score_mask = score_mask.to(device, non_blocking=True)
             capability_vectors = batch.get("capability_vec")
@@ -408,6 +519,7 @@ def encode_residue_targets_with_progress(
                 capability_mask=capability_mask,
                 text_vectors=text_vectors,
                 text_mask=text_mask,
+                retrieval_direction=retrieval_direction,
             )
             output.append(encoded.detach().to(storage_device))
             if progress_every_batches > 0 and (
@@ -446,6 +558,7 @@ def main() -> None:
 
     (
         union_embeds,
+        e2r_union_embeds,
         key_to_idx,
         task_candidate_keys,
         task_candidate_stats,
@@ -463,6 +576,38 @@ def main() -> None:
         store_targets_on_cpu=args.store_targets_on_cpu,
         progress_every_batches=args.progress_every_batches,
     )
+    first_task = tasks_by_suite[0][2][0]
+    primary_target_metadata = cached_target_encoding_metadata(
+        task=first_task,
+        config=config,
+        kind=kind,
+        checkpoint=args.checkpoint,
+        config_path=args.config,
+        protein_embedding=args.protein_embedding,
+        score_protein_embedding=args.score_protein_embedding,
+        retrieval_direction="reaction_to_enzyme",
+    )
+    target_encoding_metadata: dict[str, Any]
+    if e2r_union_embeds is None:
+        target_encoding_metadata = primary_target_metadata
+    else:
+        target_encoding_metadata = {
+            "reaction_to_enzyme": primary_target_metadata,
+            "enzyme_to_reaction": cached_target_encoding_metadata(
+                task=first_task,
+                config=config,
+                kind=kind,
+                checkpoint=args.checkpoint,
+                config_path=args.config,
+                protein_embedding=args.protein_embedding,
+                score_protein_embedding=args.score_protein_embedding,
+                retrieval_direction="enzyme_to_reaction",
+            ),
+        }
+    config_fingerprint = primary_target_metadata.get("config")
+    if not isinstance(config_fingerprint, dict) or "sha256" not in config_fingerprint:
+        raise ValueError("Benchmark provenance requires a content-hashed config")
+    config_sha256 = str(config_fingerprint["sha256"])
 
     output_root = Path(args.output_dir)
     output_root.mkdir(parents=True, exist_ok=True)
@@ -489,7 +634,10 @@ def main() -> None:
         for task in tasks:
             print(f"Running benchmark task: {suite_label}/{task.name}", flush=True)
             reaction_inputs = build_reaction_inputs(task, config)
-            eval_pairs = read_pairs(task.pairs, task.reaction_id_col, task.protein_id_col)
+            eval_pairs = expand_bidirectional_pairs(
+                task,
+                read_pairs(task.pairs, task.reaction_id_col, task.protein_id_col),
+            )
             candidate_keys = task_candidate_keys[(suite_label, task.name)]
             candidate_stats = task_candidate_stats[(suite_label, task.name)]
             validation_stats = validate_task_inputs(
@@ -506,6 +654,12 @@ def main() -> None:
                 allowed_proteins=set(candidate_keys),
             )
             target_embeds = subset_target_embeds(union_embeds, key_to_idx, candidate_keys)
+            e2r_target_embeds = (
+                None
+                if e2r_union_embeds is None
+                else subset_target_embeds(e2r_union_embeds, key_to_idx, candidate_keys)
+            )
+            artifact_inputs = benchmark_artifact_inputs(task, target_encoding_metadata)
             result: dict[str, Any] = {
                 "task": task.name,
                 "dataset": task.dataset,
@@ -516,7 +670,8 @@ def main() -> None:
                 "config": str(args.config),
                 "protein_embedding": args.protein_embedding,
                 "score_protein_embedding": args.score_protein_embedding,
-                "candidate_pool_policy": "published",
+                "candidate_pool_policy": candidate_pool_policy(task, candidate_keys, eval_pairs),
+                "metric_protocol": task.metric_protocol,
                 "pairs": str(task.pairs),
                 "reactions": str(task.reactions),
                 "candidate_ids": None if task.candidate_ids is None else str(task.candidate_ids),
@@ -562,8 +717,21 @@ def main() -> None:
                         task.top_k,
                         args.device,
                         args.query_batch_size,
+                        score_dump_task_name=f"{suite_label}__{task.name}",
+                        e2r_target_embeds=e2r_target_embeds,
+                        artifact_inputs=artifact_inputs,
+                        config_sha256=config_sha256,
+                        metric_protocol=task.metric_protocol,
                     )
             result.update(metrics)
+            attach_benchmark_artifact_manifest(
+                result,
+                task=task,
+                candidate_keys=candidate_keys,
+                artifact_inputs=artifact_inputs,
+                config_sha256=config_sha256,
+                validate_only=False,
+            )
             results.append(result)
             write_json(output_dir / f"{task.name}.json", result)
             print(json.dumps(result, indent=2)[:4000], flush=True)

@@ -1,0 +1,30 @@
+version: 1
+description: >
+  Published Horizyn retrieval test for the F3/F4 paper-style checkpoints: all
+  1,012 test reactions are evaluated in both directions against the complete
+  released 216,132-protein Horizyn library using the Horizyn metric protocol.
+
+tasks:
+  - name: horizyn_published_test
+    type: retrieval
+    benchmark_protocol: horizyn_release_v1
+    dataset: Horizyn
+    task_label: published_test_bidirectional
+    split: horizyn_original_test
+    metric_protocol: horizyn
+    bidirectional_reactions: true
+    pairs: data/sota/test_pairs.csv
+    train_pairs: data/sota/train_pairs.csv
+    reactions: data/sota/test_rxns.csv
+    # The residue HDF5 is a 394,459-protein union store; the release FASTA is
+    # the authoritative 216,132-protein Horizyn candidate manifest.
+    candidate_ids: data/sota/prots.fasta
+    candidate_residue_h5:
+      prott5: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+    candidate_score_residue_h5:
+      prott5: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+    reaction_model_embeds_h5: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/reactiont5v2.h5
+    reaction_unimol2_embeds_h5: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/unimol2.h5
+    reaction_chiro_embeds_h5: runs/horizyn_f3_f4_paper_v1/features/test_bidirectional/chiro.h5
+    directions: [reaction_to_enzyme]
+    top_k: [1, 10, 100, 1000]

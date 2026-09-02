@@ -69,6 +69,9 @@ The evaluation script computes retrieval metrics (Top-K hit rates, MRR) on the h
 - **Disk**: 20GB free space for dataset and checkpoints
 - **Platform**: Linux x86_64 with CUDA 12.1
 
+The experimental EnzGFM enzyme-backbone adapter is documented in
+[`docs/enzgfm_prott5_sleec_hybrid.md`](docs/enzgfm_prott5_sleec_hybrid.md).
+
 ## Project Structure
 
 ```

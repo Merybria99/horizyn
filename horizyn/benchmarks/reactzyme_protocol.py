@@ -5,13 +5,13 @@ from __future__ import annotations
 import csv
 import hashlib
 import json
-import random
 import shutil
 from collections import defaultdict
 from pathlib import Path
 from typing import Any, Iterable, Sequence
 
 import h5py
+import torch
 
 
 REACTZYME_SPLITS = ("time", "enzyme_smi", "reaction_smi")
@@ -75,16 +75,21 @@ def split_train_rows(
     validation_fraction: float,
     seed: int,
 ) -> tuple[list[dict[str, str]], list[dict[str, str]]]:
-    """Reproduce ReactZyme's row-level train/validation split deterministically."""
+    """Apply ReactZyme's ``torch.random_split`` algorithm to positive rows.
+
+    ReactZyme did not seed or publish its original validation indices and split
+    a concatenated positive/negative classification dataset. Those exact
+    members cannot be recovered. This is the deterministic positive-only
+    analogue needed by the contrastive trainer.
+    """
 
     if not 0.0 < validation_fraction < 1.0:
         raise ValueError("validation_fraction must be between 0 and 1")
     train_count = int((1.0 - validation_fraction) * len(rows))
-    shuffled_indices = list(range(len(rows)))
-    random.Random(seed).shuffle(shuffled_indices)
-    train_indices = set(shuffled_indices[:train_count])
-    train_rows = [row for index, row in enumerate(rows) if index in train_indices]
-    validation_rows = [row for index, row in enumerate(rows) if index not in train_indices]
+    generator = torch.Generator().manual_seed(seed)
+    shuffled_indices = torch.randperm(len(rows), generator=generator).tolist()
+    train_rows = [rows[index] for index in shuffled_indices[:train_count]]
+    validation_rows = [rows[index] for index in shuffled_indices[train_count:]]
     return train_rows, validation_rows
 
 
@@ -186,7 +191,8 @@ def build_protocol(
             seed=seed,
         )
         split_description = (
-            "pair-level shuffled indices; floor((1-validation_fraction) * N) train"
+            "PyTorch random_split permutation over positive pair rows; "
+            "floor((1-validation_fraction) * N) train"
         )
     elif split_method == "reaction_smiles_disjoint":
         train_pairs, validation_pairs = split_train_rows_by_reaction_smiles(
@@ -256,6 +262,11 @@ def build_protocol(
             raise ValueError(f"Released test file changed while copying: {protocol}/{name}")
         test_hashes[name] = source_hash
 
+    validation_fidelity = (
+        "reaction_smiles_disjoint_development_proxy"
+        if split_method == "reaction_smiles_disjoint"
+        else "deterministic_positive_only_reactzyme_algorithm_analogue"
+    )
     manifest: dict[str, Any] = {
         "protocol": protocol,
         "source_dir": str(source_dir.resolve()),
@@ -263,6 +274,12 @@ def build_protocol(
         "split_description": split_description,
         "validation_fraction": validation_fraction,
         "seed": seed,
+        "validation_fidelity": validation_fidelity,
+        "original_validation_indices_recoverable": False,
+        "original_validation_limitation": (
+            "Upstream used an unseeded torch.random_split over concatenated positive and "
+            "negative examples and did not release the selected indices."
+        ),
         "reaction_direction_mode": "forward_only",
         "counts": {
             "source_train_pairs": len(source_train_pairs),
@@ -325,6 +342,7 @@ def materialize_paper_protocols(
         for protocol in protocols
     }
     manifest = {
+        "schema_version": "reactzyme_paper_protocol_v2",
         "source_root": str(source_root),
         "out_root": str(out_root),
         "protocols": manifests,
@@ -338,7 +356,10 @@ def materialize_paper_protocols(
     (out_root / "README.md").write_text(
         "# ReactZyme paper protocol\n\n"
         f"Each official ReactZyme training split is divided into {train_percent:g}% training "
-        f"and {validation_percent:g}% validation at the pair-row level with seed {seed}. "
+        f"and {validation_percent:g}% validation at the positive-pair-row level with a "
+        f"seeded PyTorch random-split permutation (seed {seed}). The upstream validation "
+        "membership is not exactly recoverable because ReactZyme used an unseeded split "
+        "over concatenated positive and negative classification examples. "
         "Released test CSVs are copied byte-for-byte and are used only for final evaluation. "
         "Candidate ID files contain the unique proteins in their corresponding subset.\n",
         encoding="utf-8",
@@ -355,7 +376,16 @@ def materialize_unseen_reaction_protocols(
     overwrite: bool = False,
     protocols: Sequence[str] = REACTZYME_SPLITS,
 ) -> dict[str, Any]:
-    """Build paper-compatible splits with unseen-reaction development validation."""
+    """Build test-regime-aligned splits with unseen-reaction development validation.
+
+    This changes only the development validation partition.  It is intentionally
+    separate from :func:`materialize_paper_protocols`, whose pair-random validation
+    mirrors the published ReactZyme training code.  The public release does not
+    include the Needleman-Wunsch similarity matrix or assignments used to create the
+    Reaction-Sim test split, so this protocol guarantees the reproducible part of
+    that regime--complete unseen reaction-SMILES groups--without claiming to recover
+    the unpublished test-split membership algorithm.
+    """
 
     source_root = source_root.expanduser().resolve()
     out_root = out_root.expanduser().resolve()
@@ -390,7 +420,11 @@ def materialize_unseen_reaction_protocols(
         "# ReactZyme unseen-reaction development protocol\n\n"
         "The time and enzyme-similarity protocols retain deterministic pair-level "
         "validation. The reaction-similarity protocol holds out complete exact "
-        "reaction-SMILES groups. Official test CSVs are copied byte-for-byte.\n",
+        "reaction-SMILES groups, so validation and training have zero reaction-ID "
+        "and reaction-SMILES overlap. This matches the test set's unseen-reaction "
+        "generalization regime at the entity level. It does not claim to reproduce "
+        "the unreleased Needleman-Wunsch split assignments used to create the "
+        "official test set. Official test CSVs are copied byte-for-byte.\n",
         encoding="utf-8",
     )
     return manifest
@@ -450,6 +484,8 @@ __all__ = [
     "build_protocol",
     "collect_feature_coverage",
     "materialize_paper_protocols",
+    "materialize_unseen_reaction_protocols",
     "read_csv_rows",
     "split_train_rows",
+    "split_train_rows_by_reaction_smiles",
 ]

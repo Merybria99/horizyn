@@ -49,6 +49,12 @@ CANDIDATE_POOL_ROOT_FILES = {
     "fasta": "proteins.fasta",
     "metadata_csv": "proteins.csv",
 }
+CPU_THREAD_ENV_VARS = (
+    "OMP_NUM_THREADS",
+    "MKL_NUM_THREADS",
+    "OPENBLAS_NUM_THREADS",
+    "NUMEXPR_NUM_THREADS",
+)
 
 
 def _resolve_path(value: str | Path, *, must_exist: bool = True) -> Path:
@@ -82,6 +88,30 @@ def _torch_float_dtype(value: str) -> torch.dtype:
         raise ValueError(
             "candidate_pool.residue_load_dtype must be float16, float32, or bfloat16"
         ) from error
+
+
+def _configure_cpu_threads(inference: dict[str, Any]) -> None:
+    value = inference.get("cpu_threads")
+    if value is None:
+        return
+    if type(value) is not int or value <= 0:
+        raise ValueError("inference.cpu_threads must be a positive integer")
+    value_text = str(value)
+    for variable in CPU_THREAD_ENV_VARS:
+        os.environ[variable] = value_text
+    interop_threads = min(value, 4)
+    if torch.get_num_interop_threads() != interop_threads:
+        try:
+            torch.set_num_interop_threads(interop_threads)
+        except RuntimeError as error:
+            raise RuntimeError(
+                "inference.cpu_threads must be configured before PyTorch parallel work starts"
+            ) from error
+    torch.set_num_threads(value)
+    print(
+        f"CPU thread pools: intra-op={value}, inter-op={interop_threads}",
+        flush=True,
+    )
 
 
 def _safe_query_id(value: str) -> str:
@@ -680,6 +710,7 @@ def run_query(config: dict[str, Any], *, force_features: bool = False) -> Path:
         os.environ.get("WET_LAB_CANDIDATE_POOL_ROOT_OVERRIDE"),
     )
     inference = config.get("inference", {})
+    _configure_cpu_threads(inference)
 
     query_id = _safe_query_id(str(_required(reaction, "id", "reaction")))
     reaction_smiles = str(_required(reaction, "smiles", "reaction"))
@@ -752,12 +783,16 @@ def run_query(config: dict[str, Any], *, force_features: bool = False) -> Path:
     candidate_ids_path = _resolve_path(_required(candidate_settings, "ids", "candidate_pool"))
     residue_load_dtype_name = str(candidate_settings.get("residue_load_dtype", "float32"))
     residue_load_dtype = _torch_float_dtype(residue_load_dtype_name)
+    validate_finite_on_access = candidate_settings.get("validate_finite_on_access", True)
+    if type(validate_finite_on_access) is not bool:
+        raise ValueError("candidate_pool.validate_finite_on_access must be boolean")
     target_dataset = ResidueEmbedDataset(
         str(residue_h5),
         in_memory=False,
         dtype=residue_load_dtype,
         max_tokens=int(model_config.data.get("max_protein_tokens", 1024)),
         truncation=str(model_config.data.get("protein_truncation", "ends_center")),
+        validate_finite_on_access=validate_finite_on_access,
     )
     candidate_keys, candidate_stats = load_candidate_keys_from_residue(
         target_dataset,
@@ -782,6 +817,7 @@ def run_query(config: dict[str, Any], *, force_features: bool = False) -> Path:
             dtype=residue_load_dtype,
             max_tokens=int(model_config.data.get("max_protein_tokens", 1024)),
             truncation=str(model_config.data.get("protein_truncation", "ends_center")),
+            validate_finite_on_access=validate_finite_on_access,
         )
         candidate_keys, score_stats = filter_candidate_keys_by_score_residue(
             candidate_keys,

@@ -100,9 +100,13 @@ class EmbedDataset(BaseDataset[str]):
             vector_shape = h5_file["vectors"].shape
             if len(vector_shape) != 2:
                 raise ValueError(f"'vectors' must be rank-2, got shape={vector_shape}")
+            if vector_shape[0] == 0 or vector_shape[1] == 0:
+                raise ValueError(f"'vectors' must be non-empty, got shape={vector_shape}")
             if h5_file["vectors"].dtype.kind not in {"f", "i", "u"}:
                 raise ValueError("HDF5 'vectors' must have a numeric dtype")
             self.num_vecs, self.vec_dim = vector_shape
+            if h5_file["ids"].ndim != 1:
+                raise ValueError(f"'ids' must be rank-1, got shape={h5_file['ids'].shape}")
             num_ids = len(h5_file["ids"])
             if self.num_vecs != num_ids:
                 raise ValueError(
@@ -166,6 +170,9 @@ class EmbedDataset(BaseDataset[str]):
             # Load from disk on-the-fly
             # torch.from_numpy avoids copying and shares memory with numpy array
             vector = torch.from_numpy(self._ensure_file()["vectors"][idx]).to(dtype=self.dtype)
+
+        if not torch.isfinite(vector).all():
+            raise ValueError(f"Embedding for {actual_key!r} contains non-finite values")
 
         return self._apply_transforms(actual_key, vector)
 

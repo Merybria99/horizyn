@@ -291,10 +291,14 @@ def main() -> None:
         print(f"Error: {exc}")
         sys.exit(1)
 
-    for key in ("validation_pairs_path", "validation_reactions_path"):
-        value = config.data.get(key, None)
-        if value is not None and any(part.lower() == "test" for part in Path(str(value)).parts):
-            raise ValueError(f"{key} must not point at the held-out test subset: {value}")
+    validation_enabled = bool(config.training.get("validation_enabled", True))
+    if validation_enabled:
+        for key in ("validation_pairs_path", "validation_reactions_path"):
+            value = config.data.get(key, None)
+            if value is not None and any(
+                part.lower() == "test" for part in Path(str(value)).parts
+            ):
+                raise ValueError(f"{key} must not point at the held-out test subset: {value}")
 
     if (
         "check_val_every_n_epoch" not in config.training
@@ -544,14 +548,19 @@ def main() -> None:
         )
     print(f"Log Dir: {config.logging.log_dir}")
     print(f"Checkpoint Dir: {config.logging.checkpoint_dir}")
-    print(f"Checkpoint Monitor: {config.logging.get('checkpoint_monitor', 'val/loss')}")
-    print(f"Checkpoint Mode: {config.logging.get('checkpoint_mode', 'min')}")
+    if validation_enabled:
+        print(f"Checkpoint Monitor: {config.logging.get('checkpoint_monitor', 'val/loss')}")
+        print(f"Checkpoint Mode: {config.logging.get('checkpoint_mode', 'min')}")
+    else:
+        print("Checkpoint Selection: final epoch (validation disabled)")
     print(f"W&B Enabled: {wandb_settings['enabled']} ({wandb_settings['mode']})")
     print(f"Accelerator: {config.training.get('accelerator', 'auto')}")
     print(f"Devices: {config.training.get('devices', 1 if torch.cuda.is_available() else 'auto')}")
     print(f"Strategy: {config.training.get('strategy', 'auto')}")
     print(f"Precision: {config.training.get('precision', '32-true')}")
-    if config.training.get("validation_interval_steps", None) is not None:
+    if not validation_enabled:
+        print("Validation: disabled for fixed-epoch final refit")
+    elif config.training.get("validation_interval_steps", None) is not None:
         print(
             "Validation Frequency: every "
             f"{config.training.validation_interval_steps} optimizer steps"
@@ -607,12 +616,12 @@ def main() -> None:
         train_pairs_path=config.data.train_pairs_path,
         test_pairs_path=config.data.get(
             "validation_pairs_path",
-            config.data.get("test_pairs_path", None),
+            config.data.get("test_pairs_path", config.data.train_pairs_path),
         ),
         train_reactions_path=config.data.train_reactions_path,
         test_reactions_path=config.data.get(
             "validation_reactions_path",
-            config.data.get("test_reactions_path", None),
+            config.data.get("test_reactions_path", config.data.train_reactions_path),
         ),
         protein_residue_embeds_path=config.data.protein_residue_embeds_path,
         protein_score_residue_embeds_path=config.data.get(
@@ -850,6 +859,7 @@ def main() -> None:
             "reaction_direction_mode",
             "bidirectional",
         ),
+        validation_enabled=validation_enabled,
     )
 
     model = ProteinPooledLitModule(
@@ -933,6 +943,14 @@ def main() -> None:
         biofp_cofactor_weight=config.training.loss.get("biofp_cofactor_weight", 0.20),
         biofp_family_weights=config.training.loss.get("biofp_family_weights", None),
         biofp_confidence_cap=config.training.loss.get("biofp_confidence_cap", 8.0),
+        cross_tower_alignment_weight=config.training.loss.get(
+            "cross_tower_alignment_weight",
+            0.0,
+        ),
+        cross_tower_alignment_family_weights=config.training.loss.get(
+            "cross_tower_alignment_family_weights",
+            None,
+        ),
         reaction_attention_entropy_weight=reaction_attention_regularization_config.get(
             "weight",
             0.0,
@@ -1317,15 +1335,28 @@ def main() -> None:
         logger = [csv_logger, wandb_logger]
         rank_zero_print("W&B logger enabled")
 
-    checkpoint_kwargs = {
+    checkpoint_kwargs: dict[str, Any] = {
         "dirpath": config.logging.checkpoint_dir,
         "filename": "protein-pooling-{epoch:02d}",
         "save_last": True,
-        "save_top_k": int(config.logging.get("save_top_k", 3)),
-        "monitor": config.logging.get("checkpoint_monitor", "val/loss"),
-        "mode": config.logging.get("checkpoint_mode", "min"),
     }
-    if config.logging.get("checkpoint_on_validation_end", False):
+    if validation_enabled:
+        checkpoint_kwargs.update(
+            {
+                "save_top_k": int(config.logging.get("save_top_k", 3)),
+                "monitor": config.logging.get("checkpoint_monitor", "val/loss"),
+                "mode": config.logging.get("checkpoint_mode", "min"),
+            }
+        )
+    else:
+        # A Level-1 final refit is selected by its fixed epoch budget, never by
+        # a validation/test metric. ``last.ckpt`` is the only selection target.
+        checkpoint_kwargs["save_top_k"] = 0
+    if not validation_enabled:
+        # ``save_last`` must observe the actual final epoch even when the
+        # configured development checkpoint cadence is coarser.
+        checkpoint_kwargs["every_n_epochs"] = 1
+    elif config.logging.get("checkpoint_on_validation_end", False):
         checkpoint_kwargs["every_n_train_steps"] = None
         checkpoint_kwargs["every_n_epochs"] = 1
         checkpoint_kwargs["save_on_train_epoch_end"] = False
@@ -1382,8 +1413,11 @@ def main() -> None:
         "precision": config.training.get("precision", "32-true"),
         "num_sanity_val_steps": config.training.get("num_sanity_val_steps", 0),
         "accumulate_grad_batches": config.training.get("accumulate_grad_batches", 1),
+        "limit_val_batches": 1.0 if validation_enabled else 0,
     }
-    if config.training.get("validation_interval_steps", None) is not None:
+    if not validation_enabled:
+        trainer_kwargs["check_val_every_n_epoch"] = None
+    elif config.training.get("validation_interval_steps", None) is not None:
         trainer_kwargs["check_val_every_n_epoch"] = None
         trainer_kwargs["val_check_interval"] = config.training.validation_interval_steps
     else:
@@ -1401,7 +1435,10 @@ def main() -> None:
     print("\n" + "=" * 80)
     print("PROTEIN-POOLING TRAINING COMPLETE")
     print("=" * 80)
-    print(f"Best checkpoint: {checkpoint_callback.best_model_path}")
+    if validation_enabled:
+        print(f"Best checkpoint: {checkpoint_callback.best_model_path}")
+    else:
+        print("Best checkpoint: not applicable (fixed-epoch final refit)")
     print(f"Last checkpoint: {checkpoint_callback.last_model_path}")
 
 

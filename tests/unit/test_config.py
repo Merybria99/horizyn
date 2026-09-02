@@ -10,6 +10,7 @@ from horizyn.config import (
     DotDict,
     _parse_value,
     apply_overrides,
+    apply_overrides_copy,
     load_config,
     parse_overrides,
     validate_config,
@@ -164,10 +165,19 @@ class TestApplyOverrides:
         result = apply_overrides(config, overrides)
         assert result.key1 == "new_value"
 
-    def test_apply_overrides_does_not_mutate_source_config(self):
+    def test_apply_overrides_mutates_source_config(self):
         config = DotDict({"training": {"max_epochs": 100}})
 
         result = apply_overrides(config, {"training.max_epochs": 50})
+
+        assert config.training.max_epochs == 50
+        assert result.training.max_epochs == 50
+        assert result is config
+
+    def test_apply_overrides_copy_does_not_mutate_source_config(self):
+        config = DotDict({"training": {"max_epochs": 100}})
+
+        result = apply_overrides_copy(config, {"training.max_epochs": 50})
 
         assert config.training.max_epochs == 100
         assert result.training.max_epochs == 50
@@ -249,6 +259,60 @@ class TestValidateConfig:
 
         validate_config(config)
 
+    def test_validate_accepts_fixed_epoch_refit_without_validation_paths(self):
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": {
+                    "max_epochs": 100,
+                    "validation_enabled": False,
+                    "validation_retrieval_metrics": False,
+                    "early_stopping": {"enabled": False},
+                },
+            }
+        )
+
+        validate_config(config)
+
+    @pytest.mark.parametrize(
+        "training_update, message",
+        [
+            ({"validation_retrieval_metrics": True}, "must be false"),
+            ({"early_stopping": {"enabled": True}}, "early stopping"),
+        ],
+    )
+    def test_fixed_epoch_refit_rejects_validation_dependent_selection(
+        self, training_update, message
+    ):
+        training = {"max_epochs": 100, "validation_enabled": False, **training_update}
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "protein_embeds_path": "data/protein_embeds.h5",
+                },
+                "model": {
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [1024, 4096, 512],
+                    "embedding_dim": 512,
+                },
+                "training": training,
+            }
+        )
+
+        with pytest.raises(ValueError, match=message):
+            validate_config(config)
+
     def test_validate_accepts_biological_factorized_enzyme_mode(self):
         config = DotDict(
             {
@@ -272,6 +336,58 @@ class TestValidateConfig:
         )
 
         validate_config(config)
+
+    def test_validate_accepts_gated_cross_tower_factor_alignment(self):
+        config = DotDict(
+            {
+                "data": {
+                    "train_pairs_path": "data/train_pairs.csv",
+                    "validation_pairs_path": "data/validation_pairs.csv",
+                    "train_reactions_path": "data/train_rxns.csv",
+                    "validation_reactions_path": "data/validation_rxns.csv",
+                    "protein_residue_embeds_path": "data/protein_residue.h5",
+                    "protein_biofp_targets_path": "data/enzyme_biofp_targets.npz",
+                },
+                "model": {
+                    "name": "ProteinPooledDualModel",
+                    "query_encoder_dims": [2048, 4096, 512],
+                    "target_encoder_dims": [512, 512],
+                    "embedding_dim": 512,
+                    "enzyme_input_mode": "raw_mean_sleec_biological_factorized",
+                    "enzyme_block_fusion": {
+                        "dims": {
+                            "core": 320,
+                            "site": 96,
+                            "mechanism": 64,
+                            "cofactor": 32,
+                        },
+                        "weights": {
+                            "core": 0.60,
+                            "site": 0.20,
+                            "mechanism": 0.12,
+                            "cofactor": 0.08,
+                        },
+                    },
+                    "biofp": {"family_dims": {"mechanism": 8, "cofactor": 10}},
+                },
+                "training": {
+                    "max_epochs": 30,
+                    "loss": {
+                        "cross_tower_alignment_weight": 0.1,
+                        "cross_tower_alignment_family_weights": {
+                            "mechanism": 0.65,
+                            "cofactor": 0.35,
+                        },
+                    },
+                },
+            }
+        )
+
+        validate_config(config)
+
+        del config.data["protein_biofp_targets_path"]
+        with pytest.raises(ValueError, match="protein_biofp_targets_path"):
+            validate_config(config)
 
     def test_validate_fgw_loss_config(self):
         """Test validation accepts the FGW loss options."""

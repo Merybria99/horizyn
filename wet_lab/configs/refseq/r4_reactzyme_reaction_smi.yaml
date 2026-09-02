@@ -17,6 +17,7 @@ candidate_pool:
   protein_embedding: prott5
   score_protein_embedding: prott5
   residue_load_dtype: float16
+  validate_finite_on_access: false
   encoding_batch_size: 1024
   encoding_length_bucket_window: 8192
   encoding_progress_every_batches: 25
@@ -33,6 +34,7 @@ feature_generation:
 
 inference:
   device: cuda
+  cpu_threads: 16
   top_k: [1, 5, 10, 20, 50, 100]
   score_batch_size: 32768
 

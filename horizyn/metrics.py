@@ -27,6 +27,9 @@ def _validated_inputs(scores: Tensor, target_idx: Tensor, metric_name: str) -> T
         raise ValueError("target_idx must be dtype torch.long")
     if bool((target_idx < -1).any()):
         raise ValueError("target_idx may contain only candidate indices or -1 padding")
+    # Metrics follow the score tensor's device; callers may construct target
+    # indices on CPU even when evaluation scores live on an accelerator.
+    target_idx = target_idx.to(device=scores.device)
     valid_targets = torch.unique(target_idx[target_idx >= 0], sorted=True)
     if valid_targets.numel() and int(valid_targets.max().item()) >= scores.numel():
         raise ValueError(
@@ -140,6 +143,9 @@ class RetrievalMetric:
         if scores.dim() == 2:
             batch_size = scores.shape[0]
 
+            if batch_size == 0:
+                raise ValueError("RetrievalMetric cannot reduce an empty batch")
+
             # Ensure target_idx is also 2D
             if target_idx.dim() == 1:
                 raise ValueError(
@@ -198,8 +204,8 @@ def top_k_hit_rate(scores: Tensor, target_idx: Tensor, k: int = 100) -> Tensor:
         >>> top_k_hit_rate(scores, target_idx, k=2)
         tensor(0.)  # Index 2 is NOT in top-2 (indices 1, 3)
     """
-    if k <= 0:
-        raise ValueError("k must be positive")
+    if isinstance(k, bool) or not isinstance(k, int) or k <= 0:
+        raise ValueError("k must be a positive integer")
     valid_targets = _validated_inputs(scores, target_idx, "top_k_hit_rate")
 
     if len(valid_targets) == 0:
@@ -401,7 +407,11 @@ def create_retrieval_metrics(
     """
     if top_k is None:
         top_k = [1, 10, 100, 1000]
-    if not top_k or any(k <= 0 for k in top_k) or len(set(top_k)) != len(top_k):
+    if (
+        not top_k
+        or any(isinstance(k, bool) or not isinstance(k, int) or k <= 0 for k in top_k)
+        or len(set(top_k)) != len(top_k)
+    ):
         raise ValueError("top_k must contain unique positive integers")
 
     metrics = {}

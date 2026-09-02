@@ -673,3 +673,33 @@ class TestMetricsEdgeCases:
         assert torch.isfinite(result_top_k)
         assert torch.isfinite(result_r_prec)
         assert torch.isfinite(result_avg_prec)
+
+    def test_retrieval_metric_rejects_empty_batch(self):
+        metric = RetrievalMetric(
+            metric_functional=top_k_hit_rate,
+            metric_kwargs={"k": 1},
+            reduction="mean",
+        )
+
+        with pytest.raises(ValueError, match="empty batch"):
+            metric(torch.empty(0, 3), torch.empty(0, 1, dtype=torch.long))
+
+    @pytest.mark.parametrize("invalid_k", [True, 1.5, "1"])
+    def test_top_k_requires_a_genuine_integer(self, invalid_k):
+        with pytest.raises(ValueError, match="positive integer"):
+            top_k_hit_rate(
+                torch.tensor([0.9, 0.1]),
+                torch.tensor([0]),
+                k=invalid_k,
+            )
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA is unavailable")
+    def test_target_indices_may_be_on_cpu_when_scores_are_on_cuda(self):
+        result = top_k_hit_rate(
+            torch.tensor([0.9, 0.1], device="cuda"),
+            torch.tensor([0], device="cpu"),
+            k=1,
+        )
+
+        assert result.device.type == "cuda"
+        assert result.item() == 1.0

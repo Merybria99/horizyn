@@ -304,9 +304,14 @@ def extract_residue_tokens(
 
 
 def write_embedding_attrs(h5_file: h5py.File, args: argparse.Namespace, residue_dim: int) -> None:
-    h5_file.attrs["model_name"] = args.model_name
-    h5_file.attrs["embedding_model_type"] = "esm2"
-    h5_file.attrs["embedding_backend"] = "huggingface_auto_model"
+    model_name = getattr(args, "model_name", getattr(args, "model_location", ""))
+    h5_file.attrs["model_name"] = model_name
+    h5_file.attrs["embedding_model_type"] = getattr(args, "embedding_model_type", "esm2")
+    h5_file.attrs["embedding_backend"] = getattr(
+        args,
+        "embedding_backend",
+        "huggingface_auto_model",
+    )
     h5_file.attrs["residue_dim"] = residue_dim
     h5_file.attrs["source_fasta"] = str(Path(args.fasta).resolve())
     h5_file.attrs["max_sequence_length"] = (
@@ -551,7 +556,8 @@ def merge_shards(args: argparse.Namespace) -> Path:
         for path in shard_paths:
             path.unlink(missing_ok=True)
 
-    print(f"Wrote merged ESM2 residue HDF5: {output_path}", flush=True)
+    embedding_type = getattr(args, "embedding_model_type", "esm2")
+    print(f"Wrote merged {embedding_type} residue HDF5: {output_path}", flush=True)
     return output_path
 
 

@@ -362,6 +362,37 @@ class TestEmbedDataset:
         with pytest.raises(ValueError, match="Mismatch"):
             EmbedDataset(file_path=str(h5_path))
 
+    @pytest.mark.parametrize("in_memory", [True, False])
+    def test_non_finite_embedding_is_rejected_on_access(self, tmp_path, in_memory):
+        h5_path = tmp_path / "non_finite.h5"
+        with h5py.File(h5_path, "w") as h5_file:
+            h5_file.create_dataset("ids", data=np.array([b"p1"]))
+            h5_file.create_dataset(
+                "vectors", data=np.array([[float("nan"), 1.0]], dtype=np.float32)
+            )
+
+        dataset = EmbedDataset(str(h5_path), in_memory=in_memory)
+        with pytest.raises(ValueError, match="non-finite"):
+            dataset["p1"]
+
+    def test_ids_must_be_rank_one(self, tmp_path):
+        h5_path = tmp_path / "bad_ids.h5"
+        with h5py.File(h5_path, "w") as h5_file:
+            h5_file.create_dataset("ids", data=np.array([[b"p1"]]))
+            h5_file.create_dataset("vectors", data=np.ones((1, 2), dtype=np.float32))
+
+        with pytest.raises(ValueError, match="rank-1"):
+            EmbedDataset(str(h5_path))
+
+    def test_scalar_ids_are_rejected_as_rank_zero(self, tmp_path):
+        h5_path = tmp_path / "scalar_ids.h5"
+        with h5py.File(h5_path, "w") as h5_file:
+            h5_file.create_dataset("ids", data=np.bytes_(b"p1"))
+            h5_file.create_dataset("vectors", data=np.ones((1, 2), dtype=np.float32))
+
+        with pytest.raises(ValueError, match="rank-1"):
+            EmbedDataset(str(h5_path))
+
     def test_key_not_found(self, sample_hdf5):
         """Test that accessing non-existent key raises error."""
         h5_path, _ = sample_hdf5

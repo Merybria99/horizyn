@@ -4,11 +4,15 @@ description: Original Horizyn SOTA and ReactZyme retrieval tests using a shared 
 tasks:
   - name: horizyn_sota
     type: retrieval
+    benchmark_protocol: horizyn_release_v1
+    metric_protocol: horizyn
+    bidirectional_reactions: true
     split: horizyn_sota_original_test
     pairs: data/sota/test_pairs.csv
     train_pairs: data/sota/train_pairs.csv
     reactions: data/sota/test_rxns.csv
-    candidate_ids: data/standardized/horizyn_reactzyme_eval/horizyn_sota_candidate_ids.txt
+    # Restrict the shared 394,459-protein HDF5 to Horizyn's released library.
+    candidate_ids: data/sota/prots.fasta
     candidate_residue_h5:
       esm2: data/standardized/horizyn_reactzyme_eval/proteins_esm2_650m_residue.h5
     candidate_score_residue_h5:
@@ -18,11 +22,13 @@ tasks:
 
   - name: reactzyme_time
     type: retrieval
+    benchmark_protocol: reactzyme_time_release_v2
+    metric_protocol: reactzyme
+    candidates_from_test_positives: true
     split: time_original_test
     pairs: data/paper/reactzyme/eval/time/test_pairs.csv
     train_pairs: data/paper/reactzyme/eval/time/train_pairs.csv
     reactions: data/paper/reactzyme/eval/time/reactions.csv
-    candidate_ids: data/standardized/horizyn_reactzyme_eval/reactzyme_time_candidate_ids.txt
     candidate_residue_h5:
       esm2: data/standardized/horizyn_reactzyme_eval/proteins_esm2_650m_residue.h5
     candidate_score_residue_h5:
@@ -32,11 +38,13 @@ tasks:
 
   - name: reactzyme_enzyme_smi
     type: retrieval
+    benchmark_protocol: reactzyme_enzyme_smi_release_v2
+    metric_protocol: reactzyme
+    candidates_from_test_positives: true
     split: enzyme_smi_original_test
     pairs: data/paper/reactzyme/eval/enzyme_smi/test_pairs.csv
     train_pairs: data/paper/reactzyme/eval/enzyme_smi/train_pairs.csv
     reactions: data/paper/reactzyme/eval/enzyme_smi/reactions.csv
-    candidate_ids: data/standardized/horizyn_reactzyme_eval/reactzyme_enzyme_smi_candidate_ids.txt
     candidate_residue_h5:
       esm2: data/standardized/horizyn_reactzyme_eval/proteins_esm2_650m_residue.h5
     candidate_score_residue_h5:
@@ -46,11 +54,13 @@ tasks:
 
   - name: reactzyme_reaction_smi
     type: retrieval
+    benchmark_protocol: reactzyme_reaction_smi_release_v2
+    metric_protocol: reactzyme
+    candidates_from_test_positives: true
     split: reaction_smi_original_test
     pairs: data/paper/reactzyme/eval/reaction_smi/test_pairs.csv
     train_pairs: data/paper/reactzyme/eval/reaction_smi/train_pairs.csv
     reactions: data/paper/reactzyme/eval/reaction_smi/reactions.csv
-    candidate_ids: data/standardized/horizyn_reactzyme_eval/reactzyme_reaction_smi_candidate_ids.txt
     candidate_residue_h5:
       esm2: data/standardized/horizyn_reactzyme_eval/proteins_esm2_650m_residue.h5
     candidate_score_residue_h5:

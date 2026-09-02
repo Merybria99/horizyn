@@ -1,10 +1,14 @@
 import csv
 import hashlib
+import torch
 
 from horizyn.data_module import HorizynDataModule
 from horizyn.datasets.base import BaseDataset
 from scripts.build_reactzyme_paper_protocols import build_protocol
-from horizyn.benchmarks.reactzyme_protocol import split_train_rows_by_reaction_smiles
+from horizyn.benchmarks.reactzyme_protocol import (
+    split_train_rows,
+    split_train_rows_by_reaction_smiles,
+)
 
 
 PAIR_FIELDS = ["pr_id", "reaction_id", "protein_id", "reaction_smiles", "protein_sequence"]
@@ -89,6 +93,17 @@ def test_build_protocol_creates_deterministic_train_validation_and_untouched_tes
     assert digest(source / "test_pairs.csv") == digest(first_root / "time/test_pairs.csv")
     assert digest(source / "test_rxns.csv") == digest(first_root / "time/test_rxns.csv")
     assert (first_root / "time/test_candidate_ids.txt").read_text() == "pt\n"
+    assert first["original_validation_indices_recoverable"] is False
+
+
+def test_positive_row_split_uses_seeded_torch_random_split_permutation():
+    rows = [{"row": str(index)} for index in range(10)]
+    expected_indices = torch.randperm(10, generator=torch.Generator().manual_seed(42)).tolist()
+
+    train, validation = split_train_rows(rows, validation_fraction=0.2, seed=42)
+
+    assert [int(row["row"]) for row in train] == expected_indices[:8]
+    assert [int(row["row"]) for row in validation] == expected_indices[8:]
 
 
 def test_reaction_smiles_split_is_deterministic_and_group_disjoint():
