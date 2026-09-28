@@ -1,0 +1,495 @@
+{
+  "checked_utc": "2026-09-22T17:45:37.864033+00:00",
+  "campaign": "runs/v4_residue_view_count_20260922_seed42",
+  "protocol_sha256": "6253b956523e82d08d5acfd6fe12303794367901fcb7cdb835b048afbe314e46",
+  "artifact_audit_sha256": "5655ae2594a9cca40487750d50a1c005aefb2cc0eb86da3013172ffd167756a3",
+  "preflight_sha256": "4eb1a5d4def8ea163b759b60cbfd6af82c8a2ba1a12713c0d2615a9009bad15a",
+  "encoder_source_sha256": "08fb5cf50a336e6f1b7215c9ad25c9f63bebae3a6bad8e3316e8934783971ac8",
+  "matched_seed": 42,
+  "scope": "Original V4, separate fresh target fits, no added biology, fixed epoch 10 and step 100. Stored metrics and hashes verified; no metric rerun.",
+  "encoder_parameter_counts": {
+    "1": 3554306,
+    "2": 3949314,
+    "4": 4739330,
+    "8": 6319362
+  },
+  "encoder_parameter_formula": {
+    "constant": 3159298,
+    "per_learned_view": 395008,
+    "includes": "EnzymeMultiviewEncoder trainable parameters only; excludes frozen feature resources, frozen SLEEC scorer, reaction encoder and phase-2 heads"
+  },
+  "results": [
+    {
+      "task": "k4/reaction_smi",
+      "K": 4,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k4/reaction_smi/evaluation/reaction_smi/v4/test_summary.json",
+      "sha256": "2b8399a22bb13fb71aa144034a5867bd38e36c2475ea03af5197983c9bce8287",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 386,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5900572538375854,
+            "reactzyme_mrr": 0.394698828458786,
+            "top_1": 0.5207253694534302,
+            "top_5": 0.6632124185562134,
+            "top_10": 0.7435232996940613
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 14688,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5410363674163818,
+            "reactzyme_mrr": 0.5410193204879761,
+            "top_1": 0.4470996558666229,
+            "top_5": 0.6441312432289124,
+            "top_10": 0.6939678192138672
+          }
+        }
+      }
+    },
+    {
+      "task": "k4/enzyme_smi",
+      "K": 4,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k4/enzyme_smi/evaluation/enzyme_smi/v4/test_summary.json",
+      "sha256": "e50fd7067774a6b4790d495a2d4674e5884a20fdc09060a0339086436ae95c65",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 1573,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.926588773727417,
+            "reactzyme_mrr": 0.6662486791610718,
+            "top_1": 0.8906548023223877,
+            "top_5": 0.9713922142982483,
+            "top_10": 0.9841067790985107
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 8734,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.9705196619033813,
+            "reactzyme_mrr": 0.9703726172447205,
+            "top_1": 0.9482482671737671,
+            "top_5": 0.9948477745056152,
+            "top_10": 0.9971376657485962
+          }
+        }
+      }
+    },
+    {
+      "task": "k4/time",
+      "K": 4,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k4/time/evaluation/time/v4/test_summary.json",
+      "sha256": "2490dca87a19eb17a4a50eb12c90a030b25784aeda3b65a9cbf61bcd9ad75a56",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 2634,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7541150450706482,
+            "reactzyme_mrr": 0.538284957408905,
+            "top_1": 0.6890660524368286,
+            "top_5": 0.8329536318778992,
+            "top_10": 0.877752423286438
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 12277,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7899234890937805,
+            "reactzyme_mrr": 0.7897095084190369,
+            "top_1": 0.6920257210731506,
+            "top_5": 0.9024191498756409,
+            "top_10": 0.9368737936019897
+          }
+        }
+      }
+    },
+    {
+      "task": "k4/enzymemap",
+      "K": 4,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k4/enzymemap/evaluation/enzymemap/v4/test_summary.json",
+      "sha256": "5984935c871e30fc3833fa9e69d09727afd0d109aa61589633bb66dff9a2a2b6",
+      "metrics": {
+        "table1": {
+          "queries": 1521,
+          "candidate_ids": 261907,
+          "bedroc85": 0.5722710865984248,
+          "bedroc20": 0.7553758915920035,
+          "ef0.05": 16.859042255655567,
+          "ef0.1": 8.955405045243268
+        },
+        "table2": {
+          "queries": 1337,
+          "candidate_ids": 252113,
+          "bedroc85": 0.5286632448084075,
+          "bedroc20": 0.7263399370498737,
+          "ef0.05": 16.41463544551568,
+          "ef0.1": 8.793102960892874
+        }
+      }
+    },
+    {
+      "task": "k1/reaction_smi",
+      "K": 1,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k1/reaction_smi/evaluation/reaction_smi/v4/test_summary.json",
+      "sha256": "c7b628aebc0e23799333234a1635fdb914c2e097465c505287835861b038d1ae",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 386,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5937062501907349,
+            "reactzyme_mrr": 0.39996036887168884,
+            "top_1": 0.5207253694534302,
+            "top_5": 0.6683937907218933,
+            "top_10": 0.7383419275283813
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 14688,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5418749451637268,
+            "reactzyme_mrr": 0.5418579578399658,
+            "top_1": 0.44560185074806213,
+            "top_5": 0.6303104162216187,
+            "top_10": 0.6719090342521667
+          }
+        }
+      }
+    },
+    {
+      "task": "k1/enzyme_smi",
+      "K": 1,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k1/enzyme_smi/evaluation/enzyme_smi/v4/test_summary.json",
+      "sha256": "b5177243c30e86dae4ffdfe00830a0f6e4823955efcce87d290b6ca6bda3bb18",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 1573,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.92265385389328,
+            "reactzyme_mrr": 0.6632064580917358,
+            "top_1": 0.8849332332611084,
+            "top_5": 0.9669421315193176,
+            "top_10": 0.9828352928161621
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 8734,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.9652965068817139,
+            "reactzyme_mrr": 0.9651534557342529,
+            "top_1": 0.9378291964530945,
+            "top_5": 0.9950767159461975,
+            "top_10": 0.9971376657485962
+          }
+        }
+      }
+    },
+    {
+      "task": "k1/time",
+      "K": 1,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k1/time/evaluation/time/v4/test_summary.json",
+      "sha256": "0277442722f6c13740b69e03487f31a0184733bc6e838f80f36b2a1d3af82b7c",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 2634,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7540074586868286,
+            "reactzyme_mrr": 0.5373575687408447,
+            "top_1": 0.6902049779891968,
+            "top_5": 0.8375094532966614,
+            "top_10": 0.8781321048736572
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 12277,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.8044152855873108,
+            "reactzyme_mrr": 0.8041946291923523,
+            "top_1": 0.7211045026779175,
+            "top_5": 0.9025006294250488,
+            "top_10": 0.9353262186050415
+          }
+        }
+      }
+    },
+    {
+      "task": "k1/enzymemap",
+      "K": 1,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k1/enzymemap/evaluation/enzymemap/v4/test_summary.json",
+      "sha256": "b941a7cfa74fdfe92fa77493a755e64f5b4ecc9b90c13c45e9efb4f23728535a",
+      "metrics": {
+        "table1": {
+          "queries": 1521,
+          "candidate_ids": 261907,
+          "bedroc85": 0.5222052440134063,
+          "bedroc20": 0.7078106360384157,
+          "ef0.05": 15.81522137421457,
+          "ef0.1": 8.674399958444885
+        },
+        "table2": {
+          "queries": 1337,
+          "candidate_ids": 252113,
+          "bedroc85": 0.4703180657529947,
+          "bedroc20": 0.670880648917774,
+          "ef0.05": 15.215586533710386,
+          "ef0.1": 8.451438977778661
+        }
+      }
+    },
+    {
+      "task": "k2/reaction_smi",
+      "K": 2,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k2/reaction_smi/evaluation/reaction_smi/v4/test_summary.json",
+      "sha256": "550e8b29046d03d767ae603790aa6e206a36269556076a4ff2894526b5efcc4f",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 386,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.6019427180290222,
+            "reactzyme_mrr": 0.40447744727134705,
+            "top_1": 0.5362694263458252,
+            "top_5": 0.6683937907218933,
+            "top_10": 0.7409326434135437
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 14688,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5157858729362488,
+            "reactzyme_mrr": 0.5157688856124878,
+            "top_1": 0.39488017559051514,
+            "top_5": 0.6324890851974487,
+            "top_10": 0.7280773520469666
+          }
+        }
+      }
+    },
+    {
+      "task": "k2/enzyme_smi",
+      "K": 2,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k2/enzyme_smi/evaluation/enzyme_smi/v4/test_summary.json",
+      "sha256": "8c8f3f30e539f2e1079d557ce2a144a8156e140768ca0cb0b4eb776984b89382",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 1573,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.9281785488128662,
+            "reactzyme_mrr": 0.66721111536026,
+            "top_1": 0.8925619721412659,
+            "top_5": 0.9726637005805969,
+            "top_10": 0.9872854351997375
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 8734,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.962734580039978,
+            "reactzyme_mrr": 0.9625874757766724,
+            "top_1": 0.932905912399292,
+            "top_5": 0.9946187734603882,
+            "top_10": 0.9972521662712097
+          }
+        }
+      }
+    },
+    {
+      "task": "k2/time",
+      "K": 2,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k2/time/evaluation/time/v4/test_summary.json",
+      "sha256": "5a750efcaceec5166a2037717e1079da065a83bb477fa7554743538d0cb053bd",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 2634,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7535181641578674,
+            "reactzyme_mrr": 0.5381343960762024,
+            "top_1": 0.6879270672798157,
+            "top_5": 0.8352315425872803,
+            "top_10": 0.877752423286438
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 12277,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7977617383003235,
+            "reactzyme_mrr": 0.7975295782089233,
+            "top_1": 0.7058727741241455,
+            "top_5": 0.9055143594741821,
+            "top_10": 0.938828706741333
+          }
+        }
+      }
+    },
+    {
+      "task": "k2/enzymemap",
+      "K": 2,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k2/enzymemap/evaluation/enzymemap/v4/test_summary.json",
+      "sha256": "f04d31b7c816575331fe090336baf131ec21ec4c48899c5996e5174880e7c697",
+      "metrics": {
+        "table1": {
+          "queries": 1521,
+          "candidate_ids": 261907,
+          "bedroc85": 0.579671217690746,
+          "bedroc20": 0.7561388018014554,
+          "ef0.05": 16.734864351153373,
+          "ef0.1": 8.900180367316205
+        },
+        "table2": {
+          "queries": 1337,
+          "candidate_ids": 252113,
+          "bedroc85": 0.5364373104410304,
+          "bedroc20": 0.7260902151854203,
+          "ef0.05": 16.233036363657387,
+          "ef0.1": 8.72487549306729
+        }
+      }
+    },
+    {
+      "task": "k8/reaction_smi",
+      "K": 8,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k8/reaction_smi/evaluation/reaction_smi/v4/test_summary.json",
+      "sha256": "253b29297b832cf2c35b30704c5f750f87a7ebed1f4de50e8373fe9b8a163719",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 386,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5793019533157349,
+            "reactzyme_mrr": 0.392640084028244,
+            "top_1": 0.5077720284461975,
+            "top_5": 0.6476683616638184,
+            "top_10": 0.7227979302406311
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 14688,
+            "num_positive_edges": 14689,
+            "first_positive_mrr": 0.5010219812393188,
+            "reactzyme_mrr": 0.5010049343109131,
+            "top_1": 0.39617374539375305,
+            "top_5": 0.6220043301582336,
+            "top_10": 0.6768790483474731
+          }
+        }
+      }
+    },
+    {
+      "task": "k8/enzyme_smi",
+      "K": 8,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k8/enzyme_smi/evaluation/enzyme_smi/v4/test_summary.json",
+      "sha256": "d5fd4f368fb28ce9957df88c725bc85b3acf0800acf08ca122cfa176924e265a",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 1573,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.9273157715797424,
+            "reactzyme_mrr": 0.6674237251281738,
+            "top_1": 0.8931977152824402,
+            "top_5": 0.9682135581970215,
+            "top_10": 0.9841067790985107
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 8734,
+            "num_positive_edges": 8739,
+            "first_positive_mrr": 0.9614254832267761,
+            "reactzyme_mrr": 0.96127849817276,
+            "top_1": 0.9301580190658569,
+            "top_5": 0.9945042729377747,
+            "top_10": 0.9967941641807556
+          }
+        }
+      }
+    },
+    {
+      "task": "k8/time",
+      "K": 8,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k8/time/evaluation/time/v4/test_summary.json",
+      "sha256": "e31ffa0b0c96f5f510e1c8111cbdf78fc13eacbb7a278b73ddb48ab9e496c276",
+      "metrics": {
+        "reaction_to_enzyme": {
+          "all": {
+            "num_queries": 2634,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7562525272369385,
+            "reactzyme_mrr": 0.5398373007774353,
+            "top_1": 0.6913439631462097,
+            "top_5": 0.8371298313140869,
+            "top_10": 0.8800303339958191
+          }
+        },
+        "enzyme_to_reaction": {
+          "all": {
+            "num_queries": 12277,
+            "num_positive_edges": 12287,
+            "first_positive_mrr": 0.7913227677345276,
+            "reactzyme_mrr": 0.791114866733551,
+            "top_1": 0.6942249536514282,
+            "top_5": 0.902582049369812,
+            "top_10": 0.9389916062355042
+          }
+        }
+      }
+    },
+    {
+      "task": "k8/enzymemap",
+      "K": 8,
+      "seed": 42,
+      "summary": "runs/v4_residue_view_count_20260922_seed42/k8/enzymemap/evaluation/enzymemap/v4/test_summary.json",
+      "sha256": "16823c54878ee365363beadf9411f8305a712896e76c9769b927c071faaa6006",
+      "metrics": {
+        "table1": {
+          "queries": 1521,
+          "candidate_ids": 261907,
+          "bedroc85": 0.5039757240224266,
+          "bedroc20": 0.6904848972334965,
+          "ef0.05": 15.586295255500314,
+          "ef0.1": 8.486068512747904
+        },
+        "table2": {
+          "queries": 1337,
+          "candidate_ids": 252113,
+          "bedroc85": 0.44965911925693386,
+          "bedroc20": 0.6514833934677264,
+          "ef0.05": 14.897988769073518,
+          "ef0.1": 8.232036966176187
+        }
+      }
+    }
+  ]
+}

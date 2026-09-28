@@ -1,0 +1,585 @@
+% Editable manuscript fragment. Load the packages/macros listed in main.tex.
+\section{Experiments}
+\label{sec:exp}
+
+We evaluate \methodname\ on two complementary benchmark tasks and one
+retrospective case study: reaction-conditioned enzyme screening on EnzymeMap,
+bidirectional enzyme--reaction retrieval on ReactZyme, and literature-supported
+catalyst recovery for the conversion of D-fructose to D-tagatose. Following the
+task-based organization of FGW-CLIP \citep{zhou2026fgwclip}, each benchmark is
+described in terms of its data, comparators, evaluation metrics, and results.
+We then analyze controlled changes to the training objective and inference
+settings using the recorded ablation experiments.
+
+\paragraph{Common experimental design.}
+\methodname\ denotes one architecture and hyperparameter recipe fitted
+\emph{separately} on each target training partition: the three ReactZyme splits
+and the EnzymeMap split. The trainable F3 retrieval layers are freshly
+initialized for every target; target-trained ReactZyme weights are not reused
+to fit EnzymeMap. Frozen protein, molecular, reaction, and SLEEC feature
+extractors remain pretrained resources. Phase 1 uses the anchor-balanced,
+decoupled multi-positive objective and the two attention regularizers described
+in the companion methods section. Phase 2 freezes F3 and fits the existing
+residual heads with full-graph uniform-positive cross-entropy and an
+identity-preservation penalty. The training-reaction dictionary is constructed
+from the target training graph only. Neither ensembling nor hubness correction
+is used.
+
+The primary recipe retains phase-1 epoch 10 and phase-2 update 100 with seed
+42. Its inference settings are dictionary weight $\alpha=0.40$, protein fusion
+multiplier $\nu=3$, and residual multiplier $c=0.5$. The last parameter scales
+the residual update; it is not a norm-clipping threshold. \vfourBio\ adds
+relative biological supervision only to phase 2, with weight 1 for each of
+the EC, cofactor, and coarse transformation families, margin 0.1, and a fixed
+family divisor of three. This variant shares the original F3 checkpoints and
+adds no inference-time parameters. Detailed optimization settings appear in
+Appendix~\ref{app:exp-implementation}.
+
+Matching downstream training associations is necessary for our comparisons,
+but does not match every pretrained representation or annotation resource.
+We therefore distinguish comparisons between complete methods from controlled
+component ablations. The final recipe was reached through repeated exploratory
+benchmark inspection; fixing its final checkpoints does not make the overall
+development process a single-use held-out test. Reported differences are point
+estimates unless a paired-seed analysis is explicitly identified.
+
+\subsection{Enzyme screening on EnzymeMap}
+\label{sec:exp-screening}
+\subsubsection{Datasets and screening protocols}
+
+We use the EnzymeMap release and reaction-rule split distributed with
+CLIPZyme \citep{heid2023enzymemap,mikhael2024clipzyme}. The processed dataset
+contains 46,356 enzyme--reaction association rows, 16,776 unique reactions,
+12,749 enzymes, 2,841 EC identifiers, and 394 reaction rules. The released
+training, validation, and test partitions contain 34,427, 7,287, and 4,642
+rows, respectively. The nominal 80/10/10 allocation is made over reaction
+rules; it does not imply these exact proportions of association rows. We
+retain the released partitions and physical reactant/product sides rather
+than resampling the split.
+
+The screening library combines EnzymeMap, BRENDA release 2022\_2, and UniProt
+release 2022\_01, with a maximum sequence length of 650 residues. Its 261,907
+candidate identifiers and their ordering are retained. Query construction
+follows the released CLIPZyme analysis notebook: the 4,642 test associations
+contain 1,551 distinct reaction strings, of which 30 also occur in training.
+Removing those reactions leaves 1,521 unique test queries. Known positive
+candidate identifiers are collected from the released raw EnzymeMap records
+and intersected with the screening library, yielding 4,544 query--candidate
+positive labels. These labels are used for scoring, not to extend the training
+association graph.
+
+We report two screening settings. \emph{Full pool} ranks all 261,907 candidates
+for each of the 1,521 queries. \emph{Training-ID-excluded pool} removes every
+candidate identifier observed in the training associations, leaving 252,113
+candidates and 1,337 queries with at least one remaining positive. This second
+setting follows the additional generalization analysis in FGW-CLIP. It tests
+exclusion of training identifiers, not an independently established
+sequence-disjoint or homology-disjoint split. The existing ablation figures
+refer to these settings as Table 1 and Table 2, respectively; those labels are
+protocol names inherited from the source comparison, not manuscript table
+cross-references.
+
+\subsubsection{Baselines}
+
+We compare with the published CLIPZyme encoder variants and FGW-CLIP
+\citep{mikhael2024clipzyme,zhou2026fgwclip}. We also evaluate the released
+CLIPZyme checkpoint on the same query lists, candidate order, positive labels,
+and screening metric implementation used for \methodname. Its downstream
+training data are the corresponding released EnzymeMap training partition;
+it is a checkpoint reproduction, not a new training run. Published FGW-CLIP
+numbers remain explicitly marked as reported values: no official checkpoint
+or verified reproducible implementation was available in the recorded source
+audit. Thus the CLIPZyme comparison has local score-level evidence, whereas
+the FGW-CLIP comparison is against its reported point estimates.
+
+\subsubsection{Evaluation metrics}
+
+We measure early retrieval with BEDROC at $a=85$ and $a=20$, and enrichment
+factors over the top 5\% and 10\% of each ranked library. Higher values are
+better. The screening tables show BEDROC as a percentage; the ablation
+figures and saved numerical files use its unscaled value. Enrichment factors
+are fold enrichments, not percentages. Metrics are calculated per reaction
+and averaged over eligible queries with equal query weight.
+
+For a query with $N$ candidates, $n$ positives, and binary ranked labels
+$y_{(j)}$, the released enrichment calculation is
+\begin{equation}
+  \operatorname{EF}_{f}
+  =\frac{\sum_{j=1}^{\lfloor fN\rfloor}y_{(j)}}{f n},
+  \qquad f\in\{0.05,0.10\}.
+  \label{eq:exp-ef}
+\end{equation}
+We preserve the notebook's rank origin, sorting convention, and finite-library
+normalization for BEDROC; Appendix~\ref{app:exp-metrics} gives the executable
+definition. MRR is not the screening endpoint or the criterion for interpreting
+these experiments.
+
+\subsubsection{Results}
+
+Tables~\ref{tab:exp-screen-full} and~\ref{tab:exp-screen-excluded} present all
+four screening metrics. In the full pool, \methodname\ achieves BEDROC$_{85}$
+of 57.2337\%, BEDROC$_{20}$ of 75.5433\%, EF5 of 16.8590, and EF10 of 8.9587.
+Its BEDROC$_{85}$ exceeds the reproduced CLIPZyme value by 12.5394 percentage
+points and the reported FGW-CLIP value by 8.5737 percentage points. After
+excluding training enzyme identifiers, BEDROC$_{85}$ remains 52.8734\%, with
+EF5 of 16.4186 and EF10 of 8.7931. These results support improved early
+recovery under both recorded screening protocols.
+
+\begin{table}[htbp]
+\centering\small
+\caption{EnzymeMap screening against the full library: 1,521 queries and
+261,907 candidate identifiers. BEDROC is expressed as a percentage. Published
+rows come from FGW-CLIP Table 1; locally measured rows use the shared released
+CLIPZyme notebook protocol. All \methodname\ rows use the same target-specific
+training associations.}
+\label{tab:exp-screen-full}
+\resizebox{\linewidth}{!}{\input{tables/screening_table1}}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{EnzymeMap screening after excluding training enzyme identifiers:
+1,337 eligible queries and 252,113 candidate identifiers. Published values
+are from FGW-CLIP Table 2. The strongest published EF10 comparator in this
+setting is CLIPZyme (7.81), not FGW-CLIP (7.61).}
+\label{tab:exp-screen-excluded}
+\resizebox{\linewidth}{!}{\input{tables/screening_table2}}
+\end{table}
+
+Adding biological supervision in phase 2 preserves the margins over those
+reported comparators, but does not improve all metrics over \methodname.
+BEDROC$_{85}$ decreases slightly in both pools; EF changes are small and
+mixed. We therefore attribute the screening result to the evaluated full
+recipe, without treating the biological objective as an established cause of
+the gain. The controlled label-removal and shuffle experiments below address
+that distinction directly.
+\FloatBarrier
+
+\subsection{Bidirectional enzyme--reaction retrieval on ReactZyme}
+\label{sec:exp-reactzyme}
+\subsubsection{Datasets and splits}
+
+ReactZyme links SwissProt proteins to Rhea reactions and provides temporal,
+enzyme-similarity, and reaction-similarity evaluation partitions
+\citep{hua2024reactzyme}. The released resource is described as containing
+178,463 association rows, 178,327 proteins, and 7,726 reaction identifiers.
+We use the existing materialized \texttt{reactzyme\_paper} partitions shared
+by \methodname\ and the public-baseline campaign. Their exact retained row
+counts appear in Table~\ref{tab:exp-reactzyme-data}; these are the counts
+actually fitted and scored, rather than nominal totals copied from the paper.
+The materialized partitions contain 178,459 retained association rows per
+split. Published raw split sizes and retained distinct associations should
+not be interchanged.
+
+Reaction similarity separates held-out reaction identifiers; enzyme similarity
+tests a sequence-based partition; and the temporal split separates annotations
+around the released 31 December 2010 cutoff. We preserve the supplied
+train/validation assignment, approximately a 90/10 subdivision of the
+non-test partition, and do not draw a new validation set for each comparator.
+The materialized reaction inputs are flattened participant sets. Their
+self-reaction encoding must not be interpreted as recovered physical
+reactant/product roles. EnzymeMap, in contrast, supplies those roles.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Audited ReactZyme materialization. Train, validation, and test columns
+count retained association rows. The last two columns give the complete test
+reaction and enzyme catalogs: their roles as query and candidate sets swap
+between retrieval directions. Every locally retrained comparator uses these
+same catalogs and their recorded ordering.}
+\label{tab:exp-reactzyme-data}
+\resizebox{\linewidth}{!}{\input{tables/reactzyme_data}}
+\end{table}
+
+\subsubsection{Baselines and comparison scope}
+
+We separate two comparison tracks. The \emph{published-reference track}
+includes FGW-CLIP's EC Mode and EC Max variants and the two main TIGER
+variants, ESM2Text and ProtT3 \citep{zhou2026fgwclip,zhang2026tiger}. TIGER's
+main Reaction-Sim \expEtoR\ MRR is 0.518 for ESM2Text; the 0.543 MLP ablation
+and 0.632 SwissProt-text condition are different experimental settings and
+are not relabeled as that main model.
+
+The \emph{matched-data retraining track} fits the four released ReactZyme
+families---MLP, contrastive MLP, Transformer, and Bi-RNN---with both ESM2 and
+SaProt protein features and four molecular feature choices (MAT-2D, MAT-3D,
+UniMol-2D, and UniMol-3D). This defines 96 family/feature/split configurations.
+An additional 24 configurations test a corrected contrastive-label convention
+and remain separate from the unchanged released contrastive model. We also
+include the completed original Horizyn participant-set adapter
+\citep{rocks2026horizyn} and EnzGFM backbone controls. All completed
+configurations in the frozen evidence snapshot are retained in
+Appendix~\ref{app:exp-public}; test performance is not used to select a
+representative feature combination.
+
+The local baseline training uses the same downstream associations as
+\methodname, fresh retrieval weights, validation-only checkpoint selection,
+and a shared test evaluator. Material adaptations remain explicit: the
+released classifiers use reproducible sampled negatives because their
+original negative files are unavailable; SaProt follows the released ESM
+fallback for missing structural strings; Horizyn consumes a participant-set
+reaction adapter; and the cached EnzGFM preprocessing differs from its native
+paper convention. Their objectives, training budgets, and backbones are not
+identical. Consequently these are matched-data \emph{method} comparisons,
+not isolated tests of architecture alone. Pending CREEP, structural CLIPZyme,
+EnzymeCAGE, and VenusRXN experiments have no completed result asserted here.
+
+\subsubsection{Evaluation metrics}
+
+For each direction, we rank the complete corresponding test candidate catalog.
+Let $P(q)$ be the positive candidates for query $q$, and
+$\operatorname{rank}_{q}(p)$ their one-based ranks. Our primary metric is the
+released benchmark implementation's all-positive, query-averaged MRR:
+\begin{equation}
+ \operatorname{MRR}_{\mathrm{all}}
+ =\frac{1}{|Q|}\sum_{q\in Q}
+   \frac{1}{|P(q)|}\sum_{p\in P(q)}
+   \frac{1}{\operatorname{rank}_{q}(p)}.
+ \label{eq:exp-mrr}
+\end{equation}
+We additionally retain first-positive MRR and Hit@$k$ for $k=1,5,10$ as
+diagnostics (Appendix~\ref{app:exp-metrics}); they are not interchangeable
+with Eq.~\eqref{eq:exp-mrr}. Scores are ranked in FP32 with stable
+candidate-index tie breaking in the local shared evaluator.
+
+Some published descriptions, including FGW-CLIP's metric formula, instead
+describe first-positive MRR. Without its predictions or runnable evaluator,
+we cannot independently reconcile that wording with its reported tables.
+Published MRR columns are therefore reproduced \emph{as reported} and kept
+separate from the common-evaluator retraining table. Local comparisons retain
+one metric definition and identical candidate axes throughout.
+
+\subsubsection{Results}
+
+Table~\ref{tab:exp-reactzyme-literature} places \methodname\ and \vfourBio\
+alongside the published reference values. Original \methodname\ records
+\expRtoE/\expEtoR\ MRR of 0.400381/0.534366 on Reaction-Sim,
+0.666249/0.971355 on Enzyme-Sim, and 0.538285/0.780669 on Time. These exceed
+the displayed main-method literature point estimates, subject to the metric
+and resource qualifications above. The biology variant produces small
+\expRtoE\ changes and larger, mixed \expEtoR\ changes; numerical near ties
+qualify the latter, as examined in Section~\ref{sec:exp-ties}.
+
+\begin{table}[htbp]
+\centering\small
+\caption{ReactZyme literature-reference comparison. The FGW-CLIP rows are
+transcribed from Tables 3, 7, and 8 of arXiv:2512.08508v2; TIGER rows are its
+main Table 1 values. Published MRR is retained as reported, while our rows use
+Eq.~\eqref{eq:exp-mrr}. This table is not a local reproduction of TIGER or
+FGW-CLIP, nor proof of equivalent pretraining resources or metric code.}
+\label{tab:exp-reactzyme-literature}
+\resizebox{\linewidth}{!}{\input{tables/reactzyme_literature}}
+\end{table}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Completed matched-data ReactZyme comparisons under the shared
+all-positive MRR evaluator. For the four released families and corrected-loss
+sensitivity, this compact table shows the same ESM2/MAT-2D features throughout;
+the EnzGFM control also uses MAT-2D. This is a fixed presentation slice, not
+the best feature pair chosen on test. All completed feature combinations are
+listed in Appendix~\ref{app:exp-public}. Training budgets differ across methods.}
+\label{tab:exp-reactzyme-retrained}
+\resizebox{\linewidth}{!}{\input{tables/reactzyme_retrained}}
+\end{table}
+
+The newer matched-data results give a more restrictive conclusion
+(Table~\ref{tab:exp-reactzyme-retrained}). The original Horizyn
+participant-set adapter obtains higher MRR than original \methodname\ in
+all six split/direction cells. Its Reaction-Sim \expRtoE\ MRR is 0.431815
+versus 0.400381, and its Time \expRtoE\ MRR is 0.598203 versus 0.538285.
+Horizyn also exceeds \vfourBio\ in all six cells, although the
+Reaction-Sim \expEtoR\ margin is small (0.534799 versus 0.534777). Thus the completed
+local evidence does not support a claim that either V4 variant outperforms
+every retrained competitor. Different training budgets prevent assigning
+this difference to architecture alone. The full results are retained rather
+than excluding the stronger parent-model comparator.
+\FloatBarrier
+
+\subsection{Case1: retrospective recovery in a small literature panel}
+\label{sec:exp-case1}
+\subsubsection{Reaction and candidate construction}
+
+Case1 concerns the direct C4 epimerization of free D-fructose to D-tagatose,
+as investigated in the literature summarized by the source workbook
+\citep{caseS01,caseS02,caseS03,caseS04,caseS05,caseS06,caseS16,caseS17}.
+The workbook's small homolog panel contains \textbf{145 entries}. One entry,
+H017 (KoT4E M6), lacks a fully specified recoverable sequence. The recorded
+evaluation therefore ranks \textbf{144 resolved entries}, representing
+\textbf{123 unique amino-acid sequences}. We report both the original-entry
+and deduplicated-sequence views; the missing sequence is not assigned an
+invented rank, and repeated entries are not counted as independent proteins.
+
+We distinguish three evidence tiers. The conservative primary-paper set
+contains 12 unique sequences corresponding to 15 entries, with source-level
+activity evidence rechecked in the existing audit. Including patent evidence
+expands this set to 24 sequences and 36 entries. The broader workbook-active
+set contains 81 sequences and 102 entries; the remaining 42 unique sequences
+have only conditional non-detection evidence. Not every broader workbook
+assay has been independently verified, and non-detection under one assay
+condition is not a claim of universal inactivity. The workbook's curated
+``Ranked Candidates'' list is not used as binary experimental ground truth.
+
+\subsubsection{Deployment protocol and evaluation}
+
+The primary deployment uses the Reaction-Sim-trained checkpoint, with its
+recorded recipe frozen before that version's Case1 scoring. No Case1 labels
+are used to fit the retrieval parameters. All other target-trained checkpoints
+are reported as transfer diagnostics without replacing the primary checkpoint
+on the basis of Case1 performance. Because the reaction and earlier outcomes
+were examined during development, this is retrospective evidence rather than
+an untouched external validation cohort.
+
+For each candidate view, we report primary-paper recovery at ranks 5, 10,
+and 25 and normalize recall by that view's own positive count. The unique
+view asks how many distinct documented sequences would be selected; the
+entry view preserves the requested workbook panel, including duplicate
+sequences and its deterministic tie order. As a descriptive reference, a
+uniform random ranking has expected primary-paper recovery at 25 of
+$25(12/123)=2.439$ unique sequences or $25(15/144)=2.604$ entries. These are
+expectations, not uncertainty estimates for the model.
+
+We additionally report conditional AUROC for the 81 workbook-active versus
+42 non-detect-only unique sequences. The same enzyme can appear in several
+constructs or studies, and assay conditions differ across sources. We
+therefore do not attach candidate-IID confidence intervals or interpret this
+AUROC as prospective activity-prediction accuracy.
+
+\subsubsection{Results and transfer limits}
+
+Table~\ref{tab:exp-case1} and Figure~\ref{fig:exp-case1} show the primary
+Reaction-Sim results. Original \methodname\ recovers 10/12 unique
+paper-supported catalysts at rank 25, compared with 9/12 for its native F3
+encoder before phase 2. Both recover 10/15 paper-supported entries in the
+144-entry ranking. With phase-2 biological supervision, unique recovery
+increases to 11/12, whereas entry recovery remains 10/15. Conditional AUROC
+changes from 0.612875 to 0.613757. The unique-sequence gain is one catalyst,
+TsT4Ease WT (H008), moving from rank 26 to rank 25. Cofactor removal retains
+this gain; shuffled labels and mechanism removal do not.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Case1 primary deployment and matched phase-2 controls. Unique
+recovery is out of 12 positives among 123 sequences; entry recovery is out
+of 15 positives among 144 resolved entries from the original 145-entry
+catalogue. AUROC is conditional on the broader 81/42 workbook labels.
+Controls use the same Reaction-Sim F3, phase-2 budget, and inference settings.
+``Native F3'' is the saved pre-phase-2 diagnostic.}
+\label{tab:exp-case1}
+\resizebox{\linewidth}{!}{\input{tables/case1}}
+\end{table}
+
+\begin{figure}[htbp]
+\centering
+\includegraphics[width=\linewidth]{\expFigPath 08_case1_controls.pdf}
+\caption{Case1 biological-supervision controls. Left: recovery at rank 25
+among 123 unique sequences with 12 paper-supported catalysts. Middle:
+recovery among 144 resolved entries with 15 paper-supported entries. Right:
+conditional AUROC differences from original \methodname\ (0.612875).
+All variants use the Reaction-Sim lineage and biological weight 1. The
+one-sequence gain in the deduplicated view does not improve the entry-level
+count. Colors, hatching, and printed counts distinguish the two evaluation
+units. These are retrospective literature results, not new wet-lab assays.}
+\label{fig:exp-case1}
+\end{figure}
+
+Early cutoffs remain challenging: the primary final model recovers no
+primary-paper catalyst in its first five unique sequences and three in its
+first ten. Transfer also depends on the source training dataset: the
+EnzymeMap-trained \methodname\ checkpoint recovers 6/12 at rank 25 with
+conditional AUROC 0.470606 (Appendix~\ref{app:exp-case-targets}). In the
+existing homology audit, four of the ten primary catalysts recovered by the
+Reaction-Sim model have retrieved training homologs with at least 90\%
+identity; both query molecules also co-occur within larger training
+participant sets. Missing qualifying homology hits do not prove sequence
+novelty, and this audit does not cover frozen-backbone pretraining exposure.
+\FloatBarrier
+
+\subsection{Ablation and sensitivity analyses}
+\label{sec:exp-ablation}
+
+We retain the recorded controls that isolate a specific training or inference
+choice. Inference comparisons use identical trained weights and candidate
+pools. Phase-2 label controls hold F3 fixed. The replicated temperature and
+fresh-F3 biological studies use their own matched recipes and seeds; they
+are not presented as independent replications of the final single-seed V4
+result. Appendix~\ref{app:exp-coverage} lists the remaining component controls
+needed for a complete architectural ablation.
+
+\subsubsection{Dictionary weight and residual strength}
+
+At residual multiplier $c=1$, increasing dictionary weight from 0.25 to 0.40
+raises Reaction-Sim \expEtoR\ MRR from 0.523804 to 0.537749. A further increase
+to 0.50 reduces \expRtoE\ MRR on all three ReactZyme splits, while increasing
+EnzymeMap EF5 and EF10 in both pools. At $\alpha=0.40$, reducing $c$ from 1
+to 0.5 lowers BEDROC$_{85}$ in both screening settings. These effects show
+a trade-off between retrieval directions and screening budgets, rather than
+a uniformly beneficial inference adjustment
+(Figures~\ref{fig:exp-inference-rz} and~\ref{fig:exp-inference-em}).
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{\expFigPath 01_reactzyme_inference.pdf}
+\caption{ReactZyme inference sensitivity with fixed checkpoints. Columns
+change one coefficient at a time; rows retain both directions and all three
+splits. Values are signed differences in MRR multiplied by 100; for example,
+$+1.3945$ represents $+0.013945$ raw MRR. The color scale is linear, centered
+at zero, with blue for positive and orange for negative changes. Larger
+Enzyme-Sim/Time \expEtoR\ effects require the near-tie check in
+Figure~\ref{fig:exp-ties}.}
+\label{fig:exp-inference-rz}
+\end{figure}
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{\expFigPath 02_enzymemap_inference.pdf}
+\caption{EnzymeMap inference sensitivity. Blue circles denote the full pool
+(Table 1 protocol); open orange squares denote training-ID exclusion (Table
+2 protocol). Each point is the changed setting minus its stated reference;
+positive values favor the change. BEDROC differences are in raw units,
+not percentages. The four metric-specific axes prevent conflating enrichment
+with very-early recognition. Single-seed checkpoints and candidate pools are
+held fixed.}
+\label{fig:exp-inference-em}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{Anchor-balanced training and inverse temperature}
+
+The available replicated comparison isolates inverse temperature within an
+earlier 18-epoch EnzymeMap recipe: $\beta=5$ versus $\beta=10$, with paired
+seeds 17, 42, and 73 and the remaining training and phase-2 choices fixed.
+It does not isolate anchor balancing against the original MLNCE loss.
+Lower inverse temperature improves all BEDROC$_{85}$, BEDROC$_{20}$, and EF5
+seed pairs. Overall, 22 of the 24 seed-by-metric comparisons improve; seed
+73 produces the two negative EF10 differences. Full-pool mean BEDROC$_{85}$
+increases from $0.494040\pm0.035007$ to $0.521656\pm0.037549$, where the
+dispersion is sample standard deviation over three seeds. Figure~\ref{fig:exp-temp}
+retains every seed rather than displaying only the mean. The metric cells
+are correlated, so their count is not a count of independent experiments.
+
+\begin{landscape}
+\begin{figure}[p]
+\centering\includegraphics[width=\linewidth]{\expFigPath 03_temperature_paired_seeds.pdf}
+\caption{Paired inverse-temperature effects on EnzymeMap at fixed 18 epochs.
+Values are $\beta=5$ minus $\beta=10$; circles are individual seeds and dark
+diamonds their arithmetic mean. Upper row: full pool (Table 1). Lower row:
+training-ID-excluded pool (Table 2). Scales match across rows for each metric;
+BEDROC is unscaled. These observations describe a matched component study,
+not three-seed replication of the final 10-epoch V4 recipe or confidence
+intervals around that recipe.}
+\label{fig:exp-temp}
+\end{figure}
+\end{landscape}
+
+\subsubsection{Biological supervision in phase 2}
+
+We compare the unannotated V4 control with correctly assigned labels,
+shuffled labels, and removal of EC, cofactor, or transformation supervision.
+All active family coefficients are 1, and the averaging divisor remains
+three when a family is removed. Thus removal tests the family contribution
+at fixed remaining coefficients and also reduces total regularization;
+it is not an equal-total-weight reallocation.
+
+The controls do not establish an overall benchmark advantage from adding
+biology. Full-pool BEDROC$_{85}$ is 0.572337 without added supervision,
+0.572096 with correct labels, and 0.572093 with shuffled labels. Every
+displayed phase-2 variant slightly lowers both BEDROC metrics in both pools,
+while EF effects are mixed. ReactZyme point differences are likewise mixed
+(Figures~\ref{fig:exp-bio-rz} and~\ref{fig:exp-bio-em}). The Case1 controls
+in Figure~\ref{fig:exp-case1} show a conditional top-25 crossing, not a
+consistent improvement across evaluation units and benchmarks.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{\expFigPath 04_reactzyme_phase2_biology.pdf}
+\caption{ReactZyme phase-2 biological-supervision controls, each minus
+original \methodname. Cell values are $100\Delta\mathrm{MRR}$. Colors use
+one shared symmetric logarithmic scale, linear within $\pm0.001$ displayed
+units ($\pm10^{-5}$ raw MRR), so larger Time \expEtoR\ differences do not
+wash out small effects elsewhere. Printed values are not log transformed;
+color intensity is nonlinear and is not directly comparable with the linear
+scale in Figure~\ref{fig:exp-inference-rz}. Correct/shuffled labels use
+weight 1; removal controls retain other coefficients and the divisor of three.
+Visible color does not imply a practically large effect.}
+\label{fig:exp-bio-rz}
+\end{figure}
+\FloatBarrier
+
+\begin{landscape}
+\begin{figure}[p]
+\centering\includegraphics[width=\linewidth]{\expFigPath 05_enzymemap_phase2_biology.pdf}
+\caption{EnzymeMap phase-2 biological-supervision controls. Each variant is
+compared with original V4 without added supervision; F3, architecture,
+inference, pools, and training budget are fixed. Upper/lower rows are the
+full/training-ID-excluded pools. Filled blue circles denote correct labels,
+open squares shuffled labels, and gray circles family-removal controls.
+Metric scales match across rows. Axis multipliers matter: the BEDROC changes
+are on the order of $10^{-4}$ in raw units. Correct labels and shuffled labels
+nearly coincide on BEDROC$_{85}$.}
+\label{fig:exp-bio-em}
+\end{figure}
+\end{landscape}
+
+\subsubsection{Near-tie sensitivity of reaction retrieval}
+\label{sec:exp-ties}
+
+Some ReactZyme \expEtoR\ metrics are sensitive to the ordering of nearly
+equal scores. We therefore retain the archived optimistic and pessimistic
+rank bounds obtained by permitting alternative orderings within a
+$10^{-6}$ score band. These are numerical sensitivity bounds, not confidence
+intervals. The small Reaction-Sim difference remains distinct in this
+diagnostic, whereas Enzyme-Sim and Time bounds overlap substantially
+(Figure~\ref{fig:exp-ties}). For example, the Time point estimate increases
+from 0.780669 to 0.800614 under phase-2 biology, but that increase alone
+does not establish robust improvement in reaction discrimination.
+
+\begin{figure}[htbp]
+\centering\includegraphics[width=\linewidth]{\expFigPath 06_reactzyme_near_tie_sensitivity.pdf}
+\caption{Recorded \expEtoR\ MRR and numerical near-tie bounds for original
+V4 and phase-2 weight-1 biology. Points are recorded scores; line segments
+span optimistic and pessimistic ranks under a $10^{-6}$ score band. Each
+split has its own zoomed horizontal scale. Segment lengths should be compared
+within a panel, not across panels. The intervals quantify ranking sensitivity
+and have no sampling-uncertainty interpretation.}
+\label{fig:exp-ties}
+\end{figure}
+\FloatBarrier
+
+\subsubsection{Biological supervision during F3 training}
+
+A separate EnzymeMap study retrains F3 with relative biological-loss weights
+0, 0.1, or 1 across paired seeds 42, 43, and 44, keeping phase 2 unannotated.
+This directly changes F3 training, unlike \vfourBio. Weight 1 increases
+mean full-pool BEDROC$_{85}$ by 0.010256 but decreases mean EF5 by 0.151444.
+Only two of three seeds improve BEDROC$_{85}$; Table-2 EF5 decreases in all
+three seeds. Weight 0.1 improves Table-2 EF10 in all three seeds, but not all
+other metrics. Figure~\ref{fig:exp-f3-bio} exposes this seed and objective
+dependence. These results support a mixed biological-loss trade-off rather
+than a reproducible improvement on every early-screening endpoint.
+
+\subsection{Interpretation and remaining validation}
+
+The recorded experiments support improved EnzymeMap screening over the
+released CLIPZyme checkpoint and the displayed FGW-CLIP point estimates,
+and competitive ReactZyme scores relative to published main-method results.
+They also expose three boundaries: a newly retrained parent-model comparator
+is stronger on the six ReactZyme MRR cells; biological supervision has mixed
+or negligible controlled effects; and Case1 remains one dependent,
+retrospective literature panel. A claim of general superiority or broad
+real-world generalization would require the remaining matched controls,
+replication of the final recipe across seeds, and a prospectively specified
+external reaction panel. These unresolved questions are retained alongside
+the favorable benchmark results.
+
+\begin{landscape}
+\begin{figure}[p]
+\centering\includegraphics[width=\linewidth]{\expFigPath 07_f3_biology_paired_seeds.pdf}
+\caption{Fresh-F3 biological-loss study on EnzymeMap. Points are each
+biological variant minus its same-seed unannotated control; the last row in
+each panel is the arithmetic mean. Blue circles and open orange squares
+indicate weights 0.1 and 1. Upper/lower panels denote the full/training-ID-excluded
+pools, with matching metric scales. Phase 2 stays unannotated, and seed 42
+uses the archived control. All seeds are displayed; these are not
+confidence intervals or estimates from the phase-2-only \vfourBio\ model.}
+\label{fig:exp-f3-bio}
+\end{figure}
+\end{landscape}
+

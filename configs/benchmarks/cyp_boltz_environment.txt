@@ -1,0 +1,3 @@
+# Separate from the native baseline inference environment.
+boltz==0.4.1
+torch==2.5.1

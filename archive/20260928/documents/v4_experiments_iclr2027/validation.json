@@ -1,0 +1,62 @@
+{
+  "checked_at_utc": "2026-09-22T23:51:44.533735+00:00",
+  "primary_method": "V4",
+  "added_biological_supervision": false,
+  "compile": {
+    "engine": "Tectonic 0.17.0",
+    "success": true,
+    "total_pages": 8,
+    "undefined_references": false,
+    "undefined_citations": false,
+    "overfull_boxes": false,
+    "warnings": [
+      "Underfull \\vbox (badness 1565) has occurred while \\output is active []",
+      "Underfull \\vbox (badness 10000) has occurred while \\output is active []",
+      "Underfull \\vbox (badness 1117) has occurred while \\output is active []"
+    ],
+    "portable_zip_clean_rebuild_success": true,
+    "portable_rebuild_text_identical": true
+  },
+  "template_files_match_frozen_supplied_original_hashes": {
+    "iclr2027_conference.sty": true,
+    "iclr2027_conference.bst": true,
+    "natbib.sty": true,
+    "fancyhdr.sty": true
+  },
+  "template_check_note": "Original template directory is no longer at its historical path; bundled bytes match all four previously recorded original hashes.",
+  "presentation": {
+    "single_column": true,
+    "template_font_margins_spacing_unmodified": true,
+    "no_duplicate_labels": true,
+    "no_unresolved_markers_in_pdf": true,
+    "total_page_budget": 10,
+    "within_page_budget": true,
+    "visually_reviewed_pages_this_revision": [
+      4
+    ]
+  },
+  "source_consistency": {
+    "training_rerun": false,
+    "evaluation_rerun_for_this_revision": false,
+    "historical_results_preserved": true,
+    "proposed_method_uses_existing_no_biology_checkpoints": true,
+    "primary_tables_no_bio_only": true,
+    "stage_control_and_bio_values_checked": 28,
+    "stage_table_numeric_cells": 42,
+    "total_table_numeric_cells": 178,
+    "primary_case1": {
+      "unique": 10.0,
+      "entries": 10.0,
+      "auroc": 0.6128747795414462
+    },
+    "figure_files_unchanged_and_hash_verified": 8,
+    "evidence_snapshot_sha256": "b9abdababacbe2559575c965a0a5abf83b8f12a2a15ea9d996199f745d600e8a",
+    "stage_comparison_sha256": "4dedb6f9bfd1c533d77bc8dc065fa871322932ee2bc74cd9b68e3dafae6f6d24"
+  },
+  "prior_validation": "prior_presentation_validation.json",
+  "document_sha256": {
+    "main.pdf": "6b680de0a8f50c7c1281dcd29cad0e8347eb819258c25194d6370aeba18ebd86",
+    "main.tex": "f67ac02dbe1151a3c31ffce758645eb821afc3c40e8b5f0fc3df50d3aae4f6e1",
+    "macros.tex": "edb2a8f6e7f5c3d6d1e3f5e34385c1cc63835badbf74cee048794cd286d084cd"
+  }
+}

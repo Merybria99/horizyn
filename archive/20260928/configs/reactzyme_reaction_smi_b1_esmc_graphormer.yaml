@@ -1,0 +1,45 @@
+variant: B1
+seed: 42
+cpu_threads: 8
+feature_cache: /tmp/enzymediscovery_b12_residue_cache
+graph_feature_cache: /tmp/enzymediscovery_b12_graphormer_graphs
+extraction_tokens: 8192
+foundation_checkpoint: .deps/b12_hf_cache/models--biohub--esmc-600m-2024-12/snapshots/e4d83bc7e10fd55c92e598e545f4a76bf04a6e5c/data/weights/esmc_600m_2024_12_v0.pth
+reference_metrics: runs/circe_v2_prott5_annotation_negatives/evaluation/best_epoch23/test_both.json
+data:
+  split_dir: data/revised_protocols/reactzyme_paper/reaction_smi
+  negative_pool: runs/circe_v2_annotation_negatives/data/train_negative_pools.json
+model:
+  graph_backbone: pcqm4mv2_pretrained
+  graph_checkpoint_dir: .deps/graphormer-base-pcqm4mv2/662d78215c8c8b2313837765b4b7f0d98b594a7e
+  residue_dim: 1152
+  width: 256
+  heads: 4
+  graph_layers: 12
+  latent_layers: 2
+  ffn_dim: 1024
+  protein_tokens: 32
+  reaction_tokens: 16
+  local_dim: 128
+  global_dim: 256
+  dropout: 0.1
+  local_temperature: 0.1
+  protein_chunk: 32
+  molecule_chunk: 16
+  reaction_chunk: 16
+  checkpoint_encoders: true
+training:
+  devices: 2
+  batch_size_per_gpu: 1000
+  effective_global_pair_rows: 2000
+  learning_rate: 0.0001
+  graph_learning_rate: 0.00001
+  graph_warmup_epochs: 2
+  weight_decay: 0.01
+  max_epochs: 30
+  patience: 5
+  min_delta: 0.0001
+  precision: 32-true
+  loss: SampledMultiPositiveInfoNCELoss
+  beta: 10.0
+  checkpoint_monitor: val/mean_bidirectional_mrr

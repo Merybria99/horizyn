@@ -1,0 +1,43 @@
+{
+  "files": [
+    {
+      "file": "figures/inference.pdf",
+      "sha256": "9bf57d56e5ba7bd7b868a845a0c847e5f0c17a3b9a2cbed7e5a1ba057f07dff2"
+    },
+    {
+      "file": "figures/inference.png",
+      "sha256": "91a36e274853f87660f314a435f2f341943c4915036353cac916bf8440ef669b"
+    },
+    {
+      "file": "figures/biology.pdf",
+      "sha256": "857c5ad52aea9ede85bbb96661fc128a0106f5c22c74dec1c4644fc4520a8098"
+    },
+    {
+      "file": "figures/biology.png",
+      "sha256": "aeb43bc25e1cd8c62f13c14165c15f4c4f1c06c695d9470719b5ed172d8b51c9"
+    },
+    {
+      "file": "figures/temperature.pdf",
+      "sha256": "58b9b27ebf83e43c55a8c9b91f9d81b4d52fb7b94ec17ed2ff55facdccb3038f"
+    },
+    {
+      "file": "figures/temperature.png",
+      "sha256": "21c3486a7ba14bd54544ba152f60ebabee1f0543c3aab561e9eb187df64576b2"
+    },
+    {
+      "file": "figures/case1.pdf",
+      "sha256": "d030d71aaf9287effa1a3482d56c9c5000ec0c5b4c112fc0866d26afcbb4c078"
+    },
+    {
+      "file": "figures/case1.png",
+      "sha256": "2429421e9b5ea570ea79f866ba50d6a905d19e3f34a85e9b9a0e2bdb9418387d"
+    }
+  ],
+  "style": [
+    "science",
+    "no-latex"
+  ],
+  "source_sha256": "b9abdababacbe2559575c965a0a5abf83b8f12a2a15ea9d996199f745d600e8a",
+  "contrast_count": 72,
+  "case1_counts": 12
+}

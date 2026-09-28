@@ -110,7 +110,7 @@ def test_compare_distinguishes_evidence_and_sequence_matches(tmp_path: Path) -> 
     )
     results = {
         "reaction": {"id": "query"},
-        "model": {"name": "F3"},
+        "model": {"name": "CIRCE-v2 test model"},
         "candidate_pool": {"candidate_count": 2},
         "rankings": [
             {
@@ -138,3 +138,7 @@ def test_compare_distinguishes_evidence_and_sequence_matches(tmp_path: Path) -> 
     assert rows[1]["match_basis"] == "exact_sequence"
     assert summary["top_k_rows_matching_ranked_candidates"] == 2
     assert summary["eligible_ranked_unique_sequences_recovered"] == 1
+    report = (tmp_path / "comparison/report.md").read_text()
+    assert "CIRCE-v2 test model" in report
+    assert "| Model rank |" in report
+    assert "F3" not in report

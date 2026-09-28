@@ -1,0 +1,46 @@
+# Paths resolve relative to horizyn/. No parameters are selected on CYP labels.
+benchmark: data/external/cyp_specificity_2026/benchmark
+archive: data/external/cyp_specificity_2026/release/fusionesp_data_dir.tar.gz
+mmseqs: .deps/mmseqs/bin/mmseqs
+
+features:
+  # Exact-weight copy of the pinned official snapshot; see conversion.json.
+  prott5: data/external/cyp_specificity_2026/models/prott5_safetensors
+  reaction_t5: ../hf_cache/hub/models--sagawa--ReactionT5v2-forward/snapshots/933114058cb2604dc1bf536dbebdfcefbe83d4fc
+  unimol_weights: ../unimol_weights
+  sleec_checkpoint: checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+  cofactor_dictionary: data/processed/capability_features/train_exact_rhea_reconstructed/cofactor_dictionary.csv
+
+models:
+  f3:
+    config: runs/reactzyme_reaction_features_v1/configs/F3_set_chemistry/reaction_smi/train.yaml
+    checkpoint: runs/reactzyme_reaction_features_v1/checkpoints/reaction_smi/F3_set_chemistry/protein-pooling-epoch=29.ckpt
+    chemistry_schema: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/schema.json
+    sources: [reactzyme]
+  residual:
+    config: configs/reactzyme_reaction_smi_biological_residual.yaml
+    checkpoint: runs/biological_residual_reaction_smi/checkpoints/reactzyme_finetune/last.ckpt
+    selection: runs/biological_residual_paper_analysis_v1/reaction_smi/validation.json
+    chemistry_schema: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/schema.json
+    sources: [reactzyme, residual_source]
+  circe_v2:
+    config: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/configs/train.yaml
+    checkpoint: runs/horizyn1_circe_v2_reaction_holdout_tyrosine_validation_fixed/checkpoints/protein-pooling-epoch=00-v1.ckpt
+    chemistry_schema: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/features/chemistry/schema.json
+    sources: [horizyn_reconstructed]
+
+# Explicit retrieval-supervision sources only. Frozen SLEEC/backbone exposure is
+# untraced, and must remain UNKNOWN rather than be declared leakage-free.
+sources:
+  reactzyme:
+    pairs: data/revised_protocols/reactzyme_paper/reaction_smi/train_pairs.csv
+    reactions: data/revised_protocols/reactzyme_paper/reaction_smi/train_rxns.csv
+    proteins: data/revised_protocols/reactzyme_paper/reaction_smi/train_pairs.csv
+  residual_source:
+    pairs: runs/biological_residual_reaction_smi/data/source_pretrain/train_pairs.csv
+    reactions: runs/biological_residual_reaction_smi/data/source_pretrain/train_rxns.csv
+    proteins: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/fit_proteins_with_clipzyme_eval.fasta
+  horizyn_reconstructed:
+    pairs: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/data/train_pairs.csv
+    reactions: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/data/train_rxns.csv
+    proteins: data/reconstructed/horizyn1_2023_05/clustered/proteins.fasta

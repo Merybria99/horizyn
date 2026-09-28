@@ -1,145 +1,77 @@
-# Horizyn: Contrastive Learning for Enzyme-Reaction Matching
+# V4, F3, and CIRCEv2
 
-```ascii
-    __  __           _                  
-   / / / /___  _____(_)___  __  ______  
-  / /_/ / __ \/ ___/ /_  / / / / / __ \ 
- / __  / /_/ / /  / / / /_/ /_/ / / / / 
-/_/ /_/\____/_/  /_/ /___/\__, /_/ /_/  
-                         /____/                               
+Three maintained enzyme–reaction retrieval pipelines share feature readers, training infrastructure, and evaluation metrics. **V4 is the default**, using the frozen dictionary-free recipe from the recent case studies.
+
+| Pipeline | Enzyme representation | Training/scoring |
+|---|---|---|
+| V4 | ProtT5 global, SLEEC site, four learned residue views | Anchor-balanced alignment; full-graph residual refinement; cosine score |
+| F3 | Historical SLEEC-guided/factorized encoder | Original F3 loss and base dual-encoder score |
+| CIRCEv2 | Historical ProtT5/SLEEC encoder | Annotation-derived negatives and original sampled multi-positive loss |
+
+## Layout
+
+```text
+horizyn/pipelines/        maintained API and CLI; V4 is the default
+horizyn/models/           common layers, enzyme, reaction, and dual encoder
+horizyn/model.py          historical import path for checkpoint compatibility
+horizyn/enzyme_multiview.py   V4 residue views and fusion
+configs/pipelines/        explicit profiles for the three supported pipelines
+scripts/                  feature extraction, preparation, compatibility launchers
+tests/                    shared-core and supported-pipeline regression tests
+docs/                     maintained implementation and reproduction guides
+archive/20260928/         historical experiments, configs, tests, documentation
+data/, runs/, checkpoints/   scientific artifacts at their existing paths
 ```
 
-Official implementation of the [Horizyn  model](https://www.pnas.org/doi/10.1073/pnas.2520070123) for matching reactions and enzymes. Register [here](https://horizyn.dayhofflabs.com/) to query Horizyn interactively or via the API.
+`horizyn/models/compat.py` contains inactive historical classes required by shared constructors. These are not selectable pipelines. Supported entry points reject unrelated encoder modes, directional adapters, and prototype scoring.
 
-## Overview
+## Run
 
-Horizyn is a dual-encoder contrastive learning model that learns to match enzymatic reactions with their catalyzing proteins. The model uses:
-
-- **Reaction Encoder**: Concatenated RDKit+ (structural) and DRFP fingerprints → MLP
-- **Protein Encoder**: Pre-computed T5 embeddings → MLP
-- **Loss**: Maximum Likelihood Noise Contrastive Estimation (MLNCE)
-- **Embeddings**: 512-dimensional normalized outputs for both encoders
-
-## Quick Start
-
-### Installation
-
-Install dependencies with UV (recommended):
+Run from this directory using the workspace environment:
 
 ```bash
-uv sync
+../env/bin/python -m horizyn.pipelines list
+../env/bin/python -m horizyn.pipelines train \
+  --config configs/pipelines/v4/reactzyme_reaction_smi.yaml
 ```
 
-Or with pip:
+Use `--model-preflight-only` to construct the model without training. F3 and CIRCEv2 require explicit family selection:
 
 ```bash
-pip install -e .
+../env/bin/python -m horizyn.pipelines train --pipeline f3 \
+  --config configs/pipelines/f3/published_retrieval.yaml
+../env/bin/python -m horizyn.pipelines train --pipeline circev2 \
+  --config configs/pipelines/circev2/reactzyme_reaction_smi.yaml
 ```
 
-### Download Dataset
+The F3 profile retains its original published-retrieval data, not a matched-data ReactZyme comparison. V4 profiles cover ReactZyme ReactionSim, EnzymeSim, Time, and EnzymeMap. Required local feature caches and pretrained scorer weights are explicit in the YAML.
 
-Download the SOTA dataset (~1GB):
+V4 phase 2 is separate from encoder training:
 
 ```bash
-python scripts/download_data.py
+../env/bin/python -m horizyn.pipelines export-refinement \
+  --config configs/pipelines/v4/reactzyme_reaction_smi.yaml \
+  --checkpoint PATH_TO_PHASE1.ckpt --output runs/v4/train_features --device cuda:0
+../env/bin/python -m horizyn.pipelines refine \
+  --features runs/v4/train_features --output runs/v4/refinement \
+  --config configs/pipelines/v4/phase2.yaml --device cuda:0
 ```
 
-### Train the Model
+The CLI also provides `encode` and `evaluate`. Use `--help` for each command. [PIPELINES.md](docs/PIPELINES.md) explains architecture, feature contracts, scoring coefficients, manifests, and dataset-specific evaluation. Editable installation exposes the same CLI as `circe`; module invocation needs no reinstall.
 
-Train the SOTA model (requires ~16GB RAM, single GPU with 16GB+ VRAM):
+## Verify
 
 ```bash
-python train.py --config configs/sota.yaml
+../env/bin/python -m pytest tests -q -o addopts=''
+../env/bin/python tools/organize_source.py --check
 ```
 
-### Evaluate the Model
+[Cleanup and compatibility evidence](docs/CLEANUP_20260928.md) records the source migration and checkpoint checks. Archived launchers are research records, not supported entry points.
 
-Evaluate a trained model checkpoint on the test set:
+[Output artifact cleanup](docs/ARTIFACT_CLEANUP_20260928.md) documents the removed scratch files and regenerable caches, retained scientific assets, and deletion audit trail.
 
-```bash
-python scripts/evaluate.py --checkpoint checkpoints/epoch=99-step=XXXXX.ckpt
-```
+[Baseline sources and evidence](docs/BASELINES.md) distinguishes retained comparators from retired integrations. [Research documents](documents/README.md) indexes the archived campaigns and drafts.
 
-The evaluation script computes retrieval metrics (Top-K hit rates, MRR) on the held-out test set. Checkpoints are saved during training to the `checkpoints/` directory.
+## Attribution
 
-## Hardware Requirements
-
-- **RAM**: 8GB minimum (4GB for data loaded entirely in memory)
-- **GPU**: Single NVIDIA GPU with 16GB+ VRAM (e.g., T4, A10G, V100)
-- **Disk**: 20GB free space for dataset and checkpoints
-- **Platform**: Linux x86_64 with CUDA 12.1
-
-The experimental EnzGFM enzyme-backbone adapter is documented in
-[`docs/enzgfm_prott5_sleec_hybrid.md`](docs/enzgfm_prott5_sleec_hybrid.md).
-
-## Project Structure
-
-```
-horizyn/
-├── horizyn/                    # Main package
-│   ├── model.py               # DualContrastiveModel, MLP
-│   ├── lightning_module.py    # Training loop logic
-│   ├── data_module.py         # Data loading orchestration
-│   ├── config.py              # Configuration management
-│   ├── losses.py              # MLNCE loss function
-│   ├── metrics.py             # Retrieval metrics
-│   ├── datasets/              # Dataset classes
-│   │   ├── base.py           # Base dataset abstractions
-│   │   ├── collection.py     # Dataset composition utilities
-│   │   ├── csv.py            # CSV dataset loader
-│   │   ├── hdf5.py           # HDF5 embedding loader
-│   │   ├── transform.py      # Data transformations
-│   │   └── fingerprints/     # Chemical fingerprint generation
-│   │       ├── base.py       # Fingerprint base class
-│   │       ├── rdkit_plus.py # RDKit structural fingerprints
-│   │       └── drfp.py       # Differential reaction fingerprints
-│   ├── chemistry/             # Chemistry utilities
-│   │   └── standardizer.py   # SMILES standardization
-│   └── utils/                 # Utility functions
-│       ├── cache.py          # In-memory caching
-│       └── collate.py        # Batch collation
-├── configs/                   # Training configurations
-│   ├── sota.yaml             # SOTA configuration
-│   └── nano.yaml             # Small test configuration
-├── scripts/                   # Helper scripts
-│   └── download_data.py      # Dataset download
-├── train.py                   # Main training entry point
-└── tests/                     # Test suite
-```
-
-## Model Architecture
-
-The Horizyn model uses a dual-encoder architecture:
-
-- **Query Encoder** (Reactions): 2048-dim fingerprints → 4096-dim hidden → 512-dim embedding
-- **Target Encoder** (Proteins): 1024-dim T5 embeddings → 4096-dim hidden → 512-dim embedding
-- **Loss Function**: MLNCE with temperature parameter (β=10.0)
-
-## Citation
-
-If you use this code in your research, please cite:
-
-```bibtex
-@article{horizyn2025,
-  title = {Dual-encoder contrastive learning accelerates enzyme discovery},
-  author = {Rocks, Jason W. and Truong, Dat P. and Rappoport, Dmitrij and Maddrell-Mander, Sam and Martin-Alarcon, Daniel A. and Lee, Toni and Crossan, Steve and Goldford, Joshua E.},
-  journal = {bioRxiv}
-  year = {2025},
-  doi = {10.1101/2025.08.21.671639},
-}
-```
-
-## License
-
-This code is licensed under **PolyForm Noncommercial License 1.0.0**.
-
-- ✅ **Noncommercial use**: Free to use and modify for noncommercial purposes
-- ✅ **Research and education**: Permitted for academic, research, and educational purposes
-- ❌ **Commercial use**: Prohibited without separate commercial licensing
-- 📧 **Commercial inquiries**: [info@dayhofflabs.com](mailto:info@dayhofflabs.com)
-
-See [LICENSE](LICENSE) for full terms or visit [https://polyformproject.org/licenses/noncommercial/1.0.0](https://polyformproject.org/licenses/noncommercial/1.0.0)
-
-## Contributing
-
-This repository is maintained by Dayhoff Labs. For questions or issues, please open a GitHub issue.
+This workspace extends Horizyn, originally developed by Dayhoff Labs. The original PolyForm Noncommercial license, copyright notices, and third-party licenses remain applicable; see [LICENSE](LICENSE).

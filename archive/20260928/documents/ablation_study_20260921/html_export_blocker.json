@@ -1,0 +1,7 @@
+{
+  "status": "blocked",
+  "attempted_surface": "portable HTML",
+  "reason": "Canonical packaged validator requires SQL query/file provenance for every chart/table; reviewed sources are local JSON/YAML and Python audit code. Python source provenance is rejected. No fabricated SQL source supplied.",
+  "fallback": "Complete report.md and executed audit.ipynb",
+  "browser_qa": "Not run: no report.html produced."
+}

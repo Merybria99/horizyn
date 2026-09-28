@@ -1,0 +1,23 @@
+# Fixed snapshot selected by validation MRR (0.3750069), never by CYP scores.
+benchmark: data/external/cyp_specificity_2026/benchmark
+archive: data/external/cyp_specificity_2026/release/fusionesp_data_dir.tar.gz
+mmseqs: .deps/mmseqs/bin/mmseqs
+features:
+  prott5: data/external/cyp_specificity_2026/models/prott5_safetensors
+  reaction_t5: ../hf_cache/hub/models--sagawa--ReactionT5v2-forward/snapshots/933114058cb2604dc1bf536dbebdfcefbe83d4fc
+  unimol_weights: ../unimol_weights
+  sleec_checkpoint: checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+  cofactor_dictionary: data/processed/capability_features/train_exact_rhea_reconstructed/cofactor_dictionary.csv
+  protein_cache: runs/cyp_specificity_v1/features/proteins.h5
+  preserve_reaction_charges: true
+models:
+  f3:
+    config: runs/cyp_enzymecage_f3_epoch03/snapshot/train.yaml
+    checkpoint: runs/cyp_enzymecage_f3_epoch03/snapshot/epoch03.ckpt
+    chemistry_schema: runs/cyp_enzymecage_f3_epoch03/snapshot/schema.json
+    sources: [enzymecage]
+sources:
+  enzymecage:
+    pairs: runs/enzymecage_f3_seed42/data/train_pairs.csv
+    reactions: runs/enzymecage_f3_seed42/data/normalized/train_rxns.csv
+    proteins: runs/enzymecage_f3_seed42/data/proteins.fasta

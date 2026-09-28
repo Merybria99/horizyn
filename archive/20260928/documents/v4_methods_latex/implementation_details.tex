@@ -1,0 +1,354 @@
+\section{Notation and exact layer specifications}
+\label{app:v4-layers}
+\begin{longtable}{p{0.21\textwidth}p{0.72\textwidth}}
+\toprule
+Symbol & Meaning\\
+\midrule
+\endhead
+$Y$, $\vD$ & Binary target-training association matrix and its unique positive edges.\\
+$b_e,b_r$ & Native 512-dimensional phase-1 protein and reaction outputs.\\
+$g_e,f_e$ & Separately normalized global and fused protein branches.\\
+$p_{ki},a_{ki}$ & Raw and uniform-smoothed residue attention for learned slot $k$.\\
+$\omega_{vj}$ & Gate weight for protein view $v$ and hidden coordinate $j$.\\
+$s$ & Learned bounded protein fusion scale; initial value 0.1.\\
+$\nu$ & Protein fusion multiplier used after training; value 3.\\
+$h_E,h_R$ & Independent residual heads fitted with frozen F3 inputs.\\
+$\kappa,c$ & Residual coefficient in training (0.2) and inference multiplier (0.5).\\
+$u_e^{\mathrm{tr}},u_r^{\mathrm{tr}}$ & Refined endpoints used in the phase-2 training objectives.\\
+$u_e,u_r$ & Refined endpoints after the two inference adjustments.\\
+$\lambda_f,\xi_c,w_{ic}$ & Family coefficient, category weight, and membership confidence; these have different roles.\\
+$a_e,a_r$ & Normalized training-reaction dictionary coordinates.\\
+$\Phi_E,\Phi_R$ & Complete $512+N_R$ endpoint representations.\\
+$\alpha$ & Dictionary contribution to the final dot product; value 0.4.\\
+\bottomrule
+\end{longtable}
+
+\begin{longtable}{>{\raggedright\arraybackslash}p{0.30\textwidth}>{\raggedright\arraybackslash}p{0.63\textwidth}}
+\caption{Active neural components in the reported configuration.
+Dimensions are listed in execution order.}\label{tab:v4-layers}\\
+\toprule
+Component & Specification\\
+\midrule
+\endfirsthead
+\toprule Component & Specification\\\midrule
+\endhead
+Frozen residue features & ProtT5; 1024 coordinates per retained residue.\\
+Frozen SLEEC scorer & Linear $1024\to256$; ReLU; linear $256\to1$.\\
+Residue adapter & LayerNorm(1024); linear $1024\to256$; GELU.\\
+Keys and values & Keys: bias-free linear $256\to256$ followed by normalization. Values: affine linear $256\to256$.\\
+Learned residue queries & Four trainable 256-dimensional vectors; orthogonal initialization; normalized before scoring.\\
+Global/SLEEC view projection & Two independent networks: LayerNorm(1024); linear $1024\to512$; GELU; dropout 0.1; linear $512\to256$; normalization.\\
+Learned-slot view projection & Four independent networks: LayerNorm(256); linear $256\to512$; GELU; dropout 0.1; linear $512\to256$; normalization.\\
+Protein gate & Linear $1536\to256$; GELU; linear $256\to1536$; reshape to $6\times256$; softmax over views.\\
+Global output branch & LayerNorm(1024); linear $1024\to512$; GELU; dropout 0.1; linear $512\to512$; normalization.\\
+Fused output branch & LayerNorm(256); linear $256\to512$; GELU; dropout 0.1; linear $512\to512$; normalization.\\
+Uni-Mol2 molecule pooling & Separate scalar affine attention for reactants and products, acting on 768-dimensional molecule vectors.\\
+ChIRo molecule pooling & Separate scalar affine attention for reactants and products, acting on 256-dimensional molecule vectors.\\
+Reaction modality MLPs & Input widths $768,3072,1024,617$ for T5, Uni-Mol2 composition, ChIRo composition, and chemistry. Each follows $d_m\to1024\to512\to512$; ReLU after its first two layers.\\
+Reaction token normalization & One LayerNorm(512), shared over modality tokens. No per-token $\ell_2$ normalization in this configuration.\\
+Reaction modality attention & Linear $512\to512$; ReLU; linear $512\to1$; masked softmax over available modalities.\\
+Reaction output projection & Linear $512\to1024$; ReLU; linear $1024\to512$; normalization.\\
+Phase-2 heads & Two independent copies of LayerNorm(512); linear $512\to1024$; GELU; linear $1024\to512$. Last affine layer initialized to zero.\\
+Biological neighborhood loss & A nonparametric training helper. Zero additional learned parameters and no inference-time readout.\\
+\bottomrule
+\end{longtable}
+
+The two phase-2 heads contain 2,102,272 parameter values in total. Biological
+supervision changes their gradients but not their parameter names or shapes.
+The four residue queries are shared across proteins; they are not four
+trainable vectors created separately for each sequence.
+
+\section{Attention implementation and sequence preprocessing}
+\label{app:v4-attention}
+Padding is removed from softmax denominators and pooling sums, and its
+contribution is zero. Before the frozen scorer and residue adapter, padded
+values are replaced by zero so that padded NaN sentinels do not enter learned
+linear maps. SLEEC logits are detached. Centering its logits alone would not
+alter softmax, but centering before clipping gives a protein-relative clipping
+rule. The use of logits, rather than sigmoid scores, is material to the
+resulting distribution.
+
+The learned attention scale is initialized by
+$\rho_\gamma=\operatorname{logit}(4/10)$, and the fusion scalar by
+$\rho_s=\operatorname{logit}(0.1/0.5)$. The normalization floor in the
+protein multiview module is $10^{-6}$. Attention entropy uses natural
+logarithms and a probability floor of $10^{-12}$ inside the logarithm.
+Regularization in Eqs.~\eqref{eq:v4-entropy}--\eqref{eq:v4-diversity} is
+evaluated on raw learned attention, not on the SLEEC distribution and not
+on the smoothed distributions used to pool values.
+
+For the F3 protein tower, at most 1022 residue vectors are retained. For a
+longer cached sequence, the deterministic \texttt{ends\_center} policy keeps
+$\lfloor1022/4\rfloor$ vectors at each end and the remaining budget from
+the center, preserving their original order. The dictionary's enzyme means
+are exported separately by averaging the stored residue bank; they should
+not be silently replaced with the neural tower's potentially truncated mean.
+EnzymeMap's specified screening library already restricts sequence length
+to at most 650 amino acids.
+
+The pooling operations scale linearly in sequence length for a fixed number
+of slots. In particular, learned residue attention forms an $L\times4$
+matrix, not an $L\times L$ self-attention matrix. This complexity statement
+concerns the trainable pooling module after frozen features are available;
+it does not describe the cost of computing ProtT5 features.
+
+\section{Fixed chemistry descriptor}
+\label{app:v4-chemistry}
+The 617-dimensional chemistry vector consists of four blocks:
+\begin{equation}
+  617=512+64+4+37.
+\end{equation}
+The first block averages 512-bit radius-2 Morgan fingerprints of valid
+participant molecules. The second block applies sum, mean, maximum, and
+standard-deviation aggregation to 16 molecule descriptors, yielding 64
+coordinates. The descriptors are exact molecular weight, heavy-atom count,
+heteroatom count, formal charge, hydrogen-bond donor count, hydrogen-bond
+acceptor count, topological polar surface area, logP, rotatable-bond count,
+ring count, aromatic-heavy-atom fraction, stereocenter count, wildcard-atom
+count, nitrogen count, oxygen count, and combined phosphorus/sulfur count.
+
+The four set statistics are participant count, unique-participant fraction,
+valid-participant fraction, and wildcard-containing fraction among valid
+participants. The final block is a 37-position capacity for the recognized
+core-cofactor vocabulary fitted on training reactions; unused positions are
+zero. Descriptor means and standard deviations are fitted on valid training
+reactions. A standard deviation below $10^{-6}$ is replaced by one.
+
+Participant canonicalization removes atom-map indices while retaining
+isomeric SMILES information. When both sides of a stored self-reaction have
+the same canonical participant multiset, the participant list is used once.
+Otherwise, the two sides are combined for this descriptor. Thus this chemistry
+block is a participant-set feature, even when the neural molecular branches
+retain physical reaction sides. Existing cofactor-related input coordinates
+are distinct from the optional cofactor \emph{loss} in
+Section~\ref{sec:v4-biology}; the baseline does not exclude all biological
+information.
+
+\section{Efficient evaluation of the biological objective}
+\label{app:v4-efficient-bio}
+For one category, define the weighted sums
+\begin{equation}
+  A_c=\sum_{i\in I_c}w_{ic},\qquad
+  Q_c=\sum_{i\in I_c}w_{ic}^{2},\qquad
+  s_c=\sum_{i\in I_c}w_{ic}\hat z_i,
+\end{equation}
+and the diagonal correction
+$V_c=\sum_{i\in I_c}w_{ic}^{2}\|\hat z_i\|_2^2$.
+The ordered off-diagonal confidence mass is $T_c=A_c^2-Q_c$. Expanding the
+dot product of the weighted sum gives
+\begin{equation}
+  \sum_{\substack{i,j\in I_c\\i\ne j}}
+      w_{ic}w_{jc}(1-\hat z_i^\top\hat z_j)
+       =T_c-\|s_c\|_2^2+V_c.
+  \label{eq:v4-category-sum}
+\end{equation}
+Retaining $V_c$ makes the expression exact even when numerical normalization
+does not return exactly unit norm. For the background, define
+\begin{equation}
+  A_c^{\mathrm{out}}=\sum_{j\in B_c}\bar w_j^f,\qquad
+  s_c^{\mathrm{out}}=\sum_{j\in B_c}\bar w_j^f\hat z_j.
+\end{equation}
+Then $U_c=A_c A_c^{\mathrm{out}}$ and
+\begin{equation}
+  \sum_{i\in I_c}\sum_{j\in B_c}
+      w_{ic}\bar w_j^f(1-\hat z_i^\top\hat z_j)
+       =U_c-s_c^\top s_c^{\mathrm{out}}.
+  \label{eq:v4-background-sum}
+\end{equation}
+Background sums are obtained from the total family-annotated sum after
+subtracting the category members' contributions using their \emph{family}
+maximum confidence. This is important when a member's confidence for category
+$c$ differs from its largest confidence in the family.
+
+The implementation uses indexed reductions to evaluate these identities.
+If $M_f$ is the number of annotated memberships in a family and $C_f$ its
+number of categories, their additional time is proportional to
+$(N_X+M_f+C_f)d$, for representation width $d=512$; it does not require a
+dense $N_X\times N_X$ biological distance matrix. This saving does not remove
+the separate $N_R\times N_E$ matrix used by the full-graph association loss.
+
+\paragraph{Distinction from the earlier attraction-only objective.}
+An earlier ablation used
+\begin{equation}
+  \ell_c^{\mathrm{attraction}}=
+    \frac{T_c-\|s_c\|_2^2+V_c}{n_c(n_c-1)}.
+\end{equation}
+This encourages absolute within-category compactness. The reported
+\texttt{all\_1} recipe instead uses the relative hinge in
+Eq.~\eqref{eq:v4-relative-bio}. These objectives should not be interchanged
+when describing or reproducing the biological experiments.
+
+\section{Why the two association losses differ}
+\label{app:v4-loss-behavior}
+For a single phase-1 positive, write
+$D_{ap}=\exp(z_{ap})+\sum_{n\in N_B(a)}\exp(z_{an})$. Its gradients are
+\begin{align}
+  \frac{\partial\ell_{\mathrm{dec}}(a,p)}{\partial z_{ap}}
+      &=\frac{\exp(z_{ap})}{D_{ap}}-1,\\
+  \frac{\partial\ell_{\mathrm{dec}}(a,p)}{\partial z_{an}}
+      &=\frac{\exp(z_{an})}{D_{ap}},\qquad n\in N_B(a).
+\end{align}
+Other known positives are absent from this positive's denominator and have
+zero derivative in this individual term. They receive their own positive
+terms. Averaging these terms within an anchor ensures that adding more
+recorded positives does not simply multiply its loss weight.
+
+Phase 2 instead fits a categorical distribution with target probability
+$1/d_a$ for each of an anchor's $d_a$ positives. Its per-logit derivative is
+the predicted probability minus the target probability. Its minimum
+cross-entropy for unconstrained logits approaches $\log d_a$, the entropy
+of the uniform-positive target, rather than zero when $d_a>1$.
+Consequently, numerical loss values from the two phases are not directly
+comparable. Both losses use unobserved associations as contrastive
+alternatives; neither resolves all missing-positive annotation.
+
+\section{Annotation provenance and benchmark-specific inputs}
+\label{app:v4-annotations}
+The biological categories are built on the training endpoints of each target.
+For EnzymeMap, EC assignments and atom mapping are read from the native
+EnzymeMap cache only at indices recorded in the official training
+associations. Mechanism labels are derived from the native mapped reactants
+and products. The native quality field must be at least 0.5, and the retained
+confidence is capped at one. Cofactor presence is recognized from the
+training reaction participants and assigned confidence 0.4.
+
+For ReactZyme, native EC annotations are restricted to training protein
+sequences. Training reaction EC annotations use reaction-only Rhea matching
+and exact canonical-chemistry lookup. Coarse bond-change categories use
+the cached mapping of each training reaction, retain mapping confidence at
+least 0.5, and multiply this confidence by the reaction-matching confidence.
+Cofactor categories use the permitted training participant sets. These
+reaction-only annotation resources provide information beyond the raw
+released participant-set input; they are auxiliary training supervision,
+not an inference-time reconstruction of missing reaction direction.
+
+For every training edge, the reaction's observed categories are added to its
+associated protein, retaining the maximum confidence when a membership is
+supported more than once. No held-out reaction--enzyme association is used
+for this propagation. Unknown or absent categories are omitted. In the
+current EnzymeMap annotation vocabulary, the observed coarse mechanism groups
+are phosphate transfer, redox/carbonyl interconversion, stereochemical
+rearrangement, and sulfur/thiol chemistry. These broad labels should not be
+described as a detailed model of catalytic mechanisms.
+
+The target training graph and dictionary sizes are given in
+Table~\ref{tab:v4-targets}. Duplicate association rows are removed when
+building the compact phase-2 graph. Training endpoints can remain eligible
+candidates under a benchmark's candidate-pool definition; the method does
+not silently remove them.
+
+\begin{table}[ht]
+\centering
+\small
+\begin{tabular}{lrrr}
+\toprule
+Target & Training rows & Unique phase-2 edges & Reaction anchors\\
+\midrule
+ReactZyme Reaction-Sim & 147,393 & 147,393 & 6,977\\
+ReactZyme Enzyme-Sim & 152,748 & 152,748 & 7,386\\
+ReactZyme Time & 149,554 & 149,554 & 7,281\\
+EnzymeMap & 34,427 & 34,180 & 12,603\\
+\bottomrule
+\end{tabular}
+\caption{Target-specific training inputs for the implemented recipe. Each row
+has independently fitted retrieval weights, phase-2 heads, and a dictionary.}
+\label{tab:v4-targets}
+\end{table}
+
+\section{Optimization recipe and executable order}
+\label{app:v4-recipe}
+\begin{longtable}{p{0.50\textwidth}p{0.42\textwidth}}
+\toprule
+Setting & Value\\
+\midrule
+\endhead
+Phase-1 seed; association batch size & 42; 512\\
+Retained phase-1 snapshot & End of epoch 10\\
+Phase-1 optimizer & AdamW, $\mathrm{lr}=10^{-4}$, weight decay $10^{-2}$\\
+Phase-1 inverse temperature & Fixed $\beta=5$\\
+Phase-1 directional weights & $1/2$ for each direction\\
+Unknown-negative weight & 1\\
+Entropy and diversity coefficients & 0.01 and 0.01\\
+Protein attention uniform mixture & $\eta=0.05$\\
+Gate uniform mixture & $\zeta=0.05$\\
+Phase-2 optimizer & AdamW, $\mathrm{lr}=10^{-4}$, weight decay $10^{-3}$\\
+Phase-2 updates; seed & 100 full-graph updates; 42\\
+Phase-2 temperature; identity coefficient & $\tau_2=0.2$; 10\\
+Phase-2 residual training coefficient & $\kappa=0.2$\\
+Phase-2 gradient clipping & Global gradient norm 1\\
+Biological mode; margin & Relative; $m=0.1$\\
+Biological family coefficients, \texttt{all\_1} & $(\lambda_{\mathrm{EC}},\lambda_{\mathrm{cof}},\lambda_{\mathrm{mech}})=(1,1,1)$\\
+Biological family divisor & Fixed at 3, including removal controls\\
+Phase-1 biological supervision, \texttt{all\_1} & None\\
+Inference protein fusion multiplier & $\nu=3$\\
+Inference residual multiplier & $c=0.5$\\
+Dictionary score coefficient & $\alpha=0.4$\\
+Protein dictionary neighbors & 32\\
+Dictionary kernel temperatures & $\tau_E=\tau_R=0.03$\\
+Reaction dictionary truncation & None; all training reaction anchors\\
+\bottomrule
+\end{longtable}
+
+\paragraph{Training and inference procedure.}
+\begin{enumerate}[leftmargin=*,itemsep=5pt]
+  \item Construct the target training association graph and the frozen feature
+  caches. Initialize the trainable retrieval components for that target and
+  load the frozen pretrained feature resources and SLEEC scorer.
+  \item Train the phase-1 encoders with Eq.~\eqref{eq:v4-phase1-total}. For
+  each batch, deduplicate endpoint IDs and recover all known in-batch training
+  positives. Retain the epoch-10 state.
+  \item Freeze F3. Export native training embeddings using its learned scale
+  $s$, without the factor-three inference adjustment. Build the dictionary
+  centers, training protein bank, training reaction bank, and association map.
+  \item Initialize the residual heads at identity. For each of 100 updates,
+  encode every training endpoint, evaluate the full bidirectional
+  cross-entropy and identity loss, and optionally add the biological relative
+  loss. Clip gradients and update only the residual heads.
+  \item At inference, obtain the protein's global and fused branches and use
+  $\nu s$ in Eq.~\eqref{eq:v4-inference-fusion}. Apply the trained heads with
+  residual coefficient $c\kappa=0.1$.
+  \item Independently compute the enzyme and reaction dictionary coordinates
+  from frozen raw features and the stored training dictionary. Concatenate
+  the weighted blocks, or retain equivalent dense and sparse blocks.
+  \item Rank candidates by Eq.~\eqref{eq:v4-final-score} in the requested
+  direction. No candidate labels, candidate-pool normalization, or biological
+  annotation files are needed for encoding new endpoints.
+\end{enumerate}
+
+\paragraph{Checkpoint representation of the fusion adjustment.}
+The EnzymeMap deployment checkpoint already stores the factor-three change
+to the bounded fusion scalar, so its runtime fusion multiplier is one.
+The ReactZyme deployment checkpoints store the native scalar and apply three
+at runtime. These represent the same recipe. Applying three again to the
+calibrated EnzymeMap checkpoint would implement a different model. Phase-2
+training used the native feature exports for every target.
+
+\paragraph{Numerical evaluation.}
+Dictionary feature norms, centers, and nearest-neighbor similarities use
+FP64 reductions where implemented before storing FP32 features. Neighbor
+selection resolves cutoff ties by the lower training-anchor index.
+Equivalent mathematical score decompositions can nevertheless have different
+floating-point rounding when executed in different orders. The frozen
+evaluation routines and candidate ordering should therefore be retained,
+particularly for nearly tied ReactZyme reaction candidates. The dictionary
+is part of the deployed method, not a post-hoc normalization fitted to the
+current screening library.
+
+\section{Scope of the biological extension}
+\label{app:v4-scope}
+The main specification above is the phase-2-only biological configuration.
+Experiments that retrain F3 with biological supervision are a different
+variant: they add the family-averaged loss to the phase-1 objective, using
+deduplicated minibatch endpoints rather than the full graph. In that case
+the gradient can reach the learned residue queries and reaction encoder.
+Category eligibility and background coverage then depend on each minibatch,
+so this is not equivalent to adding the same nominal coefficient only in
+phase 2.
+
+The architecture and loss definition describe how biological relationships
+are introduced, not whether they improve generalization. That empirical
+question requires matched controls, including removal and shuffled-label
+experiments. Equal family coefficients do not imply equal gradient influence
+or equal predictive benefit. The 512 neural coordinates have no fixed
+biochemical names; only the dictionary coordinates have an explicit
+training-reaction interpretation.

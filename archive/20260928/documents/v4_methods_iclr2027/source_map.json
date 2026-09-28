@@ -1,0 +1,901 @@
+{
+  "scope": "V4 without added biological-label supervision as the sole proposed method; V4+Bio retained as an ablation.",
+  "recipe_manifest": "runs/generalization_20260919_2251/cross_paper_retraining/shared_recipe_alpha04_cap05_v1/case1_freeze.json",
+  "recipe_manifest_sha256": "c08f28de43f7d3fe3ede02cee151f99e354e5ec80fefa552ed2417fe3e0c4b1a",
+  "recipe": {
+    "seed": 42,
+    "beta": 5.0,
+    "batch_size": 512,
+    "epochs": 10,
+    "learning_rate": 0.0001,
+    "weight_decay": 0.01,
+    "phase2": {
+      "steps": 100,
+      "temperature": 0.2,
+      "identity_weight": 10,
+      "learning_rate": 0.0001,
+      "objective": "positive_ce",
+      "seed": 42
+    },
+    "residual_cap": 0.5,
+    "semantic_alpha": 0.4,
+    "inference_fusion_multiplier": 3.0
+  },
+  "sources": [
+    {
+      "path": "horizyn/enzyme_multiview.py",
+      "sha256": "08fb5cf50a336e6f1b7215c9ad25c9f63bebae3a6bad8e3316e8934783971ac8",
+      "symbols": {
+        "EnzymeMultiviewEncoder": [
+          19
+        ],
+        "_attention_safeguards": [
+          107
+        ]
+      }
+    },
+    {
+      "path": "horizyn/model.py",
+      "sha256": "deff558a6b496cb1140d325d779c06c24869ca0578e0c4de6b8317b5fac4885c",
+      "symbols": {
+        "FunctionalResidueScorer": [
+          1527
+        ],
+        "MoleculeSetAttentionPooling": [
+          2146
+        ],
+        "MultimodalReactionAttentionEncoder": [
+          2378
+        ],
+        "_compose_side_pair": [
+          2928
+        ],
+        "_encode_multiview_targets": [
+          5414
+        ]
+      }
+    },
+    {
+      "path": "horizyn/losses.py",
+      "sha256": "8027738fe8d2f9c4ab386757fe233e67a4f1a6b56d5522bc26218214c05a7075",
+      "symbols": {
+        "DecoupledAllPositiveInfoNCELoss": [
+          513
+        ],
+        "_decoupled_anchor_loss": [
+          593
+        ]
+      }
+    },
+    {
+      "path": "horizyn/protein_pooling_lightning_module.py",
+      "sha256": "0c2193085bd28fd37c2dadf5aca235b3318afa9079f5e18434c6fde2960661f0",
+      "symbols": {
+        "_compute_full_batch_loss": [
+          3865
+        ],
+        "configure_optimizers": [
+          4458
+        ]
+      }
+    },
+    {
+      "path": "horizyn/generalization_residual.py",
+      "sha256": "d8988b6d97b883d3be13d3c2866b0f62150268d6316f48ed61eea6d61b9cd595",
+      "symbols": {
+        "FrozenGeometryResidual": [
+          13
+        ],
+        "full_graph_contrastive_loss": [
+          37
+        ]
+      }
+    },
+    {
+      "path": "horizyn/biological_geometry.py",
+      "sha256": "18409ba0b7bcf21c99b3f544950fdc20b32d0cdcbfb4f9a8bda917e714a75a59",
+      "symbols": {
+        "category_relative_distance": [
+          39
+        ],
+        "BiologicalGeometryLoss": [
+          83
+        ]
+      }
+    },
+    {
+      "path": "horizyn/semantic_anchors.py",
+      "sha256": "e82e9b049558146ab765c06bb788e97cb11cf5da827b84235e4f31db5599dac1",
+      "symbols": {
+        "fit_center": [
+          34
+        ],
+        "centered_unit": [
+          44
+        ],
+        "enzyme_anchor_features": [
+          85
+        ]
+      }
+    },
+    {
+      "path": "horizyn/semantic_smooth.py",
+      "sha256": "9ad0c9e4e28ae5b292c75c793d59fa5a28b8c12c0df91a302bfc64233e003c78",
+      "symbols": {
+        "reaction_responses": [
+          20
+        ],
+        "SmoothAnchorDualEncoder": [
+          56
+        ]
+      }
+    },
+    {
+      "path": "horizyn/capability/reaction_set_features.py",
+      "sha256": "fb231dc612caa67f45bbda97c49ea2850d4fc42ed5c53e385a4c98c54960aad1",
+      "symbols": {
+        "molecule_descriptors": [
+          71
+        ],
+        "_fit_schema": [
+          184
+        ],
+        "_materialize": [
+          222
+        ]
+      }
+    },
+    {
+      "path": "horizyn/datasets/residue_hdf5.py",
+      "sha256": "4e445e87111f1acf517488d146fb8f82ac7fd48120ea219ced453230670445b0",
+      "symbols": {
+        "truncate_residue_embeddings": [
+          244
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_full_graph.py",
+      "sha256": "6691410d1f54e4019a043f54f784bc6065450d740749acf5ab210718010c6330",
+      "symbols": {
+        "run": [
+          70
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_biological_geometry_prepare.py",
+      "sha256": "5044c1e2dc2391d2e6d2e021d1de8cb8344babcd8feede4fd461524746731f6f",
+      "symbols": {
+        "compact": [
+          53
+        ],
+        "main": [
+          69
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_biological_geometry_evaluate.py",
+      "sha256": "79119533f180123ad080286dd501cfddd46af99797df841b68629850367a5075",
+      "symbols": {
+        "refined": [
+          134
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_export.py",
+      "sha256": "39321423fe2b665f585c454c25b02e0651fc896331fddb9f76cfb247a7441358",
+      "symbols": {
+        "reaction_block": [
+          96
+        ],
+        "export_means": [
+          276
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_clipzyme_phase2_export.py",
+      "sha256": "f215781f93236d82e4bb8cffe490f68bf48f33254452778a5b0f861c70831fc3",
+      "symbols": {}
+    },
+    {
+      "path": "scripts/generalization_clipzyme_phase2_dictionary.py",
+      "sha256": "e729b1db66fe28b6959de90104b236cf82b724903195cf43727274947e4c83df",
+      "symbols": {
+        "main": [
+          29
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_multiview_calibration.py",
+      "sha256": "036ce0615ccd01d4773d6754b5c3f06958946cbd251431faef72af5b6b609d17",
+      "symbols": {
+        "adjusted": [
+          48
+        ]
+      }
+    },
+    {
+      "path": "scripts/generalization_reactzyme_architecture_phase2.py",
+      "sha256": "a1b93a8795fd7d65085dae0e8f5116bf9ad2b5122871c4e2031d98f742b5d22a",
+      "symbols": {
+        "smooth_encoder": [
+          38
+        ]
+      }
+    }
+  ],
+  "models": [
+    {
+      "name": "reaction_smi",
+      "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_multiview_beta5_v1/reaction_smi/configs/train.yaml",
+      "phase2_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_phase2_epoch10_soft_v1/residue_views/training/step0100.pt",
+      "dictionary_sha256": "093fad0c080a1392175e96c3631ba803009e4db0cafed08616652f3a34efffe8",
+      "fusion_multiplier": 3.0,
+      "checkpoint_already_calibrated": false,
+      "config_sha256": "a380c7c99c85d5471f6cc7b9688032a66e0029412b80eaca13d5fa28f3fd0073",
+      "f3_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_multiview_beta5_v1/reaction_smi/checkpoints/screen_selection/screen-epoch=09.ckpt",
+      "f3_checkpoint_sha256": "562fefdca1049b2c7a78d26937fdf0f25b81ff82f263a1778b8bae5806b5ec5e",
+      "phase2_checkpoint_sha256": "6539bf81f20b73dd44f4abb4882647f701998028dc79bd2574c1dcb639e4367c",
+      "native_feature_manifest_sha256": "e6b7adcaff826b9cc27431656a809e69f36c7b289354b081e57cd126a7b427da",
+      "phase2_registry": {
+        "schema": "generalization_full_graph_v2_single_normalization",
+        "test_used": false,
+        "arguments": {
+          "features": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_phase2_epoch10_soft_v1/residue_views/features",
+          "output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_phase2_epoch10_soft_v1/residue_views/training",
+          "device": "cuda:0",
+          "steps": 100,
+          "validate_every": 10,
+          "hidden": 1024,
+          "scale": 0.2,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.001,
+          "temperature": 0.2,
+          "identity_weight": 10.0,
+          "warm_start": null,
+          "identity_reference": "base",
+          "enzyme_weighting": "uniform",
+          "max_drop": 0.005,
+          "selection_method": "fixed_last",
+          "seed": 42,
+          "cpu_threads": 4,
+          "contrastive_objective": "positive_ce",
+          "ranking_weight": 0.0,
+          "ranking_anchors": 128,
+          "ranking_temperature": 0.05,
+          "snapshot_every": 5
+        },
+        "feature_manifest_sha256": "e6b7adcaff826b9cc27431656a809e69f36c7b289354b081e57cd126a7b427da",
+        "warm_start": null,
+        "script_sha256": "b64a3a980347a2334bf57cea74282f66171f09ad5abd3222b91051edd24cdb3c",
+        "module_sha256": "d8988b6d97b883d3be13d3c2866b0f62150268d6316f48ed61eea6d61b9cd595",
+        "selection": "Fixed final optimization step; validation metrics are diagnostics only",
+        "train_reactions": 6977,
+        "train_enzymes": 147299,
+        "train_edges": 147393,
+        "score_matrix_gib_float32": 3.828499924391508
+      },
+      "phase2_registry_sha256": "fd37efed9fa242fbb341c4a2e2cf6f9367e0b84bed9b89d23fd63ac9882ca64b"
+    },
+    {
+      "name": "enzyme_smi",
+      "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_all_splits_v1/enzyme_smi/configs/train.yaml",
+      "phase2_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_enzyme_smi_beta5_phase2_epoch10_soft_v1/residue_views/training/step0100.pt",
+      "dictionary_sha256": "72fb8a088c3c6295d721ab2fadd7ad30af068a45c6f5a263e37a73d623df75d1",
+      "fusion_multiplier": 3.0,
+      "checkpoint_already_calibrated": false,
+      "config_sha256": "6fea22ae0c0a815a59449504e0f49dd63072752a3a17952befc3fe74858c3cef",
+      "f3_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_all_splits_v1/enzyme_smi/checkpoints/screen_selection/screen-epoch=09.ckpt",
+      "f3_checkpoint_sha256": "1a9947bd97bfb2a87323cd9e109835060a7bd4a1af6e44b31b37fb24eca1420d",
+      "phase2_checkpoint_sha256": "b67ab167324c8fa4faa23ce4f3807581df2299d9118a67c92b8520d14043a15a",
+      "native_feature_manifest_sha256": "0c64aa45a36fb20a3748593505f7348914673dbe530a6d88960aef7a1c0125fd",
+      "phase2_registry": {
+        "schema": "generalization_full_graph_v2_single_normalization",
+        "test_used": false,
+        "arguments": {
+          "features": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_enzyme_smi_beta5_phase2_epoch10_soft_v1/residue_views/features",
+          "output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_enzyme_smi_beta5_phase2_epoch10_soft_v1/residue_views/training",
+          "device": "cuda:0",
+          "steps": 100,
+          "validate_every": 10,
+          "hidden": 1024,
+          "scale": 0.2,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.001,
+          "temperature": 0.2,
+          "identity_weight": 10.0,
+          "warm_start": null,
+          "identity_reference": "base",
+          "enzyme_weighting": "uniform",
+          "max_drop": 0.005,
+          "selection_method": "fixed_last",
+          "seed": 42,
+          "cpu_threads": 4,
+          "contrastive_objective": "positive_ce",
+          "ranking_weight": 0.0,
+          "ranking_anchors": 128,
+          "ranking_temperature": 0.05,
+          "snapshot_every": 5
+        },
+        "feature_manifest_sha256": "0c64aa45a36fb20a3748593505f7348914673dbe530a6d88960aef7a1c0125fd",
+        "warm_start": null,
+        "script_sha256": "b64a3a980347a2334bf57cea74282f66171f09ad5abd3222b91051edd24cdb3c",
+        "module_sha256": "d8988b6d97b883d3be13d3c2866b0f62150268d6316f48ed61eea6d61b9cd595",
+        "selection": "Fixed final optimization step; validation metrics are diagnostics only",
+        "train_reactions": 7386,
+        "train_enzymes": 152643,
+        "train_edges": 152748,
+        "score_matrix_gib_float32": 4.199971251189709
+      },
+      "phase2_registry_sha256": "8f3211224feedddd0516ee22ece7158a307a5fc293fcd6065fe3367ea6611792"
+    },
+    {
+      "name": "time",
+      "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_all_splits_v1/time/configs/train.yaml",
+      "phase2_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_time_beta5_phase2_epoch10_soft_v1/residue_views/training/step0100.pt",
+      "dictionary_sha256": "6a503b9d7cae716be3810517b2470a41853e98f4a97017dc9023219aef63719f",
+      "fusion_multiplier": 3.0,
+      "checkpoint_already_calibrated": false,
+      "config_sha256": "12d0ea39a99352c272d8446f9825a259d4aa77e3ed1da79e90251133b264ab04",
+      "f3_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_all_splits_v1/time/checkpoints/screen_selection/screen-epoch=09.ckpt",
+      "f3_checkpoint_sha256": "da221e629435df0abaab59e832a54c96da7ca76b2f68e0bf12cf1f5f012eee6d",
+      "phase2_checkpoint_sha256": "a8d5bc496b2496a47989d0acd30921e2854fec6aa30965624c16dfe93e963ffa",
+      "native_feature_manifest_sha256": "0ec8d8d9252e448ed8595b604b72ebbe776ba7f0779183014351e02fa642eb68",
+      "phase2_registry": {
+        "schema": "generalization_full_graph_v2_single_normalization",
+        "test_used": false,
+        "arguments": {
+          "features": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_time_beta5_phase2_epoch10_soft_v1/residue_views/features",
+          "output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_time_beta5_phase2_epoch10_soft_v1/residue_views/training",
+          "device": "cuda:0",
+          "steps": 100,
+          "validate_every": 10,
+          "hidden": 1024,
+          "scale": 0.2,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.001,
+          "temperature": 0.2,
+          "identity_weight": 10.0,
+          "warm_start": null,
+          "identity_reference": "base",
+          "enzyme_weighting": "uniform",
+          "max_drop": 0.005,
+          "selection_method": "fixed_last",
+          "seed": 42,
+          "cpu_threads": 4,
+          "contrastive_objective": "positive_ce",
+          "ranking_weight": 0.0,
+          "ranking_anchors": 128,
+          "ranking_temperature": 0.05,
+          "snapshot_every": 5
+        },
+        "feature_manifest_sha256": "0ec8d8d9252e448ed8595b604b72ebbe776ba7f0779183014351e02fa642eb68",
+        "warm_start": null,
+        "script_sha256": "b64a3a980347a2334bf57cea74282f66171f09ad5abd3222b91051edd24cdb3c",
+        "module_sha256": "d8988b6d97b883d3be13d3c2866b0f62150268d6316f48ed61eea6d61b9cd595",
+        "selection": "Fixed final optimization step; validation metrics are diagnostics only",
+        "train_reactions": 7281,
+        "train_enzymes": 149478,
+        "train_edges": 149554,
+        "score_matrix_gib_float32": 4.054417155683041
+      },
+      "phase2_registry_sha256": "d506ae5a2bb2867b03fbe6ade5634d3a9a43d74ab92fed6409e626c513d7461d"
+    },
+    {
+      "name": "enzymemap",
+      "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/shared_recipe_beta5_b512_e10_fusion3_v2/enzymemap_seed42/calibrated/configs/train.yaml",
+      "phase2_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/shared_recipe_beta5_b512_e10_fusion3_v2/enzymemap_seed42/phase2/training/step0100.pt",
+      "dictionary_sha256": "9eee9749ee6025d42f6e34844c421a033cb7bac1a49086026b4f1ae537ec2d31",
+      "fusion_multiplier": 1.0,
+      "checkpoint_already_calibrated": true,
+      "config_sha256": "a54db1d37cae9d73bd36e096a2e94feb3917bbd81c40f373de9b604f878f7619",
+      "f3_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/shared_recipe_beta5_b512_e10_fusion3_v2/enzymemap_seed42/calibrated/checkpoints/screen_selection/screen-epoch=09.ckpt",
+      "f3_checkpoint_sha256": "3dd84abb31908122c8036c4a490643376cf7e8d03e85ff35c936a3fdffc60c5c",
+      "phase2_checkpoint_sha256": "143ccc50edf0fd69f9bbea70b64e8a4c812b7e79fac13f38c90d4e78c0cc3fae",
+      "native_feature_manifest_sha256": "2114ff66946ae598c86d80afa9f01eaaa8d6fc14b205b8a4490ab3190ff224b4",
+      "phase2_registry": {
+        "schema": "generalization_full_graph_v2_single_normalization",
+        "test_used": false,
+        "arguments": {
+          "features": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/shared_recipe_beta5_b512_e10_fusion3_v2/enzymemap_seed42/phase2/features",
+          "output": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/shared_recipe_beta5_b512_e10_fusion3_v2/enzymemap_seed42/phase2/training",
+          "device": "cuda:0",
+          "steps": 100,
+          "validate_every": 10,
+          "hidden": 1024,
+          "scale": 0.2,
+          "learning_rate": 0.0001,
+          "weight_decay": 0.001,
+          "temperature": 0.2,
+          "identity_weight": 10.0,
+          "warm_start": null,
+          "identity_reference": "base",
+          "enzyme_weighting": "uniform",
+          "max_drop": 0.005,
+          "selection_method": "external_screening",
+          "seed": 42,
+          "cpu_threads": 4,
+          "contrastive_objective": "positive_ce",
+          "ranking_weight": 0.0,
+          "ranking_anchors": 128,
+          "ranking_temperature": 0.05,
+          "snapshot_every": 100
+        },
+        "feature_manifest_sha256": "2114ff66946ae598c86d80afa9f01eaaa8d6fc14b205b8a4490ab3190ff224b4",
+        "warm_start": null,
+        "script_sha256": "b64a3a980347a2334bf57cea74282f66171f09ad5abd3222b91051edd24cdb3c",
+        "module_sha256": "d8988b6d97b883d3be13d3c2866b0f62150268d6316f48ed61eea6d61b9cd595",
+        "selection": "External full-library BEDROC85 selection; no MRR computed",
+        "train_reactions": 12603,
+        "train_enzymes": 9666,
+        "train_edges": 34180,
+        "score_matrix_gib_float32": 0.45381709188222885
+      },
+      "phase2_registry_sha256": "31950d1bad4b517dcd89b89ad6aaf1a3058bcdd67018fbb2188bd3888c809e2d"
+    }
+  ],
+  "comments": [
+    "Current source hashes identify the code read for this draft, not a claim that the full current dirty tree is the original training source.",
+    "Primary config, backbone checkpoint, and residual-head checkpoint files were rehashed for this revision. Checkpoint bytes match the existing no-biology manifest; any config-path mismatch is explicitly recorded. Historical biological checkpoint provenance is in biological_ablation_source_map.json."
+  ],
+  "presentation_revision": {
+    "format": "Unmodified ICLR 2027 single-column template",
+    "main_method": "methods.tex",
+    "main_method_pages": 3,
+    "appendix": "appendix.tex",
+    "prior_detailed_method": "../v4_methods_latex/methods.tex",
+    "prior_detailed_method_sha256": "2197b58579acd87ed65d22fad3a82a4eb2b598f800d4198beddbc88ab0da2e54",
+    "all_prior_displayed_equations_preserved_in_appendix": false,
+    "main_equations": "Encoder equations, anchor-balanced alignment, uniform-positive full-graph CE, CE + 10 identity refinement objective, and complete retrieval score.",
+    "changes_model_or_results": "Switches the proposed method and primary rows to previously evaluated no-biology V4; no recorded metric or checkpoint is modified.",
+    "author_style": {
+      "reference": "User-provided problem-formulation passage",
+      "structure": [
+        "Problem formulation",
+        "Enzyme encoder",
+        "Reaction encoder",
+        "Anchor-balanced multi-positive alignment",
+        "Full-graph refinement",
+        "Bidirectional scoring"
+      ],
+      "method_macro": "\\method{}",
+      "final_embedding_notation": "Bold z_r,z_e denote complete neural-plus-dictionary retrieval vectors in both main text and appendix; scalar phase-specific logits are s^(1), s^(2).",
+      "main_pages": 3,
+      "main_content_page_equivalents": 2.2727698102409457
+    },
+    "main_method_content_page_equivalents": 2.2727698102409457,
+    "expanded_fragments": [
+      "enzyme_representation.tex",
+      "training_and_scoring.tex"
+    ],
+    "learned_view_rationale": "Task-adapted pooling, shared queries, variable K and K+2-view fusion; retained K4 default motivated by completed matched single-seed ablation and module capacity.",
+    "prior_equations_recovered_at_default_K4": true
+  },
+  "chemistry_descriptor_explanation": {
+    "updated_utc": "2026-09-22T16:19:52.024525+00:00",
+    "implementation": "horizyn/capability/reaction_set_features.py",
+    "dimensions": [
+      512,
+      64,
+      4,
+      37
+    ],
+    "standardized_coordinates": "64 aggregated molecular properties only",
+    "fixed_preprocessing": "Morgan fingerprints, RDKit property calculations, training-only property moments and cofactor vocabulary",
+    "trainable": "chemistry MLP and modality fusion",
+    "direction": "participant summary irrespective of side",
+    "molecular_property_table": {
+      "updated_utc": "2026-09-22T18:05:33.835770+00:00",
+      "label": "tab:v4-molecular-properties",
+      "source_function": "molecule_descriptors",
+      "source_sha256": "fb231dc612caa67f45bbda97c49ea2850d4fc42ed5c53e385a4c98c54960aad1",
+      "properties_in_order": [
+        {
+          "index": 1,
+          "source_name": "mol_weight",
+          "paper_name": "Exact molecular weight",
+          "source_expression": "rdMolDescriptors.CalcExactMolWt(molecule)"
+        },
+        {
+          "index": 2,
+          "source_name": "heavy_atoms",
+          "paper_name": "Heavy-atom count",
+          "source_expression": "len(heavy_atoms)"
+        },
+        {
+          "index": 3,
+          "source_name": "hetero_atoms",
+          "paper_name": "Heteroatom count",
+          "source_expression": "sum((atom.GetAtomicNum() not in {0, 1, 6} for atom in atoms))"
+        },
+        {
+          "index": 4,
+          "source_name": "formal_charge",
+          "paper_name": "Formal charge",
+          "source_expression": "Chem.GetFormalCharge(molecule)"
+        },
+        {
+          "index": 5,
+          "source_name": "hbond_donors",
+          "paper_name": "Hydrogen-bond donors",
+          "source_expression": "Lipinski.NumHDonors(molecule)"
+        },
+        {
+          "index": 6,
+          "source_name": "hbond_acceptors",
+          "paper_name": "Hydrogen-bond acceptors",
+          "source_expression": "Lipinski.NumHAcceptors(molecule)"
+        },
+        {
+          "index": 7,
+          "source_name": "tpsa",
+          "paper_name": "Topological polar surface area",
+          "source_expression": "rdMolDescriptors.CalcTPSA(molecule)"
+        },
+        {
+          "index": 8,
+          "source_name": "logp",
+          "paper_name": "$\\log P$",
+          "source_expression": "Crippen.MolLogP(molecule)"
+        },
+        {
+          "index": 9,
+          "source_name": "rotatable_bonds",
+          "paper_name": "Rotatable-bond count",
+          "source_expression": "Lipinski.NumRotatableBonds(molecule)"
+        },
+        {
+          "index": 10,
+          "source_name": "rings",
+          "paper_name": "Ring count",
+          "source_expression": "Lipinski.RingCount(molecule)"
+        },
+        {
+          "index": 11,
+          "source_name": "aromatic_fraction",
+          "paper_name": "Aromatic-heavy-atom fraction",
+          "source_expression": "aromatic_count / max(len(heavy_atoms), 1)"
+        },
+        {
+          "index": 12,
+          "source_name": "stereocenters",
+          "paper_name": "Atom stereocenter count",
+          "source_expression": "len(Chem.FindMolChiralCenters(molecule, includeUnassigned=True))"
+        },
+        {
+          "index": 13,
+          "source_name": "wildcard_atoms",
+          "paper_name": "Wildcard-atom count",
+          "source_expression": "counts.get('*', 0)"
+        },
+        {
+          "index": 14,
+          "source_name": "nitrogen_atoms",
+          "paper_name": "Nitrogen count",
+          "source_expression": "counts.get('N', 0)"
+        },
+        {
+          "index": 15,
+          "source_name": "oxygen_atoms",
+          "paper_name": "Oxygen count",
+          "source_expression": "counts.get('O', 0)"
+        },
+        {
+          "index": 16,
+          "source_name": "phosphorus_sulfur_atoms",
+          "paper_name": "Phosphorus/sulfur count",
+          "source_expression": "counts.get('P', 0) + counts.get('S', 0)"
+        }
+      ],
+      "aggregations_in_order": [
+        "sum",
+        "mean",
+        "max",
+        "std"
+      ],
+      "aggregate_dimension": 64,
+      "stereocenters_include_unassigned": true,
+      "aromatic_fraction_denominator": "max(number of atoms with atomic number > 1, 1)",
+      "heteroatom_excluded_atomic_numbers": [
+        0,
+        1,
+        6
+      ]
+    }
+  },
+  "reaction_pooling_explanation": {
+    "updated_utc": "2026-09-22T16:50:48.587277+00:00",
+    "implementation": "horizyn/model.py",
+    "molecule_pooling": "Independent side attention poolers for Uni-Mol2 and ChIRo; concatenation preserves both means and their signed/absolute contrasts.",
+    "four_sources": [
+      "Uni-Mol2 side composition",
+      "ChIRo side composition",
+      "ReactionT5v2 reaction embedding",
+      "fixed chemistry descriptor"
+    ],
+    "fusion": "Independent projections produce four 512-dimensional tokens; attention over available modalities, output MLP, and l2 normalization yield b_r.",
+    "input_semantics": "EnzymeMap retains physical sides. ReactZyme copies its participant set to both independently parameterized poolers; contrasts do not encode observed physical direction."
+  },
+  "k_parameter_revision": {
+    "updated_utc": "2026-09-22T17:49:56.085400+00:00",
+    "default_K": 4,
+    "tested_K": [
+      1,
+      2,
+      4,
+      8
+    ],
+    "seed": 42,
+    "fits": 16,
+    "reported_metric_cells": 56,
+    "added_fragment": "residue_view_ablation.tex",
+    "evidence": "k_ablation_evidence.json",
+    "evidence_sha256": "8a0bb44540cce247b8cca9552d7530c00fe232986adcf75e41d2a5b09cddceec",
+    "validation": "k_ablation_validation.json",
+    "validation_sha256": "3f842b0c849ba530eb23158536cd7b6adc3b08c7299230862291a2c002f6ff7e",
+    "changed_equations": [
+      "eq:paper-protein",
+      "eq:v4-slots",
+      "eq:v4-view-gate"
+    ],
+    "equations_recover_previous_at_K4": true,
+    "basis": "Original default retained as a practical compromise across metrics; single-seed, not parameter-matched, no K0 or Bio arm.",
+    "primary_benchmark_checkpoints_and_numbers_changed": false
+  },
+  "query_key_value_revision": {
+    "updated_utc": "2026-09-22T18:21:19.614900+00:00",
+    "implementation": "horizyn/enzyme_multiview.py",
+    "implementation_sha256": "08fb5cf50a336e6f1b7215c9ad25c9f63bebae3a6bad8e3316e8934783971ac8",
+    "main_fragment": "enzyme_representation.tex",
+    "appendix_fragment": "appendix_specification.tex",
+    "queries": "K trainable 256-dimensional model parameters shared across enzymes; normalized for scoring and trained in phase 1.",
+    "keys": "Bias-free projection of adapted residue embeddings followed by l2 normalization; query-key similarity determines attention.",
+    "values": "Separate affine projection of adapted residue embeddings; weighted values form enzyme-specific summaries.",
+    "displayed_equations_unchanged": true,
+    "ablation_and_property_table_unchanged": true
+  },
+  "attention_pooling_clarification": {
+    "updated_utc": "2026-09-22T18:44:22.147744+00:00",
+    "implementation": "horizyn/enzyme_multiview.py",
+    "implementation_sha256": "08fb5cf50a336e6f1b7215c9ad25c9f63bebae3a6bad8e3316e8934783971ac8",
+    "p_ki": "Softmax of scaled query-key cosine similarities over valid residues.",
+    "gamma": "10*sigmoid(rho_gamma), a bounded learned concentration scale.",
+    "eta": 0.05,
+    "pooling": "Convex mixture of 95% attention-weighted and 5% uniform means of residue value vectors; weights sum to one and have eta/L floor.",
+    "precomputation": "Once the encoder is frozen, view and fused representations are enzyme-specific and independent of candidate reactions.",
+    "equations_unchanged": true,
+    "main_prose_condensed_to_preserve_page_limit": true
+  },
+  "notation_revision": {
+    "updated_utc": "2026-09-22T19:18:02.945915+00:00",
+    "scope": "Main method, detailed specification, notation table, chemistry construction, biological derivation, and architecture score",
+    "raw_view_indices": {
+      "global": 0,
+      "sleec": 1,
+      "learned_query_k": "k+1; k=1,...,K"
+    },
+    "dimensions": {
+      "residue_h": 1024,
+      "global_and_sleec_raw_x": 1024,
+      "query_key_value": 256,
+      "learned_raw_x": 256,
+      "all_projected_y": 256,
+      "base_and_refined_vectors": 512,
+      "dictionary_vectors": "N_R",
+      "final_z": "512+N_R"
+    },
+    "corrections": [
+      "Unified SLEEC logits as ell_i and clipped logits as tilde ell_i",
+      "Unified raw x, projected y, and explicit enzyme-dependent gate coordinates",
+      "Normalized queries use the same numerical helper as keys",
+      "Named shared residue/key/value projection matrices explicitly",
+      "Unified scalar logits s^(1),s^(2), valid anchors A_X, and temperatures tau_1,tau_2",
+      "Defined endpoint type sets and opposite-type mapping in full-graph loss",
+      "Reserved z for final retrieval; biological vectors use hat u from u^tr",
+      "Specified Y^tr for training adjacency only",
+      "Separated modality sets M_r and participant multisets P_r",
+      "Separated molecular property d(m) from dictionary centering psi",
+      "Defined biological category sets and the common confidence prefactor"
+    ],
+    "display_equations_equivalent_after_defined_symbol_substitution": 48,
+    "normalization_definition_checked_against": "horizyn/enzyme_multiview.py:174-175",
+    "model_training_results_changed": false,
+    "notation_superseded_by": "author_fusion_notation_revision"
+  },
+  "sleec_view_definition_revision": {
+    "updated_utc": "2026-09-22T19:33:46.650101+00:00",
+    "meaning": "x_e^(1) is the 1024-dimensional whole-enzyme weighted mean of frozen residue embeddings; e identifies the enzyme and (1) indexes the SLEEC view",
+    "index_mapping": "0 global; 1 SLEEC; 2 through K+1 learned",
+    "display_equations_unchanged": 48,
+    "model_or_results_changed": false,
+    "notation_superseded_by": "author_fusion_notation_revision"
+  },
+  "view_fusion_revision": {
+    "updated_utc": "2026-09-22T20:01:23.889081+00:00",
+    "structure": [
+      "Project global, SLEEC, and learned views to normalized 256-dimensional vectors",
+      "Predict nonnegative weights normalized over views for each feature coordinate and form a weighted average",
+      "Independently map global and fused summaries to normalized 512-dimensional outputs, then add the learned scaled fused contribution and normalize"
+    ],
+    "clarifications": [
+      "Gate input is the concatenation of all projected views",
+      "Weights depend on both enzyme and feature coordinate",
+      "Global and fused branches are defined before the final embedding",
+      "Shared scalar s controls the whole fused branch; omega weights control individual views within it"
+    ],
+    "main_equation_change": "eq:paper-protein now displays coordinate-wise fusion only; final embedding moved to immediately following prose. Scalar parameterization and uniform gate mixture remain explicit in the appendix.",
+    "implementation": "horizyn/enzyme_multiview.py:181-196",
+    "display_environments_unchanged": 47,
+    "model_or_results_changed": false
+  },
+  "gated_fusion_definition_revision": {
+    "updated_utc": "2026-09-22T20:37:38.097741+00:00",
+    "term": "feature-wise gated fusion",
+    "definition": "An input-dependent weighted average across views with weights normalized separately for each feature coordinate. The gate MLP reads all concatenated projected views.",
+    "weights": "omega = 0.95 * softmax_over_views(G) + 0.05 / (K+2)",
+    "appendix_equation": "eq:v4-view-gate",
+    "display_equations_unchanged": 48,
+    "model_or_results_changed": false
+  },
+  "author_fusion_notation_revision": {
+    "updated_utc": "2026-09-22T21:08:35.666540+00:00",
+    "author_opening": "We combine the extracted enzyme features ... by projecting",
+    "raw_features": {
+      "P": "Global mean of retained ProtT5 residues, 1024 dimensions",
+      "S": "SLEEC-weighted residue mean, 1024 dimensions",
+      "k": "Learned query k residue summary, 256 dimensions; k=1,...,K"
+    },
+    "view_labels": "I = {P,S,1,...,K}",
+    "gate_row_order": [
+      "P",
+      "S",
+      "1,...,K"
+    ],
+    "projected_features": "y_e^v = n(F_v(x_e^v)), 256 dimensions",
+    "notation_mapping": {
+      "old global (0)": "P",
+      "old SLEEC (1)": "S",
+      "old learned (k+1)": "k"
+    },
+    "display_equations_equivalent_after_relabeling": 48,
+    "changed_display_environments": [
+      {
+        "file": "enzyme_representation.tex",
+        "display_environment": 1
+      },
+      {
+        "file": "enzyme_representation.tex",
+        "display_environment": 2
+      },
+      {
+        "file": "enzyme_representation.tex",
+        "display_environment": 3
+      },
+      {
+        "file": "appendix_specification.tex",
+        "display_environment": 1
+      },
+      {
+        "file": "appendix_specification.tex",
+        "display_environment": 2
+      },
+      {
+        "file": "appendix_specification.tex",
+        "display_environment": 4
+      },
+      {
+        "file": "appendix_specification.tex",
+        "display_environment": 6
+      },
+      {
+        "file": "appendix_specification.tex",
+        "display_environment": 7
+      }
+    ],
+    "model_or_results_changed": false
+  },
+  "primary_method_revision": {
+    "date": "2026-09-22",
+    "method": "V4",
+    "recipe": "shared_recipe_alpha04_cap05_v1",
+    "phase1": "decoupled anchor-balanced multi-positive alignment plus attention regularizers",
+    "phase2": "full-graph uniform-positive CE + 10 identity penalty",
+    "added_biological_supervision": false,
+    "biological_family_coefficients": [
+      0,
+      0,
+      0
+    ],
+    "biological_runs_retained_as_ablation": true,
+    "primary_result_rows_updated": true,
+    "training_or_evaluation_rerun": false,
+    "checkpoint_bytes_changed": false,
+    "uniform_best_claim": false,
+    "reason": "User excludes added biological supervision because completed controls do not establish a consistent performance benefit."
+  },
+  "alignment_prose_revision": {
+    "motivation": "many-to-many associations",
+    "positive_comparison": "each known positive contrasted against the same negative set, excluding other known positives",
+    "normalization": "positive mean within anchor, anchor mean within direction, equal mean over directions",
+    "alignment_equation_unchanged": true
+  },
+  "primary_checkpoint_hash_checks": [
+    {
+      "name": "reaction_smi",
+      "kind": "config",
+      "sha256": "a380c7c99c85d5471f6cc7b9688032a66e0029412b80eaca13d5fa28f3fd0073",
+      "matches_manifest": true
+    },
+    {
+      "name": "reaction_smi",
+      "kind": "f3_checkpoint",
+      "sha256": "562fefdca1049b2c7a78d26937fdf0f25b81ff82f263a1778b8bae5806b5ec5e",
+      "matches_manifest": true
+    },
+    {
+      "name": "reaction_smi",
+      "kind": "phase2_checkpoint",
+      "sha256": "6539bf81f20b73dd44f4abb4882647f701998028dc79bd2574c1dcb639e4367c",
+      "matches_manifest": true
+    },
+    {
+      "name": "enzyme_smi",
+      "kind": "config",
+      "sha256": "6fea22ae0c0a815a59449504e0f49dd63072752a3a17952befc3fe74858c3cef",
+      "matches_manifest": true
+    },
+    {
+      "name": "enzyme_smi",
+      "kind": "f3_checkpoint",
+      "sha256": "1a9947bd97bfb2a87323cd9e109835060a7bd4a1af6e44b31b37fb24eca1420d",
+      "matches_manifest": true
+    },
+    {
+      "name": "enzyme_smi",
+      "kind": "phase2_checkpoint",
+      "sha256": "b67ab167324c8fa4faa23ce4f3807581df2299d9118a67c92b8520d14043a15a",
+      "matches_manifest": true
+    },
+    {
+      "name": "time",
+      "kind": "config",
+      "sha256": "12d0ea39a99352c272d8446f9825a259d4aa77e3ed1da79e90251133b264ab04",
+      "matches_manifest": true
+    },
+    {
+      "name": "time",
+      "kind": "f3_checkpoint",
+      "sha256": "da221e629435df0abaab59e832a54c96da7ca76b2f68e0bf12cf1f5f012eee6d",
+      "matches_manifest": true
+    },
+    {
+      "name": "time",
+      "kind": "phase2_checkpoint",
+      "sha256": "a8d5bc496b2496a47989d0acd30921e2854fec6aa30965624c16dfe93e963ffa",
+      "matches_manifest": true
+    },
+    {
+      "name": "enzymemap",
+      "kind": "config",
+      "sha256": "a54db1d37cae9d73bd36e096a2e94feb3917bbd81c40f373de9b604f878f7619",
+      "matches_manifest": true
+    },
+    {
+      "name": "enzymemap",
+      "kind": "f3_checkpoint",
+      "sha256": "3dd84abb31908122c8036c4a490643376cf7e8d03e85ff35c936a3fdffc60c5c",
+      "matches_manifest": true
+    },
+    {
+      "name": "enzymemap",
+      "kind": "phase2_checkpoint",
+      "sha256": "143ccc50edf0fd69f9bbea70b64e8a4c812b7e79fac13f38c90d4e78c0cc3fae",
+      "matches_manifest": true
+    }
+  ]
+}

@@ -1,0 +1,60 @@
+{
+  "checked_utc": "2026-09-22T17:48:52.240494+00:00",
+  "assessment": "Share with caveats: numerical claims and presentation are supported; interpretation is limited to one seed and changing parameter count.",
+  "evidence_snapshot_sha256": "8a0bb44540cce247b8cca9552d7530c00fe232986adcf75e41d2a5b09cddceec",
+  "source_summary_hashes_verified": 16,
+  "current_implementation_source_hashes_verified": 18,
+  "table_metric_cells_independently_parsed_and_verified": 56,
+  "table_bold_maxima_verified": true,
+  "bedroc_percentage_scaling_verified": true,
+  "narrative_comparisons_and_point_differences_verified": true,
+  "parameter_formula_verified_from_layer_dimensions": true,
+  "changed_equation_labels": [
+    "eq:paper-protein",
+    "eq:v4-slots",
+    "eq:v4-view-gate"
+  ],
+  "generalized_equations_identical_to_previous_after_K4_substitution": true,
+  "displayed_equation_comparison": {
+    "methods.tex": {
+      "total": 3,
+      "unchanged": 3
+    },
+    "enzyme_representation.tex": {
+      "total": 3,
+      "unchanged": 2
+    },
+    "biological_supervision.tex": {
+      "total": 2,
+      "unchanged": 2
+    },
+    "appendix_specification.tex": {
+      "total": 32,
+      "unchanged": 30
+    },
+    "appendix_implementation.tex": {
+      "total": 8,
+      "unchanged": 8
+    }
+  },
+  "new_training_or_metric_evaluation": false,
+  "caveats": [
+    "Single seed 42; no statistical significance or robustness claim.",
+    "K changes parameter counts; not a parameter-matched study.",
+    "No K=0 arm; not an ablation of presence versus absence of learned views.",
+    "Original V4 only; not repeated under biological supervision.",
+    "Fresh K4 control is separate from primary historical checkpoints."
+  ],
+  "visual_reviewed_pages": [
+    1,
+    2,
+    3,
+    5,
+    6,
+    7,
+    12,
+    18,
+    19
+  ],
+  "handoff_blockers": []
+}

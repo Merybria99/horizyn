@@ -1,0 +1,25 @@
+% Generated from bundled frozen evidence; stages uses stage_comparison.json.
+\begingroup\setlength{\tabcolsep}{2.8pt}
+\begin{tabular}{@{}lrrrrrr@{}}
+\toprule
+Method & \multicolumn{2}{c}{Reaction-Sim} & \multicolumn{2}{c}{Enzyme-Sim} & \multicolumn{2}{c}{Time} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+ & R$\to$E & E$\to$R & R$\to$E & E$\to$R & R$\to$E & E$\to$R \\
+\midrule
+FGW-CLIP (EC Mode)$^\dagger$ & 0.3181 & 0.3722 & 0.5253 & 0.8683 & 0.3394 & 0.5222 \\
+FGW-CLIP (EC Max)$^\dagger$ & 0.3113 & 0.3804 & 0.5300 & 0.8581 & 0.3392 & 0.5229 \\
+TIGER (ESM2Text)$^\dagger$ & 0.3190 & 0.5180 & 0.5920 & 0.9560 & 0.3660 & 0.6900 \\
+TIGER (ProtT3)$^\dagger$ & 0.3370 & 0.4720 & 0.5790 & 0.9400 & 0.3720 & 0.6830 \\
+\midrule
+MLP & 0.1057 & 0.2187 & 0.2155 & 0.7080 & 0.1046 & 0.2849 \\
+Contrastive MLP & 0.0406 & 0.2398 & 0.1198 & 0.6667 & 0.0405 & 0.2550 \\
+Transformer & 0.1220 & 0.2314 & 0.2163 & 0.7260 & 0.1419 & 0.3943 \\
+Bi-RNN & 0.1510 & 0.2835 & 0.2736 & 0.7970 & 0.1274 & 0.3752 \\
+Corrected contrastive & 0.0638 & 0.2431 & 0.1047 & 0.6316 & 0.0410 & 0.2412 \\
+EnzGFM control & 0.1354 & 0.2965 & 0.2864 & 0.7989 & 0.1525 & 0.3867 \\
+Horizyn (adapted) & \textbf{0.4318} & \textbf{0.5348} & \textbf{0.6997} & \textbf{0.9770} & \textbf{0.5982} & \textbf{0.8406} \\
+\midrule
+\methodname & 0.4004 & 0.5344 & 0.6662 & 0.9714 & 0.5383 & 0.7807 \\
+\bottomrule
+\end{tabular}
+\endgroup

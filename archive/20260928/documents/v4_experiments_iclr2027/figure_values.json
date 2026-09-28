@@ -1,0 +1,756 @@
+{
+  "contrasts": [
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c1",
+      "reference": "a025_c1",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 0.0014550983905792236
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a050_c1",
+      "reference": "a040_c1",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.006797701120376587
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c05",
+      "reference": "a040_c1",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.001069396734237671
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c1",
+      "reference": "a025_c1",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.013945400714874268
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a050_c1",
+      "reference": "a040_c1",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.0001990199089050293
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c05",
+      "reference": "a040_c1",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.003383338451385498
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c1",
+      "reference": "a025_c1",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.0010209083557128906
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a050_c1",
+      "reference": "a040_c1",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.0038620829582214355
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c05",
+      "reference": "a040_c1",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.0004069209098815918
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c1",
+      "reference": "a025_c1",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.0009888410568237305
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a050_c1",
+      "reference": "a040_c1",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.002304553985595703
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c05",
+      "reference": "a040_c1",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.007873117923736572
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c1",
+      "reference": "a025_c1",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.002545654773712158
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a050_c1",
+      "reference": "a040_c1",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.006971538066864014
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c05",
+      "reference": "a040_c1",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -5.3942203521728516e-05
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c1",
+      "reference": "a025_c1",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.0012316703796386719
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a050_c1",
+      "reference": "a040_c1",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.008057117462158203
+    },
+    {
+      "figure": "inference",
+      "study": "inference",
+      "variant": "a040_c05",
+      "reference": "a040_c1",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.002100706100463867
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "all_1",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 3.102421760559082e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "shuffled_1",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 0.0001468956470489502
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_ec",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.001254439353942871
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_cofactor",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 3.007054328918457e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_mechanism",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 6.288290023803711e-06
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "all_1",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.00041168928146362305
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "shuffled_1",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.0012367963790893555
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_ec",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.0007098913192749023
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_cofactor",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.0004042387008666992
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_mechanism",
+      "reference": "control",
+      "setting": "reaction_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.00026422739028930664
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "all_1",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -1.4841556549072266e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "shuffled_1",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -0.0002636909484863281
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_ec",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -8.404254913330078e-06
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_cofactor",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -1.4841556549072266e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_mechanism",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 4.5359134674072266e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "all_1",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.003982603549957275
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "shuffled_1",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.00046515464782714844
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_ec",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.0015496015548706055
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_cofactor",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.0004483461380004883
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_mechanism",
+      "reference": "control",
+      "setting": "enzyme_smi",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": -0.003925681114196777
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "all_1",
+      "reference": "control",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 3.2007694244384766e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "shuffled_1",
+      "reference": "control",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 0.0005906224250793457
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_ec",
+      "reference": "control",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 3.93986701965332e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_cofactor",
+      "reference": "control",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": 3.331899642944336e-05
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_mechanism",
+      "reference": "control",
+      "setting": "time",
+      "metric": "reaction_to_enzyme",
+      "seed": 42,
+      "delta": -5.125999450683594e-06
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "all_1",
+      "reference": "control",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.019945204257965088
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "shuffled_1",
+      "reference": "control",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.009596288204193115
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_ec",
+      "reference": "control",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.009124517440795898
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_cofactor",
+      "reference": "control",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.03519171476364136
+    },
+    {
+      "figure": "biology",
+      "study": "phase2_biology",
+      "variant": "without_mechanism",
+      "reference": "control",
+      "setting": "time",
+      "metric": "enzyme_to_reaction",
+      "seed": 42,
+      "delta": 0.023368656635284424
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "bedroc85",
+      "seed": 17,
+      "delta": 0.045014460982551796
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "bedroc85",
+      "seed": 42,
+      "delta": 0.027095489898933955
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "bedroc85",
+      "seed": 73,
+      "delta": 0.01073900197948513
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "bedroc85",
+      "seed": 17,
+      "delta": 0.05575429421869171
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "bedroc85",
+      "seed": 42,
+      "delta": 0.03441284670582867
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "bedroc85",
+      "seed": 73,
+      "delta": 0.021211429603749554
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "bedroc20",
+      "seed": 17,
+      "delta": 0.06119235724375205
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "bedroc20",
+      "seed": 42,
+      "delta": 0.039323513520780895
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "bedroc20",
+      "seed": 73,
+      "delta": 0.008645505770565665
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "bedroc20",
+      "seed": 17,
+      "delta": 0.07171645822172457
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "bedroc20",
+      "seed": 42,
+      "delta": 0.044904785882880494
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "bedroc20",
+      "seed": 73,
+      "delta": 0.013016973073903149
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "ef0.05",
+      "seed": 17,
+      "delta": 1.6335640635146156
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "ef0.05",
+      "seed": 42,
+      "delta": 1.098304993753489
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "ef0.05",
+      "seed": 73,
+      "delta": 0.16613822246061005
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "ef0.05",
+      "seed": 17,
+      "delta": 1.8285484632909608
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "ef0.05",
+      "seed": 42,
+      "delta": 1.2129411043622742
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "ef0.05",
+      "seed": 73,
+      "delta": 0.16743149175187
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "ef0.1",
+      "seed": 17,
+      "delta": 0.7119530279957855
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "ef0.1",
+      "seed": 42,
+      "delta": 0.36539656656559494
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table1",
+      "metric": "ef0.1",
+      "seed": 73,
+      "delta": -0.034559450655100576
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "ef0.1",
+      "seed": 17,
+      "delta": 0.8264772568423835
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "ef0.1",
+      "seed": 42,
+      "delta": 0.4130822265145184
+    },
+    {
+      "figure": "temperature",
+      "study": "temperature_18epochs",
+      "variant": "beta5",
+      "reference": "beta10",
+      "setting": "table2",
+      "metric": "ef0.1",
+      "seed": 73,
+      "delta": -0.0705344358278932
+    }
+  ],
+  "case1": [
+    {
+      "variant": "control",
+      "unique": 10,
+      "entries": 10
+    },
+    {
+      "variant": "all",
+      "unique": 11,
+      "entries": 10
+    },
+    {
+      "variant": "shuffled_1",
+      "unique": 10,
+      "entries": 10
+    },
+    {
+      "variant": "without_ec",
+      "unique": 10,
+      "entries": 10
+    },
+    {
+      "variant": "without_cofactor",
+      "unique": 11,
+      "entries": 10
+    },
+    {
+      "variant": "without_mechanism",
+      "unique": 10,
+      "entries": 10
+    }
+  ]
+}

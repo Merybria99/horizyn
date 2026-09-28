@@ -1,0 +1,483 @@
+{
+  "checked_at_utc": "2026-09-22T21:47:26.320865+00:00",
+  "compile": {
+    "engine": "Tectonic 0.17.0",
+    "success": true,
+    "total_pages": 20,
+    "main_method_pages": 3,
+    "appendix_pages": 16,
+    "reference_pages": 1,
+    "undefined_references": false,
+    "undefined_citations": false,
+    "overfull_boxes": false,
+    "warnings": [
+      "Underfull \\hbox (badness 1888) in paragraph at lines 47--51",
+      "Underfull \\vbox (badness 10000) has occurred while \\output is active []"
+    ],
+    "appendix_starts_on_page": 5,
+    "references_start_on_page": 4,
+    "main_method_content_page_equivalents": 2.4436063177791643,
+    "portable_zip_clean_rebuild_success": true,
+    "portable_rebuild_text_identical": true
+  },
+  "template_files_identical_to_supplied_originals": {
+    "iclr2027_conference.sty": true,
+    "iclr2027_conference.bst": true,
+    "natbib.sty": true,
+    "fancyhdr.sty": true
+  },
+  "presentation": {
+    "single_column": true,
+    "template_font_margins_spacing_unmodified": true,
+    "main_only_preview_extracted_from_full_pdf": true,
+    "main_displayed_equations": 8,
+    "no_duplicate_labels": true,
+    "no_label_collision_with_experimental_section": true,
+    "no_text_outside_page": true,
+    "no_unresolved_markers_in_pdf": true,
+    "page_word_counts_including_line_numbers": [
+      640,
+      624,
+      285,
+      235,
+      491,
+      576,
+      703,
+      608,
+      556,
+      661,
+      571,
+      515,
+      582,
+      437,
+      600,
+      579,
+      588,
+      430,
+      633,
+      602
+    ],
+    "main_pages_and_representative_appendix_and_reference_pages_visually_reviewed": false,
+    "author_style_revision": true,
+    "main_page_budget": 2.5,
+    "within_main_page_budget": true,
+    "partial_page_measurement": {
+      "body_top_pt": 82.75175476074219,
+      "last_main_text_bottom_pt": 370.2086486816406,
+      "template_text_height_pt": 648,
+      "last_page_occupied_fraction": 0.44360631777916426
+    },
+    "expanded_enzyme_and_biology_fragments": true,
+    "learned_residue_view_rationale_revision": true,
+    "visually_reviewed_pages_this_revision": [
+      2,
+      3
+    ],
+    "fixed_chemistry_descriptor_explanation_revision": true,
+    "reaction_pooling_explanation_revision": true,
+    "k_parameter_and_ablation_revision": true,
+    "molecular_property_table_revision": true,
+    "query_key_value_prose_revision": true,
+    "attention_pooling_clarification_revision": true,
+    "notation_consistency_revision": true,
+    "sleec_view_definition_revision": true,
+    "view_fusion_clarity_revision": true,
+    "gated_fusion_definition_revision": true,
+    "author_fusion_prose_revision": true,
+    "primary_method": "V4+Bio",
+    "single_proposed_method": true,
+    "alignment_paper_style_revision": true
+  },
+  "source_consistency": {
+    "source_files_rechecked": 18,
+    "all_source_hashes_match_prior_verified_snapshot": true,
+    "detailed_method_displayed_equations_preserved_verbatim": 27,
+    "implementation_displayed_equations_preserved_verbatim": 8,
+    "prior_formula_checks_retained_separately": true,
+    "new_training_or_evaluations": false,
+    "sleec_pooling_directly_checked_against_current_forward": true,
+    "revised_fragments_displayed_equations_unchanged": false,
+    "no_new_training_or_evaluation_for_latex_revision": true,
+    "all_prior_displayed_equations_preserved_verbatim": false,
+    "added_chemistry_equations": 3,
+    "chemistry_descriptor_checked_against_current_implementation": true,
+    "reaction_pooling_and_modality_fusion_checked_against_implementation": true,
+    "displayed_equations_preserved_from_previous_revision": {
+      "main": 5,
+      "appendix_specification": 27,
+      "appendix_implementation": 8
+    },
+    "generalized_equations": [
+      "eq:paper-protein",
+      "eq:v4-slots",
+      "eq:v4-view-gate"
+    ],
+    "all_generalized_equations_identical_at_K4": true,
+    "ablation_summary_hashes_verified": 16,
+    "ablation_table_values_verified": 56,
+    "ablation_parameter_counts_verified": true,
+    "molecular_property_table_rows_verified": 16,
+    "descriptor_order_verified_against_source": true,
+    "molecular_property_definitions_checked_against_source": true,
+    "aggregation_order_and_64_dimensions_verified": true,
+    "all_displayed_equations_unchanged_in_property_table_revision": true,
+    "main_method_pdf_text_unchanged_in_property_table_revision": true,
+    "all_displayed_equations_unchanged_in_query_value_revision": true,
+    "query_key_value_roles_verified_against_implementation": true,
+    "query_value_revision_equation_counts": {
+      "appendix_implementation.tex": 8,
+      "appendix_specification.tex": 32,
+      "biological_supervision.tex": 2,
+      "enzyme_representation.tex": 3,
+      "methods.tex": 3
+    },
+    "all_displayed_equations_unchanged_in_attention_clarification_revision": true,
+    "attention_scale_and_uniform_mixture_explanation_verified": true,
+    "candidate_independent_precomputation_scope_clarified": true,
+    "notation_equation_audit": {
+      "display_environments_compared": 48,
+      "all_equivalent_after_symbol_substitution": true,
+      "scope": "Typography, consistent renaming, declared abbreviations and moving phase-2 logit definition into prose; no numerical/model change",
+      "checks": [
+        {
+          "file": "methods.tex",
+          "display_environment": 1,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "methods.tex",
+          "display_environment": 2,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "methods.tex",
+          "display_environment": 3,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "enzyme_representation.tex",
+          "display_environment": 1,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "enzyme_representation.tex",
+          "display_environment": 2,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "enzyme_representation.tex",
+          "display_environment": 3,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "biological_supervision.tex",
+          "display_environment": 1,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "biological_supervision.tex",
+          "display_environment": 2,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 1,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 2,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 3,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 4,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 5,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 6,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 7,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 8,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 9,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 10,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 11,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 12,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 13,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 14,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 15,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 16,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 17,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 18,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 19,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 20,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 21,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 22,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 23,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 24,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 25,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 26,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 27,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 28,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 29,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 30,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 31,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 32,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 1,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 2,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 3,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 4,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 5,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 6,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 7,
+          "equivalent_after_symbol_substitution": true
+        },
+        {
+          "file": "appendix_implementation.tex",
+          "display_environment": 8,
+          "equivalent_after_symbol_substitution": true
+        }
+      ]
+    },
+    "notation_dimensions_and_index_domains_reviewed": true,
+    "training_code_or_results_changed_in_notation_revision": false,
+    "sleec_view_definition_display_equations_unchanged": 48,
+    "view_fusion_revision": {
+      "display_equations_unchanged": 47,
+      "restructured_equation": "eq:paper-protein",
+      "weighted_average_formula_preserved": true,
+      "final_embedding_moved_to_prose": true,
+      "scale_parameterization_retained_in_appendix": true,
+      "gate_uniform_floor_retained_in_appendix": true,
+      "dimensions_gate_axis_and_branch_paths_checked_against_implementation": true,
+      "new_training_or_evaluation": false
+    },
+    "gated_fusion_definition_equations_unchanged": 48,
+    "author_fusion_notation_audit": {
+      "equivalent_display_environments": 48,
+      "declared_bijection": "old indices 0,1,k+1 map to new labels P,S,k; gate row order preserved",
+      "changed_display_environments": [
+        {
+          "file": "enzyme_representation.tex",
+          "display_environment": 1
+        },
+        {
+          "file": "enzyme_representation.tex",
+          "display_environment": 2
+        },
+        {
+          "file": "enzyme_representation.tex",
+          "display_environment": 3
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 1
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 2
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 4
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 6
+        },
+        {
+          "file": "appendix_specification.tex",
+          "display_environment": 7
+        }
+      ],
+      "all_other_display_environments_unchanged": true,
+      "main_and_appendix_labels_consistent": true,
+      "sources_rechecked": 18
+    },
+    "alignment_refinement_scoring_equations_in_methods_tex_preserved": true,
+    "biology_objective_specialized_to_recorded_unit_family_weights": true,
+    "k_ablation_evidence_unchanged": true,
+    "printed_historical_attraction_objective_removed": true
+  },
+  "artifact_hashes": {
+    "README.md": "fe6bd4e2628e8f7ff0c0a51198edcec26047dd1a82c00e4533a946664b4bc721",
+    "appendix.tex": "ae55fc6a8d2878f12d80da5ad1c61443e6dc31ba1e37e3fc1b8c0f338ab8a54c",
+    "appendix_implementation.tex": "557affce73e3b31a1a62db32b43d3418be4a146eb31acdb8112afa746ca629df",
+    "appendix_specification.tex": "673a721d7e381a1be84b644317a80729c7dd0c85b2ac304004dbd830e3d687f9",
+    "architecture.tex": "d9e57a174d5c6f1d55d8d0116eecf9ee261cb6888c22c6f78f06f2cdf45ad500",
+    "author_notes.md": "978580ba97d19bd5a5ffbc37e1d4c04fa0d36f3b386a3fcb388d0dd3ad1db244",
+    "biological_supervision.tex": "6a2564f18ce24e19e74006c3e6fbcd356cbad51f2c42af60e722ded33cd1461f",
+    "enzyme_representation.tex": "720d87a1ffb3d1f0398e56b0a1cad48a2e87cf40f9325ebc5517c1a114ae132f",
+    "fancyhdr.sty": "b56ec4434b9f4607529a4b23dc68ad8d4b94f1f631c8cddaf7da78140d53a5ea",
+    "iclr2027_conference.bst": "2d67552db7ed38ccfccb5957b52f95656e25c249724761d3cf5f7922ad1844c5",
+    "iclr2027_conference.sty": "797deef41724e93761426ac0cbcca46279a91cc650dd1f0ce76a4f08d2098ea6",
+    "k_ablation_evidence.json": "8a0bb44540cce247b8cca9552d7530c00fe232986adcf75e41d2a5b09cddceec",
+    "k_ablation_validation.json": "3f842b0c849ba530eb23158536cd7b6adc3b08c7299230862291a2c002f6ff7e",
+    "macros.tex": "b0b06e6b5663b4196c40e2909fc402990556928cbcece881e37c3e968c57aad6",
+    "main.pdf": "440feaecaade5bafd126d5e0ee49475af29cd178dafa31b91d107864c3fd9eb1",
+    "main.tex": "59b63db0f2ecd82cc405c9d4198df7cd64ba3353282d738f89afbea8885a16c7",
+    "method_only.pdf": "9a583af801193ce4fad25a04e2c64ae35da158744e3b079e49ae70f718404de4",
+    "methods.tex": "d9024a4dac6080328d519564f57f946362017c7d40d29b4dcb68e30e1e132bb1",
+    "natbib.sty": "88bc70c0e48461934cab5b2accef06b74a8b3ac45ad03ccd3f2a6b7e0d6d530d",
+    "preamble.tex": "db4765dcef32191fd3e19668d76e9c3317fadd09364a8364ea3edfd36b38d7b1",
+    "prior_formula_validation.json": "5c855425d9f93735dbc7539081115dade68d37bd3e00c8d5c6dd362c0ffa9cfb",
+    "references.bib": "233bf1a610b9e7e7b77230fa5e98561a97f15197f677237b9a152710b4fa6eb5",
+    "residue_view_ablation.tex": "6a3ef66188ca347977c91b387988cd6bec74167ff5a7145d81032bdf7e259ea7",
+    "source_map.json": "6e0a50af62129d314e72f6bf1fa7447ccdc4e9bca5167c5c69ae7bf589732a88"
+  },
+  "previous_revision_checked_at_utc": "2026-09-22T20:37:38.097741+00:00",
+  "ablation_validation": {
+    "report": "k_ablation_validation.json",
+    "assessment": "Share with caveats: numerical claims and presentation are supported; interpretation is limited to one seed and changing parameter count.",
+    "scope": [
+      "Single seed 42; no statistical significance or robustness claim.",
+      "K changes parameter counts; not a parameter-matched study.",
+      "No K=0 arm; not an ablation of presence versus absence of learned views.",
+      "Original V4 only; not repeated under biological supervision.",
+      "Fresh K4 control is separate from primary historical checkpoints."
+    ],
+    "no_new_training_or_metric_evaluation": true
+  }
+}

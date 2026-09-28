@@ -2,14 +2,243 @@
 Dataset for loading ragged residue-level protein embeddings from HDF5 files.
 """
 
-from pathlib import Path
+import json
 import os
+import uuid
+import warnings
+from concurrent.futures import ProcessPoolExecutor
+from datetime import datetime, timezone
+from pathlib import Path
 from typing import Any, Callable, Optional
 
 import h5py
+import numpy as np
 import torch
 
 from horizyn.datasets.base import BaseDataset
+
+FINITE_CERTIFICATE_SCHEMA = "horizyn_residue_hdf5_finite_validation_v1"
+
+
+def residue_finite_certificate_path(file_path: str | Path) -> Path:
+    """Return the default sidecar path for a residue HDF5 store."""
+
+    resolved = Path(file_path).expanduser().resolve(strict=True)
+    return resolved.with_name(resolved.name + ".finite.json")
+
+
+def _file_identity(path: Path) -> dict[str, int | str]:
+    resolved = path.expanduser().resolve(strict=True)
+    stat_result = resolved.stat()
+    return {
+        "path": str(resolved),
+        "size": stat_result.st_size,
+        "mtime_ns": stat_result.st_mtime_ns,
+        "device": stat_result.st_dev,
+        "inode": stat_result.st_ino,
+    }
+
+
+def residue_hdf5_store_identity(file_path: str | Path) -> dict[str, Any]:
+    """Describe the HDF5 container and all files backing its vector dataset."""
+
+    resolved = Path(file_path).expanduser().resolve(strict=True)
+    with h5py.File(resolved, "r") as h5_file:
+        missing = [name for name in ("ids", "vectors", "offsets") if name not in h5_file]
+        if missing:
+            raise ValueError(f"Residue HDF5 is missing datasets: {', '.join(missing)}")
+        vectors = h5_file["vectors"]
+        if vectors.ndim != 2:
+            raise ValueError(f"Residue HDF5 vectors must be rank-2, got {vectors.shape}")
+
+        source_paths = {resolved}
+        if vectors.is_virtual:
+            for source in vectors.virtual_sources():
+                source_name = os.fsdecode(source.file_name)
+                if source_name == ".":
+                    source_path = resolved
+                else:
+                    source_path = Path(source_name).expanduser()
+                    if not source_path.is_absolute():
+                        source_path = resolved.parent / source_path
+                source_paths.add(source_path.resolve(strict=True))
+
+        return {
+            "container": _file_identity(resolved),
+            "backing_files": [
+                _file_identity(path) for path in sorted(source_paths, key=lambda item: str(item))
+            ],
+            "ids_shape": list(h5_file["ids"].shape),
+            "ids_dtype": str(h5_file["ids"].dtype),
+            "offsets_shape": list(h5_file["offsets"].shape),
+            "offsets_dtype": str(h5_file["offsets"].dtype),
+            "vectors_shape": list(vectors.shape),
+            "vectors_dtype": str(vectors.dtype),
+            "vectors_is_virtual": bool(vectors.is_virtual),
+        }
+
+
+def _scan_residue_vector_range(
+    file_path: str,
+    start: int,
+    stop: int,
+    rows_per_chunk: int,
+    progress_every_chunks: int,
+    worker_index: int,
+) -> tuple[int, int]:
+    rows_scanned = 0
+    chunks_scanned = 0
+    with h5py.File(file_path, "r") as h5_file:
+        vectors = h5_file["vectors"]
+        vector_dim = int(vectors.shape[1])
+        for chunk_start in range(start, stop, rows_per_chunk):
+            chunk_end = min(chunk_start + rows_per_chunk, stop)
+            block = np.asarray(vectors[chunk_start:chunk_end])
+            finite = np.isfinite(block)
+            if not bool(finite.all()):
+                invalid = np.argwhere(~finite)[0]
+                raise ValueError(
+                    "Residue HDF5 contains a non-finite value at "
+                    f"vectors[{chunk_start + int(invalid[0])}, {int(invalid[1])}]"
+                )
+            rows_scanned += chunk_end - chunk_start
+            chunks_scanned += 1
+            if progress_every_chunks > 0 and (
+                chunks_scanned % progress_every_chunks == 0 or chunk_end == stop
+            ):
+                print(
+                    f"Finite validation worker {worker_index}: "
+                    f"{rows_scanned:,}/{stop - start:,} rows "
+                    f"({rows_scanned / max(stop - start, 1):.1%})",
+                    flush=True,
+                )
+    return rows_scanned, rows_scanned * vector_dim
+
+
+def validate_residue_hdf5_finite(
+    file_path: str | Path,
+    *,
+    certificate_path: str | Path | None = None,
+    rows_per_chunk: int = 8192,
+    progress_every_chunks: int = 100,
+    workers: int = 1,
+) -> Path:
+    """Scan every residue vector and atomically certify that all values are finite."""
+
+    if type(rows_per_chunk) is not int or rows_per_chunk <= 0:
+        raise ValueError("rows_per_chunk must be a positive integer")
+    if type(progress_every_chunks) is not int or progress_every_chunks < 0:
+        raise ValueError("progress_every_chunks must be a non-negative integer")
+    if type(workers) is not int or workers <= 0:
+        raise ValueError("workers must be a positive integer")
+
+    resolved = Path(file_path).expanduser().resolve(strict=True)
+    output_path = (
+        residue_finite_certificate_path(resolved)
+        if certificate_path is None
+        else Path(certificate_path).expanduser().resolve()
+    )
+    store_identity = residue_hdf5_store_identity(resolved)
+    vectors_shape = store_identity["vectors_shape"]
+    total_rows = int(vectors_shape[0])
+    effective_workers = min(workers, max(total_rows, 1))
+    ranges = [
+        (
+            total_rows * worker_index // effective_workers,
+            total_rows * (worker_index + 1) // effective_workers,
+        )
+        for worker_index in range(effective_workers)
+    ]
+    arguments = [
+        (
+            str(resolved),
+            start,
+            stop,
+            rows_per_chunk,
+            progress_every_chunks,
+            worker_index,
+        )
+        for worker_index, (start, stop) in enumerate(ranges)
+    ]
+    if effective_workers == 1:
+        scan_results = [_scan_residue_vector_range(*arguments[0])]
+    else:
+        with ProcessPoolExecutor(max_workers=effective_workers) as executor:
+            scan_results = list(executor.map(_scan_residue_vector_range_from_tuple, arguments))
+
+    rows_scanned = sum(result[0] for result in scan_results)
+    values_scanned = sum(result[1] for result in scan_results)
+    if rows_scanned != total_rows:
+        raise RuntimeError(f"Finite validation scanned {rows_scanned} rows, expected {total_rows}")
+
+    # Reject a certificate if the container or a virtual source changed mid-scan.
+    final_identity = residue_hdf5_store_identity(resolved)
+    if final_identity != store_identity:
+        raise RuntimeError("Residue HDF5 store changed while it was being validated")
+
+    certificate = {
+        "schema": FINITE_CERTIFICATE_SCHEMA,
+        "finite": True,
+        "store": store_identity,
+        "rows_scanned": rows_scanned,
+        "values_scanned": values_scanned,
+        "rows_per_chunk": rows_per_chunk,
+        "workers": effective_workers,
+        "validated_at": datetime.now(timezone.utc).isoformat(),
+    }
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary = output_path.parent / f".{output_path.name}.{os.getpid()}.{uuid.uuid4().hex}.tmp"
+    try:
+        temporary.write_text(json.dumps(certificate, indent=2) + "\n", encoding="utf-8")
+        os.replace(temporary, output_path)
+    finally:
+        temporary.unlink(missing_ok=True)
+    return output_path
+
+
+def _scan_residue_vector_range_from_tuple(
+    arguments: tuple[str, int, int, int, int, int],
+) -> tuple[int, int]:
+    return _scan_residue_vector_range(*arguments)
+
+
+def verify_residue_hdf5_finite_certificate(
+    file_path: str | Path,
+    certificate_path: str | Path | None = None,
+) -> Path:
+    """Verify that a finite-value certificate describes the current HDF5 store."""
+
+    resolved = Path(file_path).expanduser().resolve(strict=True)
+    sidecar = (
+        residue_finite_certificate_path(resolved)
+        if certificate_path is None
+        else Path(certificate_path).expanduser().resolve(strict=True)
+    )
+    try:
+        certificate = json.loads(sidecar.read_text(encoding="utf-8"))
+    except FileNotFoundError as error:
+        raise FileNotFoundError(
+            "Per-access finite checks may be disabled only for a certified residue store. "
+            f"Missing certificate: {sidecar}"
+        ) from error
+    except (OSError, json.JSONDecodeError) as error:
+        raise ValueError(f"Invalid residue finite-value certificate: {sidecar}") from error
+
+    current_identity = residue_hdf5_store_identity(resolved)
+    expected_rows = int(current_identity["vectors_shape"][0])
+    expected_values = expected_rows * int(current_identity["vectors_shape"][1])
+    if (
+        not isinstance(certificate, dict)
+        or certificate.get("schema") != FINITE_CERTIFICATE_SCHEMA
+        or certificate.get("finite") is not True
+        or certificate.get("store") != current_identity
+        or certificate.get("rows_scanned") != expected_rows
+        or certificate.get("values_scanned") != expected_values
+    ):
+        raise ValueError(
+            f"Residue finite-value certificate does not match the current store: {sidecar}"
+        )
+    return sidecar
 
 
 def truncate_residue_embeddings(
@@ -65,6 +294,8 @@ class ResidueEmbedDataset(BaseDataset[str]):
         truncation: str = "ends_center",
         drop_empty: bool = True,
         validate_finite_on_access: bool = True,
+        finite_validation_sidecar: str | None = None,
+        allow_uncertified_finite_skip: bool = False,
         transforms: Optional[Callable[[str, Any], Any]] = None,
         **kwargs,
     ):
@@ -80,7 +311,25 @@ class ResidueEmbedDataset(BaseDataset[str]):
         self.drop_empty = drop_empty
         if type(validate_finite_on_access) is not bool:
             raise TypeError("validate_finite_on_access must be boolean")
+        if type(allow_uncertified_finite_skip) is not bool:
+            raise TypeError("allow_uncertified_finite_skip must be boolean")
         self.validate_finite_on_access = validate_finite_on_access
+        self.finite_validation_sidecar = None
+        if not validate_finite_on_access:
+            if allow_uncertified_finite_skip:
+                warnings.warn(
+                    "Skipping residue finite checks without a store certificate; the caller "
+                    "must validate every derived output batch before use",
+                    RuntimeWarning,
+                    stacklevel=2,
+                )
+            else:
+                self.finite_validation_sidecar = str(
+                    verify_residue_hdf5_finite_certificate(
+                        file_path_obj,
+                        finite_validation_sidecar,
+                    )
+                )
         self.file: h5py.File | None = None
         self._file_pid: int | None = None
         self.data: torch.Tensor | None = None

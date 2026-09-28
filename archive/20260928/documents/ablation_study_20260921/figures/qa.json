@@ -1,0 +1,41 @@
+{
+  "checks_passed": [
+    "All original report prose and tables preserved outside marked insertions",
+    "Eight unique Markdown image references resolve",
+    "All 24 export checksums match manifest",
+    "All 184 plotted signed contrasts match unrounded source measurements",
+    "22/24 temperature effects positive; all three weight-1 Table-2 EF5 effects negative",
+    "Individual source hashes checked before rendering",
+    "Style-only update preserved all source and numerical-export hashes",
+    "Final SciencePlots figures and color-vision preview visually inspected",
+    "Minimal-layout render asserts no figure-level text or panel titles in all eight figures",
+    "Removed title and footnote strings absent from SVG text; explanations retained in manuscript captions",
+    "Minimal-layout update preserved numerical hashes and all original report prose/tables",
+    "Blue\u2013orange update: source/numerical hashes unchanged, all export checksums valid, old palette absent from SVGs and captions updated",
+    "Figure 04 symmetric-log scale: strictly monotonic, symmetric about zero, no clipped values; all 30 cell values and all numerical hashes unchanged"
+  ],
+  "figures": 8,
+  "export_files": 24,
+  "numerical_contrasts_verified": 184,
+  "image_review": "All eight blue\u2013orange PNGs previously inspected; updated Figure 04 inspected again after the symmetric-log color change. Smaller effects have visible color; labels and colorbar are readable with no clipping.",
+  "style": "SciencePlots 2.2.1: science + no-latex; user-selected blue\u2013orange palette, neutral midpoint",
+  "numerical_outputs_unchanged": {
+    "evidence.json": "3eaea17889bfa5676756b815ffde8b536979dd30e471e2051f07a39e302094bd",
+    "measurements.csv": "7373efd0e650f35b32cd8250264b2e01bd123895f98f0b392828d9ed5533bdcb",
+    "figures/plotted_contrasts.csv": "93070f598978bbe06d3b91dc33dfe03f1659fd5cfca171b655fdf90855c35b54",
+    "figures/near_tie_bounds.json": "4961534e32bf1a85c8c0ec1fa46315d3eb53f4ae656047a2d1f9ef68ded2b0ea",
+    "figures/case1_plot_values.json": "f35820dc5aeee757faabad7d3af5cd1abd2e64e403df1439e1d9308d44bb52ab"
+  },
+  "palette_diagnostics": "palette_accessibility.json",
+  "style_validation": "Standard vision and three simulated CVD views maintain monotonic luminance on each gradient half; non-color cues retained.",
+  "layout": "No titles, subtitles, panel titles or footnotes; compact layouts with essential axes, legends and data labels. Explanations in report.md.",
+  "figure04_color_scale": {
+    "type": "symlog",
+    "linthresh_display_units": 0.001,
+    "linscale": 1.0,
+    "base": 10,
+    "vmin": -3.5191714763641357,
+    "vmax": 3.5191714763641357,
+    "scope": "Shared across every cell; text labels remain untransformed."
+  }
+}

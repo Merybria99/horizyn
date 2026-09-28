@@ -108,6 +108,11 @@ def parse_args() -> argparse.Namespace:
         help="Require all molecules to exist in --molecule-cache; never run ChIRo inference.",
     )
     parser.add_argument(
+        "--skip-uncached-molecules",
+        action="store_true",
+        help="With --cache-read-only, omit uncached molecules from ChIRo features.",
+    )
+    parser.add_argument(
         "--embedding-kind",
         choices=("both", "molecule", "conformer", "z_alpha"),
         default="both",
@@ -166,6 +171,8 @@ def parse_args() -> argparse.Namespace:
         parser.error("--cache-only requires --molecule-cache")
     if args.cache_read_only and not args.molecule_cache:
         parser.error("--cache-read-only requires --molecule-cache")
+    if args.skip_uncached_molecules and not args.cache_read_only:
+        parser.error("--skip-uncached-molecules requires --cache-read-only")
     if not args.cache_only and not args.output:
         parser.error("--output is required unless --cache-only is used")
     if args.max_pending_tasks < 0:
@@ -749,7 +756,7 @@ def encode_molecules(
     pending_molecules = [
         smiles for smiles in molecules if smiles not in cache and smiles not in skipped_set
     ]
-    if cache_read_only and pending_molecules:
+    if cache_read_only and pending_molecules and not args.skip_uncached_molecules:
         preview = ", ".join(repr(smiles) for smiles in pending_molecules[:3])
         raise RuntimeError(
             f"Read-only ChIRo cache is missing {len(pending_molecules)} molecules; "
@@ -762,6 +769,12 @@ def encode_molecules(
             f"ChIRo molecule cache contains mixed embedding dimensions: {embedding_dims}"
         )
     embedding_dim: int | None = next(iter(embedding_dims), None)
+    if cache_read_only and args.skip_uncached_molecules:
+        skipped_set.update(pending_molecules)
+        if embedding_dim is None:
+            raise RuntimeError("No cached ChIRo molecule embeddings were produced")
+        print(f"Omitting {len(pending_molecules)} uncached ChIRo molecules", flush=True)
+        return cache, [smiles for smiles in molecules if smiles in skipped_set], embedding_dim
     if not pending_molecules:
         if embedding_dim is None:
             raise RuntimeError("No ChIRo molecule embeddings were produced")

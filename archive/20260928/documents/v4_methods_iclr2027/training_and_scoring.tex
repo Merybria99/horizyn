@@ -1,0 +1,85 @@
+\subsection{Anchor-balanced multi-positive alignment}
+\label{sec:alignment-objective}
+\label{sec:paper-v4-phase1}
+We first align the encoders with a decoupled multi-positive objective,
+accounting for the many-to-many structure of enzyme--reaction associations.
+For anchor $a$, $P_B(a)$ contains all known training neighbors among the
+batch's distinct opposite-modality endpoints; $N_B(a)$ contains the remainder.
+With $s_{ax}^{(1)}=\mathbf{b}_a^\top\mathbf{b}_x/\tau_1$ and $\tau_1=0.2$,
+we minimize
+\begin{equation}
+ \mathcal L_{\mathrm{align}}^{(1)}=
+ \frac12\sum_{X\in\{R,E\}}\frac{1}{|\mathcal A_X|}\sum_{a\in\mathcal A_X}
+ \frac{1}{|P_B(a)|}\sum_{p\in P_B(a)}
+ \log\!\left(1+\sum_{n\in N_B(a)}e^{s_{an}^{(1)}-s_{ap}^{(1)}}\right),
+ \label{eq:paper-phase1}
+\end{equation}
+where $\mathcal A_X$ contains type-$X$ anchors with nonempty positive and
+negative sets. Each positive competes only with $N_B(a)$, excluding other
+known positives from its denominator. Normalizing by $|P_B(a)|$ prevents
+anchors with more positives from receiving greater weight; the two
+directional losses are averaged equally. The implemented phase-1 objective
+also includes entropy and diversity penalties on residue attention
+(Appendix~\ref{sec:v4-phase1}).
+
+\subsection{Full-graph refinement}
+\label{sec:paper-v4-phase2}
+After initial alignment, we freeze both encoders and refine their
+representations over the complete training association graph.
+Two residual heads, $h_E$ and $h_R$, learn additive adjustments to enzyme
+and reaction embeddings. For endpoint $a$ of modality $X\in\{R,E\}$,
+the refined representation is
+$\mathbf{u}_a^{\mathrm{tr}}=\vunit{\mathbf{b}_a+\kappa h_X(\mathbf{b}_a)}$,
+where $\kappa=0.2$ controls the residual contribution.
+We optimize the heads using cross-entropy with a uniform target
+distribution over each query's known positive partners:
+\begin{equation}
+ \mathcal L_{\mathrm{CE}}^{(2)}=
+ \frac12\sum_{X\in\{R,E\}}\frac{1}{|\mathcal T_X|}\sum_{a\in\mathcal T_X}
+ \left[\log\sum_{x\in\mathcal T_{\bar X}}e^{s_{ax}^{(2)}}
+       -\frac{1}{|P(a)|}\sum_{p\in P(a)}s_{ap}^{(2)}\right],
+ \label{eq:paper-phase2-ce}
+\end{equation}
+where $\mathcal T_R=\vR$, $\mathcal T_E=\vE$, $\bar X$ denotes the opposite
+modality, and $P(a)$ contains the training positives of $a$.
+Scores are $s_{ax}^{(2)}=(\mathbf{u}_a^{\mathrm{tr}})^\top
+\mathbf{u}_x^{\mathrm{tr}}/\tau_2$, with $\tau_2=0.2$.
+Each query is compared with every opposite-modality training endpoint,
+including its positive partners. An identity penalty $\mathcal L_{\mathrm{id}}$
+discourages cosine displacement from the base embeddings, averaged equally
+over reactions and enzymes. The complete refinement objective is
+\begin{equation}
+ \mathcal L^{(2)}=\mathcal L_{\mathrm{CE}}^{(2)}+10\mathcal L_{\mathrm{id}}.
+ \label{eq:paper-phase2-total}
+\end{equation}
+Only the residual heads are updated; both endpoint representations remain
+independently computable. Appendix~\ref{sec:v4-phase2} gives the head
+architecture and identity-penalty definition.
+
+\subsection{Bidirectional scoring}
+\label{sec:paper-v4-retrieval}
+A dictionary indexes training reactions. Frozen features are normalized,
+centered on training endpoints, and renormalized. Reaction coordinates
+$\mathbf{a}_r$ are normalized exponential cosine similarities to training reactions.
+For each enzyme, we find the 32 nearest training proteins; each reaction
+coordinate takes the maximum exponential similarity among linked neighbors.
+Normalization gives $\mathbf{a}_e$.
+Both kernels use temperature 0.03 (Appendix~\ref{sec:v4-dictionary}).
+
+For retrieval, we increase the fused protein contribution to
+$\tilde{\mathbf{b}}_e=\vunit{\mathbf{g}_e+3s\mathbf{f}_e}$ and halve the residual
+coefficient, obtaining
+$\mathbf{u}_e=\vunit{\tilde{\mathbf{b}}_e+0.1h_E(\tilde{\mathbf{b}}_e)}$ and
+$\mathbf{u}_r=\vunit{\mathbf{b}_r+0.1h_R(\mathbf{b}_r)}$.
+These adjustments follow training on the native $\mathbf{b}_e,\mathbf{b}_r$.
+For either endpoint $x$, the complete representation and score are
+\begin{equation}
+ \mathbf{z}_x=[\sqrt{0.6}\,\mathbf{u}_x;\sqrt{0.4}\,\mathbf{a}_x],\qquad
+ S(r,e)=\mathbf{z}_r^\top\mathbf{z}_e
+ =0.6\,\mathbf{u}_r^\top\mathbf{u}_e+0.4\,\mathbf{a}_r^\top\mathbf{a}_e.
+ \label{eq:paper-score}
+\end{equation}
+The $512+|\vR|$ dimensional vectors support both directions without
+direction-specific heads or reranking. Each target training split has
+independently fitted retrieval weights and dictionary statistics
+(Appendix~\ref{app:v4-recipe}).

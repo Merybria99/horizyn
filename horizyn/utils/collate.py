@@ -32,6 +32,36 @@ HYBRID_REACTION_KEYS = {
 }
 
 
+def _common_mapping_keys(batch: List[Dict[str, Any]]) -> set[str]:
+    """Return keys present in every sample of a non-empty mapping batch."""
+    common_keys = set(batch[0].keys())
+    for sample in batch[1:]:
+        common_keys.intersection_update(sample.keys())
+    return common_keys
+
+
+def _validate_partial_reaction_keys_are_metadata(
+    batch: List[Dict[str, Any]],
+    common_keys: set[str],
+) -> None:
+    """Reject partially present model inputs while allowing optional metadata.
+
+    Primary and replay datasets can expose different string annotations (for
+    example ``reaction_smiles``). Those annotations are not model inputs and
+    are omitted from a heterogeneous batch. A tensor or nested mapping that is
+    present in only part of a batch is instead almost certainly a malformed
+    feature batch and must fail loudly rather than being silently discarded.
+    """
+    all_keys = set().union(*(sample.keys() for sample in batch))
+    for key in sorted(all_keys - common_keys):
+        present_values = [sample[key] for sample in batch if key in sample]
+        if any(isinstance(value, (torch.Tensor, dict)) for value in present_values):
+            raise KeyError(
+                f"Reaction feature {key!r} must be present in every sample; "
+                "only non-tensor metadata may differ between primary and replay rows"
+            )
+
+
 def _is_reaction_set_sample(value: Any) -> bool:
     return isinstance(value, dict) and (
         REACTION_SET_KEYS.issubset(value.keys()) or CHIRALITY_SET_KEYS.issubset(value.keys())
@@ -106,9 +136,16 @@ def unimol2_reaction_collate_fn(
             "embedding pair"
         )
 
+    common_keys = _common_mapping_keys(batch)
     collated: Dict[str, Any] = {}
     padded_source_keys = set()
-    if REACTION_SET_KEYS.issubset(batch[0].keys()):
+    has_unimol2 = [REACTION_SET_KEYS.issubset(sample.keys()) for sample in batch]
+    if any(has_unimol2) and not all(has_unimol2):
+        raise KeyError(
+            "Uni-Mol2 reactant/product embeddings must be present in every "
+            "sample when any sample provides them"
+        )
+    if all(has_unimol2):
         collated.update(
             _pad_reaction_side_pair(
                 batch,
@@ -121,7 +158,13 @@ def unimol2_reaction_collate_fn(
         )
         padded_source_keys.update(REACTION_SET_KEYS)
 
-    if CHIRALITY_SET_KEYS.issubset(batch[0].keys()):
+    has_chirality = [CHIRALITY_SET_KEYS.issubset(sample.keys()) for sample in batch]
+    if any(has_chirality) and not all(has_chirality):
+        raise KeyError(
+            "Chirality reactant/product embeddings must be present in every "
+            "sample when any sample provides them"
+        )
+    if all(has_chirality):
         collated.update(
             _pad_reaction_side_pair(
                 batch,
@@ -135,7 +178,9 @@ def unimol2_reaction_collate_fn(
         padded_source_keys.update(CHIRALITY_SET_KEYS)
 
     if extra_keys is None:
-        extra_keys = set(batch[0].keys()) - padded_source_keys
+        extra_keys = common_keys - padded_source_keys
+    else:
+        extra_keys = set(extra_keys) & common_keys
 
     for key in batch[0].keys():
         if key in padded_source_keys or key not in extra_keys:
@@ -180,22 +225,41 @@ def dict_collate_fn(batch: List[Dict[str, Any]]) -> Dict[str, Any]:
     if not batch:
         return {}
 
-    top_level_reaction = _is_reaction_set_sample(batch[0])
-    if top_level_reaction or (
-        "query_vec" in batch[0] and _is_reaction_set_sample(batch[0]["query_vec"])
-    ):
-        collated: Dict[str, Any] = {}
-    skip_keys = set()
+    top_level_reaction = any(_is_reaction_set_sample(sample) for sample in batch)
+    nested_reaction = any(
+        "query_vec" in sample and _is_reaction_set_sample(sample["query_vec"])
+        for sample in batch
+    )
     if top_level_reaction:
-        query_extra_keys = HYBRID_REACTION_KEYS & set(batch[0].keys())
+        common_keys = _common_mapping_keys(batch)
+        _validate_partial_reaction_keys_are_metadata(batch, common_keys)
+        collated: Dict[str, Any] = {}
+        skip_keys = set()
+        query_extra_keys = HYBRID_REACTION_KEYS & common_keys
         collated.update(unimol2_reaction_collate_fn(batch, extra_keys=query_extra_keys))
         skip_keys.update(REACTION_SET_KEYS | CHIRALITY_SET_KEYS | query_extra_keys)
 
         for key in batch[0].keys():
-            if key in skip_keys:
+            if key in skip_keys or key not in common_keys:
                 continue
             values = [sample[key] for sample in batch]
             if key == "query_vec" and _is_reaction_set_sample(values[0]):
+                collated[key] = unimol2_reaction_collate_fn(values)
+            elif isinstance(values[0], str):
+                collated[key] = values
+            else:
+                collated[key] = default_collate(values)
+        return collated
+
+    if nested_reaction:
+        common_keys = _common_mapping_keys(batch)
+        _validate_partial_reaction_keys_are_metadata(batch, common_keys)
+        collated = {}
+        for key in batch[0].keys():
+            if key not in common_keys:
+                continue
+            values = [sample[key] for sample in batch]
+            if key == "query_vec":
                 collated[key] = unimol2_reaction_collate_fn(values)
             elif isinstance(values[0], str):
                 collated[key] = values

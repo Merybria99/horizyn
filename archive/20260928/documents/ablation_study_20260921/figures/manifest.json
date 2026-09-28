@@ -1,0 +1,209 @@
+{
+  "source_evidence_sha256": "3eaea17889bfa5676756b815ffde8b536979dd30e471e2051f07a39e302094bd",
+  "source_records_verified": 89,
+  "metric_records": 260,
+  "signed_contrasts": 184,
+  "figures": [
+    {
+      "id": "01_reactzyme_inference",
+      "question": "How do controlled changes affect both ReactZyme retrieval directions?",
+      "contract": "Annotated signed heatmap; all six split/direction cells; one centered, symmetric color scale per figure; exact differences in MRR\u00d7100; raw MRR retained in CSV. Linear colors.",
+      "files": {
+        "png": {
+          "path": "figures/01_reactzyme_inference.png",
+          "sha256": "ee97660c39b11e9e263c26d3a85c820af6de89b9aa7b9afffb9f13c0bb61feb1"
+        },
+        "svg": {
+          "path": "figures/01_reactzyme_inference.svg",
+          "sha256": "7b169b0406b1871c99bfde3eb64af1a1147210287155b64ca5a5dcbc13f2be9d"
+        },
+        "pdf": {
+          "path": "figures/01_reactzyme_inference.pdf",
+          "sha256": "46021d3a071327db4cf3b6635167613ae097b4f8d1ddeb2d29cd5ca5dc81aaf5"
+        }
+      }
+    },
+    {
+      "id": "02_enzymemap_inference",
+      "question": "Do dictionary and residual choices improve every screening metric?",
+      "contract": "Four metric-specific signed dot plots, two screening pools distinguished by color and marker shape. Zero line included. No mixing BEDROC and EF units.",
+      "files": {
+        "png": {
+          "path": "figures/02_enzymemap_inference.png",
+          "sha256": "f142fff0b017541020e232b7adcb318a7a8ddac9053a9e1dc598a3ddf7ee66d3"
+        },
+        "svg": {
+          "path": "figures/02_enzymemap_inference.svg",
+          "sha256": "642625a88c6871a150dea3f008f8aaa9d0e514dbedcb1769e7a36146bc743269"
+        },
+        "pdf": {
+          "path": "figures/02_enzymemap_inference.pdf",
+          "sha256": "a5fdd587eb0d2b2e079ba5d0b45ae2e898698c9dd8d25b9bee2029c52574d0df"
+        }
+      }
+    },
+    {
+      "id": "03_temperature_paired_seeds",
+      "question": "Is the temperature benefit consistent across paired seeds and screening protocols?",
+      "contract": "Eight panels of individual paired differences plus means. Same metric scale across the two screening settings. No confidence or significance claims; the 24 metric cells are correlated.",
+      "files": {
+        "png": {
+          "path": "figures/03_temperature_paired_seeds.png",
+          "sha256": "66e1b92221d4e918f552f4c20490d62ee4d952f5704cca1e39a1be7ef20bbe1c"
+        },
+        "svg": {
+          "path": "figures/03_temperature_paired_seeds.svg",
+          "sha256": "f74d3f25569fbe1fba0316f3cb6fabd384aed6c3de72f55fed0d2eabb79fbfee"
+        },
+        "pdf": {
+          "path": "figures/03_temperature_paired_seeds.pdf",
+          "sha256": "459681a6ee2c924549c21cc1a801aca2ec0ce3bc86dde92346a99f0176f86cd0"
+        }
+      }
+    },
+    {
+      "id": "04_reactzyme_phase2_biology",
+      "question": "How do controlled changes affect both ReactZyme retrieval directions?",
+      "contract": "Annotated signed heatmap; all six split/direction cells; one centered, symmetric color scale per figure; exact differences in MRR\u00d7100; raw MRR retained in CSV. Symmetric logarithmic colors, linear for |\u0394MRR\u00d7100|\u22640.001; exact cell annotations remain untransformed; no clipping or row normalization.",
+      "files": {
+        "png": {
+          "path": "figures/04_reactzyme_phase2_biology.png",
+          "sha256": "bb33d7f77096c6f404d8deb9a5b30260b19f3d1c7716f756f33423bf2bc4eb55"
+        },
+        "svg": {
+          "path": "figures/04_reactzyme_phase2_biology.svg",
+          "sha256": "42da5910e494133cc391115fa83ed79fe6c27c50a3c973b5075a71361e05895a"
+        },
+        "pdf": {
+          "path": "figures/04_reactzyme_phase2_biology.pdf",
+          "sha256": "9d5dd5f15b47d02b4d622a941969aa52ec5069254c06b37e8a25e6693216386a"
+        }
+      }
+    },
+    {
+      "id": "05_enzymemap_phase2_biology",
+      "question": "Does correctly assigned biological supervision improve screening over its controls?",
+      "contract": "Metric-specific dot plots with zero reference; fixed same-metric scale across settings; shuffled uses open square and family removals neutral circles; all five contrasts shown.",
+      "files": {
+        "png": {
+          "path": "figures/05_enzymemap_phase2_biology.png",
+          "sha256": "5fc589a4dc6b311eaff9f4f8e287a369cfcd44045a7b6f9e6c9a927428dd9ffb"
+        },
+        "svg": {
+          "path": "figures/05_enzymemap_phase2_biology.svg",
+          "sha256": "b5eac5eda0455b5bf589c4fe6cd62d2128005ec447eec98cf560a9d450676308"
+        },
+        "pdf": {
+          "path": "figures/05_enzymemap_phase2_biology.pdf",
+          "sha256": "9ce6053531de8c080ca19ae9ef35e707b644c9d48a59334952f4a81852831e23"
+        }
+      }
+    },
+    {
+      "id": "06_reactzyme_near_tie_sensitivity",
+      "question": "Can rank ordering of near-equal scores explain the large ReactZyme MRR changes?",
+      "contract": "Intervals of possible near-tie orderings, not error bars or uncertainty estimates; individual split-specific zoomed scales explicitly labeled; exact source bounds retained in near_tie_bounds.json.",
+      "files": {
+        "png": {
+          "path": "figures/06_reactzyme_near_tie_sensitivity.png",
+          "sha256": "6727551950cc378373225cd7e238e54445607d79d8fcd5caab28722d00c6ee05"
+        },
+        "svg": {
+          "path": "figures/06_reactzyme_near_tie_sensitivity.svg",
+          "sha256": "44104e21dda0f1cc1f3ec714698ed8ee7cbddb95ba3c6576067b00e6344b29d2"
+        },
+        "pdf": {
+          "path": "figures/06_reactzyme_near_tie_sensitivity.pdf",
+          "sha256": "c754901517220641f95ada5157cfd89eee740b51c8683cadad69182bf6a899b1"
+        }
+      }
+    },
+    {
+      "id": "07_f3_biology_paired_seeds",
+      "question": "Is the F3 biology benefit stable across seeds and early-retrieval metrics?",
+      "contract": "All paired per-seed effects plus arithmetic means, two weights encoded with color and open/filled marker shapes. No independent-test or confidence claims. Eight panels keep all screening metrics visible.",
+      "files": {
+        "png": {
+          "path": "figures/07_f3_biology_paired_seeds.png",
+          "sha256": "c44ffc7f5e65cfe154af2e4ee185bb47e58b1a64b3a11ab749701f70e4e3e8bf"
+        },
+        "svg": {
+          "path": "figures/07_f3_biology_paired_seeds.svg",
+          "sha256": "808c896adbed63251e3633b06287603fce1358e730940b4a628ed9b5cbe2529a"
+        },
+        "pdf": {
+          "path": "figures/07_f3_biology_paired_seeds.pdf",
+          "sha256": "7b872c93c1c088bab573cf306810fa2c4a94f9e7a379c51a88ca24b2329e61ba"
+        }
+      }
+    },
+    {
+      "id": "08_case1_controls",
+      "question": "Does the Case1 improvement survive changing the evaluation unit and biological controls?",
+      "contract": "Two zero-based count-bar panels with explicit positive/candidate denominators, plus a signed AUROC-difference dot panel. AUROC differences calculated from unrounded raw summaries; counts exact; no pooling checkpoints or labels.",
+      "files": {
+        "png": {
+          "path": "figures/08_case1_controls.png",
+          "sha256": "f6c1ce865aba7efeadefab7b79d08d12ca21439abcbd2203f5877e5f7159d0cb"
+        },
+        "svg": {
+          "path": "figures/08_case1_controls.svg",
+          "sha256": "dc01a9f6655358877e25c52f1ce0f70b4cb1cfe03a6d7c6aa028f2bddb5116ac"
+        },
+        "pdf": {
+          "path": "figures/08_case1_controls.pdf",
+          "sha256": "c4c41df68d469defbdb6892f8d7a529e41b7498b208b9b9e949d037f945fab2c"
+        }
+      }
+    }
+  ],
+  "palette": {
+    "blue": "#28679C",
+    "blue_light": "#ADC8E2",
+    "orange": "#B86B2D",
+    "orange_light": "#E8C3A3",
+    "neutral": "#FAFAFA"
+  },
+  "scienceplots": {
+    "style": [
+      "science",
+      "no-latex"
+    ],
+    "scienceplots_version": "2.2.1",
+    "palette_source": "Custom blue\u2013orange anchors declared in plot_study.py; selected by the user from palette_previews.",
+    "anchors": [
+      "#B86B2D",
+      "#E8C3A3",
+      "#FAFAFA",
+      "#ADC8E2",
+      "#28679C"
+    ],
+    "interpolation": "Custom signed orange\u2013neutral\u2013blue ramp; each side is luminance-monotonic. Not claimed perceptually uniform.",
+    "simulations": [
+      {
+        "view": "Standard colour vision",
+        "endpoint_distance_CAM02_UCS": 51.49534935554204,
+        "monotonic_luminance_toward_neutral": true
+      },
+      {
+        "view": "Protanopia simulation",
+        "endpoint_distance_CAM02_UCS": 43.01749289416724,
+        "monotonic_luminance_toward_neutral": true
+      },
+      {
+        "view": "Deuteranopia simulation",
+        "endpoint_distance_CAM02_UCS": 48.85830059004733,
+        "monotonic_luminance_toward_neutral": true
+      },
+      {
+        "view": "Tritanopia simulation",
+        "endpoint_distance_CAM02_UCS": 49.591132865600635,
+        "monotonic_luminance_toward_neutral": true
+      }
+    ],
+    "accessibility": "Signed cell labels, circular versus square markers, open versus filled markers, zero lines, and hatching convey values without relying on hue. Simulations are diagnostics, not universal accessibility certification."
+  },
+  "layout": "Minimal manuscript figures: no titles, subtitles, panel titles or footnotes; essential axes, legends and data labels only. Explanations and scope are in report.md captions.",
+  "scope": "Scientific figures for the user\u2019s research, without OpenAI branding. No new model runs or recomputed predictions.",
+  "validation": "Source hashes, unique metric keys, finite values, paired-seed joins and near-tie interval membership checked; visual inspection recorded separately."
+}

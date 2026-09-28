@@ -1,0 +1,71 @@
+{
+  "validated_utc": "2026-09-22T00:23:23.272032+00:00",
+  "snapshot_utc": "2026-09-22T00:04:47.397948+00:00",
+  "compiler": "Tectonic 0.17.0",
+  "compile_command": "tectonic --keep-logs --keep-intermediates main.tex",
+  "compile_exit_code": 0,
+  "tex_warnings": [],
+  "unresolved_citations_or_references": [],
+  "pdf_pages": 25,
+  "figures": 8,
+  "tables": 13,
+  "bibliography_entries": 14,
+  "table_builder_repeat_is_identical": true,
+  "numeric_ledger_cells": 650,
+  "public_baseline_runs": {
+    "official": 95,
+    "corrected_contrastive": 24,
+    "horizyn": 3,
+    "enzgfm": 4
+  },
+  "public_receipts_checked_against_ledger": 126,
+  "immutable_evidence_hashes_verified": 360,
+  "live_status_files_changed_since_snapshot": [
+    "runs/reactzyme_public_baselines_20260921/official_baselines_status.json",
+    "runs/reactzyme_public_baselines_20260921/extended_status.json"
+  ],
+  "figure_pdf_hashes_verified": 8,
+  "v4_control_and_bio_mrr_crosschecked_against_test_summaries": 12,
+  "horizyn_exceeds_v4_and_bio_in_each_of_six_mrr_cells": true,
+  "v4_exceeds_released_clipzyme_in_eight_screening_cells": true,
+  "case1_pool": {
+    "catalogue_entries": 145,
+    "ranked_entries": 144,
+    "unique_sequences": 123,
+    "excluded": [
+      "H017"
+    ]
+  },
+  "pdf_text_outside_pages": [],
+  "visual_review": "Rendered benchmark tables, Case1, landscape paired-seed figures, nonlinear Figure 04 heatmap, near-tie analysis, retrieval diagnostics, complete baseline tables and bibliography; no clipping or overlap observed. Removed an orphan text page; figure titles/subtitles/footnotes remain absent.",
+  "pdf_sha256": "48198405e5dd8a224827a3a3c2886eaa73c43ed31b6784f32dc8469aea193485",
+  "input_sha256": {
+    "evidence_snapshot.json": "b9abdababacbe2559575c965a0a5abf83b8f12a2a15ea9d996199f745d600e8a",
+    "experiments.tex": "ae26554955ac93df16248151803fe8b9296489610b23ecfbc75e5f2055031c6f",
+    "macros.tex": "edb2a8f6e7f5c3d6d1e3f5e34385c1cc63835badbf74cee048794cd286d084cd",
+    "main.tex": "6c127effc95c283e56284f46002dfbe0b09d7003876498750ccae1852e7f8ac3",
+    "prepare_tables.py": "41fafdd4260980c4c7a430afdf69918be4ef2f4ca144f9dcf9d8c5889de5c278",
+    "references.bib": "4ffaef28c4e6576000911db0797df28598881441aa98baf5c46a798b1a7ecd1d",
+    "supplementary.tex": "8b461a3c273694f4461589702034b87adc65d7584d8b7a18f45c5f4d03165294",
+    "table_values.csv": "61ec07800bddd59d37200d0ef9c8df0adc698ce3dc12b435390d80b2b539acfc",
+    "tables/all_public_enzyme_smi.tex": "f59d3fa5b6cc95a2f01ee94fc944c94f66db5770069b00d8bd3d70730f30fd0b",
+    "tables/all_public_reaction_smi.tex": "364dcdff11031af0f28ea1b95c0e5bf4d6e6f2d382a26278b29690756e3b0aba",
+    "tables/all_public_time.tex": "f7e8b962d73e72a9edae8f6524da73b73da750f69bedd3f6006670e2abf68447",
+    "tables/case1.tex": "1460761f739dd2006fb24a10b6c6470ffd3f4687c5f349d9208c0d70e86426be",
+    "tables/case1_targets.tex": "ba14ac57adef5fc03ed61ae459e1ba77f56e5ea6b295edd7fb320bf566c31a28",
+    "tables/reactzyme_data.tex": "5c6f5a1a980928dd22a00d5efeb90c1234c694c4401505c90b1023187446a747",
+    "tables/reactzyme_literature.tex": "1054601d84d045ae8df1ff349d5cbc487df8bccfe6ed3edefde7aa3850b7c53a",
+    "tables/reactzyme_retrained.tex": "cba4445660a2b8e5f490820d2674e4d1e2574d4588551cf00c4ca96f1f691c88",
+    "tables/retrieval_diagnostics.tex": "a949f5ddc58561cbdf295a0b4258332aee9afad4ce3284f697589a94b0e82487",
+    "tables/screening_table1.tex": "33cef2132867c2452447940dc0a65ae219f9265f67e79d4ffe02f0c7cf33b467",
+    "tables/screening_table2.tex": "3809554f94cfc2a47d2610af064e44cedf17117c82cc4ae97f98b6d359f0e7c9",
+    "tables/snapshot_macros.tex": "4a2a5af11273029676ca125c2f5faa3e88294a81326d737b19d6630631da1308"
+  },
+  "model_training_or_new_test_predictions": false,
+  "portable_archive_compilation": {
+    "exit_code": 0,
+    "pdf_page_text_identical": true,
+    "table_regeneration_identical": true,
+    "no_repository_evidence_access_required": true
+  }
+}

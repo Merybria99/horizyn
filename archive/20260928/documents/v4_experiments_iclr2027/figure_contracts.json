@@ -1,0 +1,60 @@
+{
+  "surface": "ICLR2027 experimental-section fragment, single column, unchanged 5.5-inch text width and template fonts/margins; up to 10 pages including standalone references.",
+  "palette": "Existing blue #28679C and orange #B86B2D; pale gradients #ADC8E2/#E8C3A3; neutral #FAFAFA; redundant signed values, circle/square markers, open fills and hatch.",
+  "style": "SciencePlots science/no-latex. Per user: no in-image titles, subtitles, panel headings or footnotes; scientific context in captions.",
+  "figures": [
+    {
+      "file": "inference",
+      "source": "01_reactzyme_inference",
+      "question": "Does one inference setting improve both directions across all splits?",
+      "family": "signed heatmap",
+      "records": 18,
+      "takeaway": "Trade-offs between metrics, no universal inference improvement.",
+      "scale": "linear shared signed delta MRR x100",
+      "footprint_inches": [
+        5.5,
+        2.4
+      ]
+    },
+    {
+      "file": "temperature",
+      "source": "03_temperature_paired_seeds",
+      "question": "Does the lower inverse temperature help across paired seeds and pools?",
+      "family": "paired delta dot plot, 2x2 metric panels, both pools per panel",
+      "records": 24,
+      "takeaway": "22 of 24 correlated comparisons favor beta5; EF10 exceptions remain.",
+      "scale": "one raw metric scale per panel for both pools, zero visible",
+      "footprint_inches": [
+        5.5,
+        3.4
+      ]
+    },
+    {
+      "file": "biology",
+      "source": "04_reactzyme_phase2_biology",
+      "question": "Do correct phase2 labels consistently beat shuffled/removed controls?",
+      "family": "signed heatmap",
+      "records": 30,
+      "takeaway": "Mixed point effects; near-tie sensitivity limits interpretation.",
+      "scale": "shared symlog delta MRR x100, linear within +-0.001",
+      "footprint_inches": [
+        5.5,
+        2.5
+      ]
+    },
+    {
+      "file": "case1",
+      "source": "08_case1_controls",
+      "question": "Does Case1 recovery improve in both candidate views?",
+      "family": "two count-bar panels",
+      "records": 12,
+      "takeaway": "Unique sequence recovery rises one; entry-level recovery is unchanged.",
+      "scale": "zero-based counts; conditional AUROC is reported in paper table/text",
+      "footprint_inches": [
+        5.5,
+        2.1
+      ]
+    }
+  ],
+  "not_shown": "Other four original figures remain in the evidence package. Their material effects are summarized in prose. Original eight-panel plots are recomposed, not shrunk to unreadable text. No results are newly evaluated."
+}

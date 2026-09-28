@@ -1,0 +1,20 @@
+{
+  "model": {
+    "name": "enzyme_smi",
+    "config": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_all_splits_v1/enzyme_smi/configs/train.yaml",
+    "checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_beta5_all_splits_v1/enzyme_smi/checkpoints/screen_selection/screen-epoch=09.ckpt",
+    "source_phase2": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_enzyme_smi_beta5_phase2_epoch10_soft_v1/residue_views",
+    "fusion_multiplier": 3.0,
+    "checkpoint_already_calibrated": false,
+    "config_sha256": "6fea22ae0c0a815a59449504e0f49dd63072752a3a17952befc3fe74858c3cef",
+    "checkpoint_sha256": "1a9947bd97bfb2a87323cd9e109835060a7bd4a1af6e44b31b37fb24eca1420d",
+    "phase2_checkpoint": "/datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/reactzyme_enzyme_smi_beta5_phase2_epoch10_soft_v1/residue_views/training/step0100.pt",
+    "phase2_checkpoint_sha256": "b67ab167324c8fa4faa23ce4f3807581df2299d9118a67c92b8520d14043a15a",
+    "feature_manifest_sha256": "0c64aa45a36fb20a3748593505f7348914673dbe530a6d88960aef7a1c0125fd",
+    "pipeline": "v4"
+  },
+  "recipe": {
+    "semantic_alpha": 0.0,
+    "residual_cap": 0.5
+  }
+}

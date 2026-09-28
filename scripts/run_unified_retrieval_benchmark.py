@@ -27,6 +27,7 @@ def parse_args() -> argparse.Namespace:
     )
     parser.add_argument("--checkpoint", default=None, help="Repo Lightning checkpoint")
     parser.add_argument("--config", required=True, help="Model config YAML")
+    parser.add_argument("--pipeline", choices=["v4", "f3", "circev2"], default="v4")
     parser.add_argument(
         "--suite",
         default="configs/benchmarks/enzyme_retrieval_unified.yaml",
@@ -75,6 +76,10 @@ def select_tasks(tasks, requested_names: list[str]):
 
 def main() -> None:
     args = parse_args()
+    from horizyn.config import load_config
+    from horizyn.pipelines.registry import validate_pipeline
+
+    validate_pipeline(load_config(args.config), args.pipeline)
     if not args.validate_only and args.checkpoint is None:
         raise SystemExit("--checkpoint is required unless --validate-only is set")
 

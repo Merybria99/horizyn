@@ -2,9 +2,9 @@
 Unit tests for loss functions.
 """
 
+import pytest
 import torch
 import torch.nn.functional as F
-import pytest
 
 from horizyn.losses import (
     BalancedSigmoidEBMLoss,
@@ -13,9 +13,10 @@ from horizyn.losses import (
     DegreeTemperedFullBatchMLNCELoss,
     FullBatchMLNCELoss,
     FullBatchNCELoss,
-    HybridCardinalityRetrievalLoss,
     HorizynFGWLoss,
+    HybridCardinalityRetrievalLoss,
     MultiAlignmentRetrievalLoss,
+    SampledMultiPositiveInfoNCELoss,
     build_horizyn_loss,
 )
 
@@ -32,6 +33,81 @@ class TestFullBatchNCELoss:
         assert loss_fn.beta_max == float("inf")
         assert torch.allclose(loss_fn.beta, torch.tensor(1.0))
 
+
+class TestSampledMultiPositiveInfoNCELoss:
+    def test_uses_all_positives_and_only_explicit_negatives(self):
+        loss_fn = SampledMultiPositiveInfoNCELoss(beta=2.0)
+        query_idx = torch.tensor([0, 0, 1], dtype=torch.long)
+        target_idx = torch.tensor([0, 1, 2], dtype=torch.long)
+        biological = torch.tensor([[False, False, True, False], [True, False, False, False]])
+        random_negative = torch.tensor([[False, False, False, True], [False, True, False, False]])
+        dists = torch.tensor([[0.1, 0.2, 0.7, 0.8], [0.9, 0.8, 0.1, 0.0]], requires_grad=True)
+        baseline = loss_fn(
+            dists,
+            query_idx,
+            target_idx,
+            biological,
+            random_negative,
+        )
+        changed_unlabelled = dists.detach().clone()
+        changed_unlabelled[1, 3] = -100.0
+        assert torch.allclose(
+            baseline,
+            loss_fn(
+                changed_unlabelled,
+                query_idx,
+                target_idx,
+                biological,
+                random_negative,
+            ),
+        )
+        harder_negative = dists.detach().clone()
+        harder_negative[0, 2] = 0.0
+        assert (
+            loss_fn(
+                harder_negative,
+                query_idx,
+                target_idx,
+                biological,
+                random_negative,
+            )
+            > baseline
+        )
+        baseline.backward()
+        assert torch.isfinite(dists.grad).all()
+
+    def test_rejects_positive_negative_overlap(self):
+        loss_fn = SampledMultiPositiveInfoNCELoss()
+        dists = torch.ones(1, 2)
+        with pytest.raises(ValueError, match="must not overlap"):
+            loss_fn(
+                dists,
+                torch.tensor([0]),
+                torch.tensor([0]),
+                torch.tensor([[True, False]]),
+                torch.zeros(1, 2, dtype=torch.bool),
+            )
+
+    @pytest.mark.skipif(not torch.cuda.is_available(), reason="CUDA is unavailable")
+    def test_rejects_negative_masks_on_a_different_device(self):
+        loss_fn = SampledMultiPositiveInfoNCELoss()
+        with pytest.raises(ValueError, match="same device"):
+            loss_fn(
+                torch.ones(1, 2, device="cuda"),
+                torch.tensor([0], device="cuda"),
+                torch.tensor([0], device="cuda"),
+                torch.tensor([[False, True]]),
+                torch.zeros(1, 2, dtype=torch.bool),
+            )
+
+    def test_factory_alias(self):
+        assert isinstance(
+            build_horizyn_loss("sampled_multi_positive_infonce"),
+            SampledMultiPositiveInfoNCELoss,
+        )
+
+
+class TestFullBatchNCELossContinued:
     def test_initialization_custom_beta(self):
         """Test initialization with custom beta value."""
         loss_fn = FullBatchNCELoss(beta=10.0)
@@ -330,7 +406,7 @@ class TestFullBatchMLNCELoss:
         query_idx = torch.tensor([0, 1])
         target_idx = torch.tensor([0, 1])
 
-        loss = loss_fn(dists, query_idx, target_idx)
+        loss_fn(dists, query_idx, target_idx)
 
         # Beta should be clipped to minimum
         assert loss_fn.beta.item() >= 1.0 - 1e-5
@@ -425,8 +501,6 @@ class TestFullBatchMLNCELoss:
 
         # Simulate a batch with query and target encoders
         batch_size = 16
-        query_dim = 2048  # RDKit+ (1024) + DRFP (1024)
-        target_dim = 1024  # T5 embeddings
         embed_dim = 512
 
         # Mock embeddings (normalized)
@@ -677,6 +751,7 @@ class TestMultiAlignmentRetrievalLoss:
         assert raw_e.grad is not None
         assert torch.isfinite(raw_q.grad).all()
         assert torch.isfinite(raw_e.grad).all()
+
     def test_weighted_rr_ee_terms_return_zero_without_valid_positives(self):
         q = F.normalize(torch.randn(3, 8), dim=-1)
         e = F.normalize(torch.randn(3, 8), dim=-1)
@@ -902,16 +977,12 @@ class TestF3LossAblations:
             cardinality_warmup_epochs=5,
         )
         loss_fn.set_training_progress(0)
-        epoch_zero, zero_components = loss_fn(
-            dists, query_idx, target_idx, return_components=True
-        )
+        epoch_zero, zero_components = loss_fn(dists, query_idx, target_idx, return_components=True)
         assert torch.allclose(epoch_zero, zero_components["mlnce"])
         assert zero_components["effective_cardinality_weight"].item() == 0.0
 
         loss_fn.set_training_progress(5)
-        warmed, warmed_components = loss_fn(
-            dists, query_idx, target_idx, return_components=True
-        )
+        warmed, warmed_components = loss_fn(dists, query_idx, target_idx, return_components=True)
         expected = 0.7 * warmed_components["mlnce"] + 0.3 * warmed_components["cardinality"]
         assert torch.allclose(warmed, expected)
 
@@ -939,20 +1010,14 @@ class TestF3LossAblations:
     def test_soft_rank_penalizes_an_outranking_negative(self):
         positive_mask = torch.tensor([[True, False, False]])
         loss_fn = HybridCardinalityRetrievalLoss(soft_rank_weight=0.05)
-        good = loss_fn._soft_rank_anchor_loss(
-            torch.tensor([[0.1, 0.5, 0.7]]), positive_mask
-        )
-        bad = loss_fn._soft_rank_anchor_loss(
-            torch.tensor([[0.5, 0.1, 0.7]]), positive_mask
-        )
+        good = loss_fn._soft_rank_anchor_loss(torch.tensor([[0.1, 0.5, 0.7]]), positive_mask)
+        bad = loss_fn._soft_rank_anchor_loss(torch.tensor([[0.5, 0.1, 0.7]]), positive_mask)
         assert bad > good
 
     def test_balanced_sigmoid_uses_equal_class_means_and_learns_bias(self):
         dists, query_idx, target_idx = self._inputs()
         loss_fn = BalancedSigmoidEBMLoss(beta=2.0, sigmoid_bias_init=0.0)
-        loss, components = loss_fn(
-            dists, query_idx, target_idx, return_components=True
-        )
+        loss, components = loss_fn(dists, query_idx, target_idx, return_components=True)
         assert torch.allclose(loss, components["positive"] + components["negative"])
         loss.backward()
         assert loss_fn.bias.grad is not None

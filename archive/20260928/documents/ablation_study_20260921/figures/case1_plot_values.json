@@ -1,0 +1,44 @@
+[
+  {
+    "variant": "control",
+    "unique_recovery": 10,
+    "entry_recovery": 10,
+    "conditional_auroc": 0.6128747795414462,
+    "auroc_difference": 0.0
+  },
+  {
+    "variant": "all",
+    "unique_recovery": 11,
+    "entry_recovery": 10,
+    "conditional_auroc": 0.6137566137566137,
+    "auroc_difference": 0.0008818342151675207
+  },
+  {
+    "variant": "shuffled_1",
+    "unique_recovery": 10,
+    "entry_recovery": 10,
+    "conditional_auroc": 0.6111111111111112,
+    "auroc_difference": -0.0017636684303350414
+  },
+  {
+    "variant": "without_ec",
+    "unique_recovery": 10,
+    "entry_recovery": 10,
+    "conditional_auroc": 0.6137566137566137,
+    "auroc_difference": 0.0008818342151675207
+  },
+  {
+    "variant": "without_cofactor",
+    "unique_recovery": 11,
+    "entry_recovery": 10,
+    "conditional_auroc": 0.6143445032333921,
+    "auroc_difference": 0.0014697236919458678
+  },
+  {
+    "variant": "without_mechanism",
+    "unique_recovery": 10,
+    "entry_recovery": 10,
+    "conditional_auroc": 0.6131687242798354,
+    "auroc_difference": 0.00029394473838917357
+  }
+]

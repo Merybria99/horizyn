@@ -1,0 +1,106 @@
+\section{Ablation of the learned residue-view count}
+\label{app:v4-k-ablation}
+
+\paragraph{Motivation and capacity.}
+The hyperparameter $K$ determines how many learned residue summaries are
+available before view fusion. The global mean preserves broad sequence
+context, and SLEEC provides a fixed functional-residue prior; the learned
+queries can adapt their pooling to enzyme--reaction associations. Multiple
+queries can preserve complementary patterns that a single weighted mean
+would merge. This is a capacity motivation: neither disjoint residue sets
+nor named biochemical roles are imposed, and additional views may be redundant.
+
+Each extra view adds a 256-dimensional query, an independent projection,
+and wider gate input and output layers. At the stated hidden and output
+widths, the trainable multiview enzyme module has
+$P(K)=3{,}159{,}298+395{,}008K$ parameters: 3.554, 3.949, 4.739, and
+6.319 million for $K=1,2,4,8$, respectively. These counts exclude frozen
+feature resources and SLEEC, the reaction encoder, and the phase-2 heads.
+Thus $K=4$ permits several adaptive summaries at a lower parameter cost than
+$K=8$, while keeping the final neural embedding dimension fixed at 512.
+
+\paragraph{Matched protocol.}
+We train $K\in\{1,2,4,8\}$ separately on EnzymeMap and the three ReactZyme
+splits, giving 16 fresh fits with seed 42. The $K=4$ reference is retrained
+within this study. All arms use the proposed association-only objective.
+Within each target, only $K$ and its induced
+projection and gate dimensions vary. Frozen inputs, association graph,
+1,022-residue input limit, SLEEC/global views, losses, and training and
+inference settings are held fixed: phase 1 uses 10 epochs and batch 512;
+phase 2 uses 100 updates; inference uses $(\nu,c,\alpha)=(3,0.5,0.4)$
+(Appendix~\ref{app:v4-recipe}). We report every arm at those fixed checkpoints
+on the same complete benchmark candidate pools. These fresh-run ablation
+values are distinct from the historical checkpoints in the primary
+benchmark comparison.
+
+\begin{table}[htbp]
+\centering
+\caption{Learned residue-view count on ReactZyme. Entries are query-averaged
+all-positive test MRR; $R\!\to\!E$ and $E\!\to\!R$ denote the retrieval
+directions. All rows use seed 42 and fresh target-specific training.
+Bold marks the largest value in each column, without implying significance.}
+\label{tab:v4-k-reactzyme}
+\begin{tabular}{crrrrrr}
+\toprule
+ & \multicolumn{2}{c}{Reaction-Sim} & \multicolumn{2}{c}{Enzyme-Sim} & \multicolumn{2}{c}{Time} \\
+\cmidrule(lr){2-3}\cmidrule(lr){4-5}\cmidrule(lr){6-7}
+$K$ & $R\!\to\!E$ & $E\!\to\!R$ & $R\!\to\!E$ & $E\!\to\!R$ & $R\!\to\!E$ & $E\!\to\!R$ \\
+\midrule
+1 & 0.4000 & \textbf{0.5419} & 0.6632 & 0.9652 & 0.5374 & \textbf{0.8042} \\
+2 & \textbf{0.4045} & 0.5158 & 0.6672 & 0.9626 & 0.5381 & 0.7975 \\
+4 & 0.3947 & 0.5410 & 0.6662 & \textbf{0.9704} & 0.5383 & 0.7897 \\
+8 & 0.3926 & 0.5010 & \textbf{0.6674} & 0.9613 & \textbf{0.5398} & 0.7911 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\begin{table}[htbp]
+\centering
+\caption{Learned residue-view count on EnzymeMap. BEDROC values are
+percentages; EF5 and EF10 are fold enrichments. The full library contains
+1,521 queries and 261,907 candidates; exclusion of training identifiers
+leaves 1,337 queries and 252,113 candidates. Bold marks the largest value
+within each setting and metric; all rows use seed 42.}
+\label{tab:v4-k-enzymemap}
+\begin{tabular}{crrrr}
+\toprule
+$K$ & BEDROC$_{85}$ & BEDROC$_{20}$ & EF5 & EF10 \\
+\midrule
+\multicolumn{5}{l}{\emph{Full library}} \\
+1 & 52.22 & 70.78 & 15.82 & 8.67 \\
+2 & \textbf{57.97} & \textbf{75.61} & 16.73 & 8.90 \\
+4 & 57.23 & 75.54 & \textbf{16.86} & \textbf{8.96} \\
+8 & 50.40 & 69.05 & 15.59 & 8.49 \\
+\midrule
+\multicolumn{5}{l}{\emph{Training-ID-excluded library}} \\
+1 & 47.03 & 67.09 & 15.22 & 8.45 \\
+2 & \textbf{53.64} & 72.61 & 16.23 & 8.72 \\
+4 & 52.87 & \textbf{72.63} & \textbf{16.41} & \textbf{8.79} \\
+8 & 44.97 & 65.15 & 14.90 & 8.23 \\
+\bottomrule
+\end{tabular}
+\end{table}
+
+\paragraph{Results and retained default.}
+Tables~\ref{tab:v4-k-reactzyme} and~\ref{tab:v4-k-enzymemap} show no uniformly
+best count. On EnzymeMap, $K=2$ gives the highest BEDROC$_{85}$ in both
+settings, whereas $K=4$ gives the highest EF5 and EF10. Relative to $K=2$,
+$K=4$ loses 0.74 and 0.78 BEDROC$_{85}$ percentage points in the full and
+excluded libraries, respectively. On ReactZyme, $K=4$ improves
+$E\!\to\!R$ MRR over $K=2$ on Reaction-Sim and Enzyme-Sim, but reduces
+Reaction-Sim $R\!\to\!E$ and Time $E\!\to\!R$ MRR. Increasing to $K=8$
+yields small gains in Enzyme-Sim and Time $R\!\to\!E$ MRR, but lower
+EnzymeMap scores and lower Reaction-Sim MRR in both directions than $K=4$.
+We therefore retain the original $K=4$ default as a practical compromise
+across screening and bidirectional retrieval, rather than claim that it
+maximizes every metric.
+
+\paragraph{Scope of the evidence.}
+This is a single-seed sensitivity study, not an estimate of robustness or
+statistical significance. Increasing $K$ also increases parameter count;
+the comparison is not parameter-matched, and a common seed does not ensure
+identical initialization across different shapes. Since every arm retains
+at least one learned view, this experiment does not isolate the benefit of
+adding learned views relative to a $K=0$ model. The interpretation applies
+to the proposed association-only training setting; it does not establish
+an optimal count across random seeds or unrelated downstream tasks.

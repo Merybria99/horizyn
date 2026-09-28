@@ -144,6 +144,35 @@ class BioFPTargetDataset(BaseDataset[str]):
         self.denominators: dict[str, torch.Tensor] = {}
         self.confidences: dict[str, torch.Tensor] = {}
         self.target_dims: dict[str, int] = {}
+        self.positive_indices: dict[str, torch.Tensor] = {}
+        sparse = sorted(key.removesuffix("_positive_indices") for key in payload.files
+                        if key.endswith("_positive_indices"))
+        if sparse:
+            if any(key.endswith("_targets") for key in payload.files):
+                raise ValueError("Cannot mix sparse positive and dense BioFP targets")
+            if len(ids) != len(set(ids)):
+                raise ValueError("Duplicate positive annotation enzyme IDs")
+            self.FAMILIES = tuple(sparse)
+            for family in sparse:
+                raw_indices = payload[f"{family}_positive_indices"]
+                if not np.issubdtype(raw_indices.dtype, np.integer):
+                    raise ValueError("Positive indices must be integers")
+                indices = torch.as_tensor(raw_indices, dtype=torch.long)
+                confidence = torch.as_tensor(payload[f"{family}_confidence"], dtype=dtype)
+                width = int(payload[f"{family}_vocab_size"])
+                if indices.ndim != 2 or indices.shape[0] != len(ids) or indices.shape[1] < 1 or confidence.shape != indices.shape:
+                    raise ValueError(f"Invalid sparse {family} annotation shape")
+                if width < 1 or ((indices < -1) | (indices >= width)).any():
+                    raise ValueError(f"Invalid sparse {family} indices")
+                if not torch.isfinite(confidence).all() or (confidence < 0).any():
+                    raise ValueError(f"Invalid sparse {family} confidence")
+                if ((indices < 0) & (confidence != 0)).any():
+                    raise ValueError("Missing positive labels must have zero confidence")
+                self.positive_indices[family] = indices
+                self.confidences[family] = confidence
+            payload.close()
+            super().__init__(keys=ids, use_key_to_idx=True)
+            return
         discovered = {
             key[: -len("_targets")]
             for key in payload.files
@@ -210,6 +239,11 @@ class BioFPTargetDataset(BaseDataset[str]):
 
     def _row(self, idx: int) -> dict[str, torch.Tensor]:
         sample: dict[str, torch.Tensor] = {}
+        if self.positive_indices:
+            for family in self.FAMILIES:
+                sample[f"biofp_{family}_positive_indices"] = self.positive_indices[family][idx]
+                sample[f"biofp_{family}_confidence"] = self.confidences[family][idx]
+            return sample
         for family in self.FAMILIES:
             sample[f"biofp_{family}_targets"] = self.targets[family][idx]
             sample[f"biofp_{family}_mask"] = self.masks[family][idx]
@@ -376,6 +410,9 @@ class TargetWithBioFPTargetDataset(BaseDataset[str]):
                 for family, dim in biofp_dataset.target_dims.items()
             },
         }
+        for family, indices in biofp_dataset.positive_indices.items():
+            self._zero_sample[f"biofp_{family}_positive_indices"] = torch.full_like(indices[0], -1)
+            self._zero_sample[f"biofp_{family}_confidence"] = torch.zeros_like(biofp_dataset.confidences[family][0])
         super().__init__(keys=list(target_dataset.keys), use_key_to_idx=True)
 
     @property

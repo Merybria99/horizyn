@@ -79,6 +79,84 @@ def test_all_known_positive_pair_indices_raises_when_no_known_pair_in_batch():
         )
 
 
+def test_typed_negative_masks_preserve_sources_and_leave_other_cells_unlabelled():
+    module = _small_module(loss_name="SampledMultiPositiveInfoNCELoss")
+    query_idx = torch.tensor([0, 1])
+    target_idx = torch.tensor([0, 1])
+    biological, random_negative = module._typed_negative_masks(
+        unique_query_ids=["q1", "q2"],
+        unique_target_ids=["t1", "t2", "t3"],
+        pair_query_ids=["q1", "q1", "q2", "q2"],
+        pair_target_ids=["t1", "t2", "t2", "t3"],
+        pair_types=["positive", "biological_negative", "positive", "random_negative"],
+        query_idx=query_idx,
+        target_idx=target_idx,
+    )
+
+    assert biological.tolist() == [[False, True, False], [False, False, False]]
+    assert random_negative.tolist() == [[False, False, False], [False, False, True]]
+
+
+def test_typed_negative_masks_include_all_verified_pairs_in_global_batch():
+    module = _small_module(loss_name="SampledMultiPositiveInfoNCELoss")
+
+    class MockDataModule:
+        _train_typed_negative_targets = {
+            "q1": {
+                "biological": frozenset({"t2", "t3"}),
+                "random": frozenset({"t4"}),
+            }
+        }
+
+    class MockTrainer:
+        datamodule = MockDataModule()
+
+    module.trainer = MockTrainer()
+    biological, random_negative = module._typed_negative_masks(
+        unique_query_ids=["q1", "q2"],
+        unique_target_ids=["t1", "t2", "t3", "t4"],
+        pair_query_ids=["q1", "q1", "q2"],
+        pair_target_ids=["t1", "t2", "t4"],
+        pair_types=["positive", "biological_negative", "positive"],
+        query_idx=torch.tensor([0, 1]),
+        target_idx=torch.tensor([0, 3]),
+    )
+
+    assert biological.tolist() == [
+        [False, True, True, False],
+        [False, False, False, False],
+    ]
+    assert random_negative.tolist() == [
+        [False, False, False, True],
+        [False, False, False, False],
+    ]
+
+
+def test_typed_negative_masks_reject_a_known_positive_negative():
+    module = _small_module(loss_name="SampledMultiPositiveInfoNCELoss")
+    with pytest.raises(RuntimeError, match="known positive"):
+        module._typed_negative_masks(
+            unique_query_ids=["q1"],
+            unique_target_ids=["t1"],
+            pair_query_ids=["q1"],
+            pair_target_ids=["t1"],
+            pair_types=["biological_negative"],
+            query_idx=torch.tensor([0]),
+            target_idx=torch.tensor([0]),
+        )
+
+
+def test_observed_positive_pair_ids_exclude_typed_negatives():
+    query_ids, target_ids = ProteinPooledLitModule._observed_positive_pair_ids(
+        ["q1", "q1", "q2"],
+        ["p1", "p2", "p3"],
+        ["positive", "biological_negative", "random_negative"],
+    )
+
+    assert query_ids == ["q1"]
+    assert target_ids == ["p1"]
+
+
 def test_degree_tempered_loss_uses_full_train_graph_degrees():
     module = _small_module(loss_name="DegreeTemperedFullBatchMLNCELoss")
 
@@ -154,6 +232,48 @@ def test_validation_reports_first_positive_and_reactzyme_mrr_separately():
     assert num_valid == 1
     assert metrics["mrr"].item() == pytest.approx(1.0)
     assert metrics["reactzyme_mrr"].item() == pytest.approx((1.0 + 0.25) / 2.0)
+
+
+@pytest.mark.parametrize("scores,positives", [
+    ([0.5, 0.5, 0.5], [1, 2]),
+    ([1.0, 1.0, 0.0, -1.0], [1, 3, 3]),
+    ([0.9, 0.8, 0.7, 0.6], [0, 3]),
+])
+def test_validation_metrics_match_stable_candidate_order(scores, positives):
+    from horizyn.benchmarks.chunked_retrieval import chunked_positive_ranks, rank_metrics
+
+    module = _small_module(validation_retrieval_metrics=True)
+    module.metric_functionals = {"r_precision": None, "avg_precision": None}
+    score_tensor = torch.tensor(scores)
+    candidate_ids = [f"target_{i}" for i in range(len(scores))]
+    num_valid, metrics = module._batched_retrieval_metric_values(
+        score_tensor.unsqueeze(0), ["query"],
+        {"query": [candidate_ids[i] for i in positives]},
+        {identifier: i for i, identifier in enumerate(candidate_ids)},
+    )
+    ranked = torch.argsort(score_tensor, descending=True, stable=True).tolist()
+    ranks = sorted(ranked.index(i) + 1 for i in set(positives))
+    assert num_valid == 1
+    assert metrics["mean_rank"].item() == ranks[0]
+    assert metrics["mrr"].item() == pytest.approx(1.0 / ranks[0])
+    assert metrics["reactzyme_mrr"].item() == pytest.approx(
+        sum(1.0 / rank for rank in ranks) / len(ranks)
+    )
+    assert metrics["avg_precision"].item() == pytest.approx(
+        sum(i / rank for i, rank in enumerate(ranks, 1)) / len(ranks)
+    )
+    assert metrics["avg_precision"].item() <= 1.0
+    assert metrics["r_precision"].item() == pytest.approx(
+        sum(rank <= len(ranks) for rank in ranks) / len(ranks)
+    )
+    assert metrics["top_1"].item() == float(ranks[0] == 1)
+    chunked_metrics = rank_metrics(
+        chunked_positive_ranks(torch.ones(1, 1), score_tensor.unsqueeze(1),
+                               [positives], chunk_size=2),
+        module.retrieval_metric_top_k,
+    )
+    for name, value in metrics.items():
+        assert torch.allclose(value, chunked_metrics[name]), name
 
 
 def test_ec_weight_matrix_uses_hierarchical_weights():

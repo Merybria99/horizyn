@@ -1,0 +1,5 @@
+# Matplotlib and NumPy are already provided by the plotting environment.
+# Optional isolated install, without modifying the model-training environment:
+# python3 -m pip install --no-deps --target .deps/ablation-figures -r documents/ablation_study_20260921/requirements-figures.txt
+SciencePlots==2.2.1
+colorspacious==1.1.2

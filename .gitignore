@@ -124,3 +124,18 @@ temp/
 /scratch/**
 !/scratch/**/
 !/scratch/**/.gitkeep
+
+# External environments, campaign markers, and generated reports remain local.
+/.deps/
+/.venv-host/
+/.venv-horizyn1-annotations/
+/.tmp-f3-shortcut-*/
+/results/
+/reports/
+/run_pids/
+/._*
+/nohup.out
+/wget-log
+/archive/20260928/third_party/EnzGFM/
+/archive/20260928/third_party/HoroPCA/
+/archive/20260928/third_party/ChiENN/

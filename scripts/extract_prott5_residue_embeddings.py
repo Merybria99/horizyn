@@ -65,6 +65,10 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--world-size", type=int, default=1, help="Number of shard workers")
     parser.add_argument("--device", default="cuda", help="Torch device for extraction")
     parser.add_argument("--batch-size", type=int, default=8, help="Maximum proteins per batch")
+    parser.add_argument("--length-sort", action="store_true",
+                        help="Sort each shard by truncated sequence length to reduce padding")
+    parser.add_argument("--padded-token-budget", action="store_true",
+                        help="Budget padded batch tokens (including EOS), not summed sequence lengths")
     parser.add_argument(
         "--max-tokens-per-batch",
         type=int,
@@ -185,9 +189,9 @@ def truncate_sequence(sequence: str, max_length: int | None, strategy: str = "en
     return first + middle + last
 
 
-def parse_fasta(path: str | Path) -> list[ProteinRecord]:
+def iter_fasta_records(path: str | Path):
     path = Path(path)
-    records: list[ProteinRecord] = []
+    count = 0
     protein_id: str | None = None
     chunks: list[str] = []
 
@@ -198,30 +202,23 @@ def parse_fasta(path: str | Path) -> list[ProteinRecord]:
                 continue
             if line.startswith(">"):
                 if protein_id is not None:
-                    records.append(
-                        ProteinRecord(
-                            index=len(records),
-                            protein_id=protein_id,
-                            sequence=normalize_sequence("".join(chunks)),
-                        )
-                    )
+                    yield ProteinRecord(count, protein_id, normalize_sequence("".join(chunks)))
+                    count += 1
                 protein_id = line[1:].split()[0]
                 chunks = []
             else:
                 chunks.append(line)
 
     if protein_id is not None:
-        records.append(
-            ProteinRecord(
-                index=len(records),
-                protein_id=protein_id,
-                sequence=normalize_sequence("".join(chunks)),
-            )
-        )
+        yield ProteinRecord(count, protein_id, normalize_sequence("".join(chunks)))
+        count += 1
 
-    if not records:
+    if not count:
         raise ValueError(f"No FASTA records found in {path}")
-    return records
+
+
+def parse_fasta(path: str | Path) -> list[ProteinRecord]:
+    return list(iter_fasta_records(path))
 
 
 def format_for_prott5(sequence: str) -> str:
@@ -257,6 +254,7 @@ def iter_batches(
     records: list[ProteinRecord],
     batch_size: int,
     max_tokens_per_batch: int,
+    *, padded_token_budget: bool = False,
 ) -> list[list[ProteinRecord]]:
     if batch_size <= 0:
         raise ValueError("batch_size must be positive")
@@ -266,17 +264,22 @@ def iter_batches(
     batches: list[list[ProteinRecord]] = []
     current: list[ProteinRecord] = []
     current_tokens = 0
+    longest = 0
 
     for record in records:
-        token_count = max(len(record.sequence), 1)
+        token_count = max(len(record.sequence), 1) + int(padded_token_budget)
         would_exceed_batch = len(current) >= batch_size
-        would_exceed_tokens = current and current_tokens + token_count > max_tokens_per_batch
+        proposed_tokens = ((len(current) + 1) * max(longest, token_count)
+                           if padded_token_budget else current_tokens + token_count)
+        would_exceed_tokens = current and proposed_tokens > max_tokens_per_batch
         if would_exceed_batch or would_exceed_tokens:
             batches.append(current)
             current = []
             current_tokens = 0
+            longest = 0
         current.append(record)
         current_tokens += token_count
+        longest = max(longest, token_count)
 
     if current:
         batches.append(current)
@@ -385,6 +388,9 @@ def validate_partial_shard(
         "rank": args.rank,
         "world_size": args.world_size,
     }
+    for name in ("length_sort", "padded_token_budget"):
+        if bool(h5_file.attrs.get(name, False)) != bool(getattr(args, name, False)):
+            raise ValueError(f"Partial shard attribute {name!r} mismatch")
     for name, expected in expected_attrs.items():
         if name not in h5_file.attrs:
             raise ValueError(f"Partial shard is missing attribute {name!r}")
@@ -496,19 +502,25 @@ def _write_pending_batches(
 
         with torch.inference_mode():
             hidden = model(input_ids=input_ids, attention_mask=attention_mask).last_hidden_state
+        finite_rows = torch.isfinite(hidden).all(dim=(1, 2))
+        if not bool(finite_rows.all()):
+            invalid_rows = torch.nonzero(~finite_rows, as_tuple=False).flatten().tolist()
+            invalid_ids = [batch[row_idx].protein_id for row_idx in invalid_rows[:10]]
+            raise ValueError(
+                "ProtT5 produced non-finite residue embeddings for proteins: " f"{invalid_ids}"
+            )
 
-        for row_idx, record in enumerate(batch):
-            if len(record.sequence) == 0:
-                continue
-            shard_idx = (record.index - args.rank) // args.world_size
-            start = int(offsets[shard_idx])
-            end = int(offsets[shard_idx + 1])
-            residue_tensor = hidden[row_idx, : len(record.sequence), :].detach().cpu()
-            if args.dtype == "float16":
-                residue_array = residue_tensor.to(torch.float16).numpy()
-            else:
-                residue_array = residue_tensor.to(torch.float32).numpy()
-            vectors[start:end] = residue_array
+        # One GPU transfer and one contiguous HDF5 write per batch. Storage
+        # offsets follow the shard's records, which may now be length-sorted;
+        # original FASTA indices remain metadata for merge/order restoration.
+        stored_dtype = torch.float16 if args.dtype == "float16" else torch.float32
+        host_hidden = hidden.detach().to(dtype=stored_dtype, device="cpu").numpy()
+        start, end = int(offsets[processed]), int(offsets[batch_end])
+        if end > start:
+            vectors[start:end] = np.concatenate([
+                host_hidden[row_idx, :len(record.sequence)]
+                for row_idx, record in enumerate(batch)
+            ], axis=0)
 
         processed = batch_end
         checkpoint_due = processed == len(records) or processed >= next_checkpoint
@@ -556,7 +568,6 @@ def write_shard(args: argparse.Namespace) -> Path:
                 f"Partial shard already exists: {partial_path} (use --resume or --force)"
             )
 
-    all_records = parse_fasta(args.fasta)
     records = [
         ProteinRecord(
             index=record.index,
@@ -567,14 +578,17 @@ def write_shard(args: argparse.Namespace) -> Path:
                 strategy=args.sequence_truncation,
             ),
         )
-        for record in all_records
+        for record in iter_fasta_records(args.fasta)
         if record.index % args.world_size == args.rank
     ]
+    if getattr(args, "length_sort", False):
+        records.sort(key=lambda record: (len(record.sequence), record.index))
     total_residues = sum(len(record.sequence) for record in records)
     offsets = np.zeros(len(records) + 1, dtype=np.int64)
     if records:
         offsets[1:] = np.cumsum([len(record.sequence) for record in records], dtype=np.int64)
-    batches = iter_batches(records, args.batch_size, args.max_tokens_per_batch)
+    batches = iter_batches(records, args.batch_size, args.max_tokens_per_batch,
+                           padded_token_budget=getattr(args, "padded_token_budget", False))
 
     print(
         f"Rank {args.rank}/{args.world_size}: {len(records)} proteins, "
@@ -645,6 +659,8 @@ def write_shard(args: argparse.Namespace) -> Path:
             h5_file.attrs["sequence_truncation"] = args.sequence_truncation
             h5_file.attrs["rank"] = args.rank
             h5_file.attrs["world_size"] = args.world_size
+            h5_file.attrs["length_sort"] = bool(getattr(args, "length_sort", False))
+            h5_file.attrs["padded_token_budget"] = bool(getattr(args, "padded_token_budget", False))
             h5_file.attrs["created_unix_time"] = time.time()
             h5_file.create_dataset(
                 "ids",

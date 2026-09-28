@@ -1,0 +1,164 @@
+# V4 dataset-specific training profile; frozen artifacts remain unchanged.
+seed: 42
+logging:
+  log_dir: runs/v4/enzymemap/logs
+  checkpoint_dir: runs/v4/enzymemap/checkpoints
+  checkpoint_monitor: val/loss
+  checkpoint_mode: min
+  save_every_n_train_steps: null
+  log_every_n_steps: 10
+  wandb:
+    enabled: false
+  checkpoint_on_validation_end: true
+  screen_selection_every_n_epochs: 10
+  save_top_k: 0
+  save_last: false
+  screen_selection_save_weights_only: false
+data:
+  train_pairs_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/train_pairs.csv
+  train_reactions_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/train_rxns.csv
+  protein_residue_embeds_path: /tmp/enzymediscovery_f3_20260920/train_validation_prott5.h5
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/features/reactiont5v2.forward.h5
+  validation_reaction_t5v2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/features/reactiont5v2.forward.h5
+  train_reaction_unimol2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/features/unimol2.forward.h5
+  validation_reaction_unimol2_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/features/unimol2.forward.h5
+  train_reaction_chiro_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/features/chiro.forward.h5
+  validation_reaction_chiro_embeds_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/features/chiro.forward.h5
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chirality_dim: 256
+  reaction_chienn_dim: 256
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chirality: false
+  reaction_allow_missing_chienn: false
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: false
+  train_batch_size: 512
+  retrieval_batch_size: 512
+  validation_retrieval_batch_size: 512
+  num_workers: 4
+  pin_memory: true
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/validation_candidate_ids.txt
+  validation_pairs_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/validation_pairs.csv
+  validation_reactions_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/validation_rxns.csv
+  reaction_direction_mode: forward_only
+  reaction_use_model: true
+  reaction_use_chemistry: true
+  train_reaction_chemistry_vectors_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/chemistry/train_reaction_set_features.npz
+  validation_reaction_chemistry_vectors_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/chemistry/validation_reaction_set_features.npz
+  reaction_chemistry_dim: 617
+  reaction_allow_missing_chemistry: true
+  reaction_use_directional: false
+  enzyme_ec_labels_path: null
+  persistent_workers: true
+  prefetch_factor: 1
+  worker_num_threads: 1
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_chirality_name: chiro
+  query_encoder_dims:
+  - 512
+  - 1024
+  - 512
+  target_encoder_dims:
+  - 512
+  - 512
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.0
+    token_layer_norm: true
+    modality_encoder_widths:
+    - 1024
+    - 512
+    modality_encoder_use_layer_norm: false
+    modality_encoder_dropout: 0.0
+    modality_encoder_normalise_output: false
+    side_composition: directional_delta
+    fusion: attention
+    output_projection: mlp
+    directional_gate_init: 0.1
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: true
+  enzyme_input_mode: raw_mean_sleec_multiview
+  enzyme_multiview:
+    hidden_dim: 256
+    num_slots: 4
+    dropout: 0.1
+training:
+  max_epochs: 10
+  precision: bf16-mixed
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: DecoupledAllPositiveInfoNCELoss
+    beta: 5.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    positive_pair_source: all_known_in_batch
+    biofp_aux_weight: 0.0
+    biofp_family_weights: {}
+    biofp_confidence_cap: 1.0
+    lambda_r2e: 0.5
+    lambda_e2r: 0.5
+    unknown_negative_weight: 1.0
+  metrics:
+    top_k:
+    - 1
+    - 10
+    - 100
+    - 1000
+  validation_retrieval_metrics: false
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: /datastor2/deep-proteins/EnzymeDiscovery/horizyn/runs/generalization_20260919_2251/cross_paper_retraining/clipzyme_f3_catalog_v1/validation_candidate_ids.txt
+  validation_retrieval_batch_size: 512
+  validation_interval_steps: null
+  enable_progress_bar: false
+  devices: 1
+  accelerator: gpu
+  strategy: auto
+  log_attention_stats: false
+  attention_logging_interval: 10
+  accumulate_grad_batches: 1
+  validation_retrieval_directions:
+  - reaction_to_enzyme
+  - enzyme_to_reaction
+  check_val_every_n_epoch: 3
+  num_sanity_val_steps: 0
+  use_distributed_sampler: true
+  early_stopping:
+    enabled: false
+  cpu_num_threads: 4
+  contrastive_fp32: true
+  fused_adamw: true
+  enzyme_attention_regularization:
+    entropy_weight: 0.01
+    diversity_weight: 0.01

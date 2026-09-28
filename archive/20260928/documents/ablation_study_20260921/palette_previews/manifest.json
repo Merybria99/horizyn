@@ -1,0 +1,112 @@
+{
+  "source_sha256": "93070f598978bbe06d3b91dc33dfe03f1659fd5cfca171b655fdf90855c35b54",
+  "data": [
+    [
+      0.14550983905792236,
+      -0.6797701120376587,
+      -0.10693967342376709
+    ],
+    [
+      1.3945400714874268,
+      -0.01990199089050293,
+      -0.3383338451385498
+    ],
+    [
+      -0.10209083557128906,
+      -0.38620829582214355,
+      -0.04069209098815918
+    ],
+    [
+      0.09888410568237305,
+      -0.2304553985595703,
+      0.7873117923736572
+    ],
+    [
+      -0.2545654773712158,
+      -0.6971538066864014,
+      -0.0053942203521728516
+    ],
+    [
+      0.12316703796386719,
+      -0.8057117462158203,
+      -0.21007061004638672
+    ]
+  ],
+  "previews": [
+    {
+      "id": "a_navy_rose",
+      "label": "A \u2014 Muted navy and dusty rose",
+      "anchors": [
+        "#B56587",
+        "#E5B4C8",
+        "#FAFAFA",
+        "#B3CCDF",
+        "#355C7D"
+      ],
+      "simulations": {
+        "standard": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "protanomaly": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "deuteranomaly": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "tritanomaly": {
+          "luminance_monotonic_toward_neutral": true
+        }
+      }
+    },
+    {
+      "id": "b_blue_coral",
+      "label": "B \u2014 Cool blue and soft coral",
+      "anchors": [
+        "#C96E66",
+        "#EDBDB6",
+        "#FAFAFA",
+        "#AFCCE5",
+        "#3979AD"
+      ],
+      "simulations": {
+        "standard": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "protanomaly": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "deuteranomaly": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "tritanomaly": {
+          "luminance_monotonic_toward_neutral": true
+        }
+      }
+    },
+    {
+      "id": "c_blue_orange",
+      "label": "C \u2014 Blue and orange",
+      "anchors": [
+        "#B86B2D",
+        "#E8C3A3",
+        "#FAFAFA",
+        "#ADC8E2",
+        "#28679C"
+      ],
+      "simulations": {
+        "standard": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "protanomaly": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "deuteranomaly": {
+          "luminance_monotonic_toward_neutral": true
+        },
+        "tritanomaly": {
+          "luminance_monotonic_toward_neutral": true
+        }
+      }
+    }
+  ]
+}

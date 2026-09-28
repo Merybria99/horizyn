@@ -1,0 +1,39 @@
+{
+  "style": [
+    "science",
+    "no-latex"
+  ],
+  "scienceplots_version": "2.2.1",
+  "palette_source": "Custom blue\u2013orange anchors declared in plot_study.py; selected by the user from palette_previews.",
+  "anchors": [
+    "#B86B2D",
+    "#E8C3A3",
+    "#FAFAFA",
+    "#ADC8E2",
+    "#28679C"
+  ],
+  "interpolation": "Custom signed orange\u2013neutral\u2013blue ramp; each side is luminance-monotonic. Not claimed perceptually uniform.",
+  "simulations": [
+    {
+      "view": "Standard colour vision",
+      "endpoint_distance_CAM02_UCS": 51.49534935554204,
+      "monotonic_luminance_toward_neutral": true
+    },
+    {
+      "view": "Protanopia simulation",
+      "endpoint_distance_CAM02_UCS": 43.01749289416724,
+      "monotonic_luminance_toward_neutral": true
+    },
+    {
+      "view": "Deuteranopia simulation",
+      "endpoint_distance_CAM02_UCS": 48.85830059004733,
+      "monotonic_luminance_toward_neutral": true
+    },
+    {
+      "view": "Tritanopia simulation",
+      "endpoint_distance_CAM02_UCS": 49.591132865600635,
+      "monotonic_luminance_toward_neutral": true
+    }
+  ],
+  "accessibility": "Signed cell labels, circular versus square markers, open versus filled markers, zero lines, and hatching convey values without relying on hue. Simulations are diagnostics, not universal accessibility certification."
+}

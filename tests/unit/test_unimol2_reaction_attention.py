@@ -9,18 +9,18 @@ import pytest
 import torch
 
 from horizyn.config import DotDict, validate_config
+from horizyn.datasets.base import BaseDataset
 from horizyn.datasets.reaction_hdf5 import UniMol2ReactionEmbedDataset
 from horizyn.model import (
-    HybridReactionEncoder,
     MLP,
+    HybridReactionEncoder,
     MoleculeSetAttentionPooling,
     MoleculeSetMeanPooling,
     MultimodalReactionAttentionEncoder,
     UniMol2ReactionAttentionEncoder,
 )
-from horizyn.datasets.base import BaseDataset
-from horizyn.utils import dict_collate_fn, residue_collate_fn, unimol2_reaction_collate_fn
 from horizyn.reaction_features import HybridReactionFeatureDataset, build_reaction_feature_dataset
+from horizyn.utils import dict_collate_fn, residue_collate_fn, unimol2_reaction_collate_fn
 
 
 def write_reaction_hdf5(path: Path):
@@ -64,10 +64,16 @@ def test_unimol2_reaction_hdf5_loader_and_reverse_swap(tmp_path):
 
     assert len(dataset) == 2
     assert dataset.embedding_dim == 2
-    assert torch.equal(dataset["r1_f"]["reactant_embeddings"], torch.tensor([[1.0, 0.0], [2.0, 0.0]]))
+    assert torch.equal(
+        dataset["r1_f"]["reactant_embeddings"], torch.tensor([[1.0, 0.0], [2.0, 0.0]])
+    )
     assert torch.equal(dataset["r1_f"]["product_embeddings"], torch.tensor([[4.0, 0.0]]))
-    assert torch.equal(dataset["r1_r"]["reactant_embeddings"], dataset["r1_f"]["product_embeddings"])
-    assert torch.equal(dataset["r1_r"]["product_embeddings"], dataset["r1_f"]["reactant_embeddings"])
+    assert torch.equal(
+        dataset["r1_r"]["reactant_embeddings"], dataset["r1_f"]["product_embeddings"]
+    )
+    assert torch.equal(
+        dataset["r1_r"]["product_embeddings"], dataset["r1_f"]["reactant_embeddings"]
+    )
 
 
 def test_unimol2_reaction_collate_padding_masks(tmp_path):
@@ -357,9 +363,7 @@ def test_unimol2_reaction_attention_encoder_shape_and_normalization():
     )
     reactants = torch.randn(4, 2, 2)
     products = torch.randn(4, 3, 2)
-    reactant_mask = torch.tensor(
-        [[False, False], [False, True], [False, False], [False, True]]
-    )
+    reactant_mask = torch.tensor([[False, False], [False, True], [False, False], [False, True]])
     product_mask = torch.tensor(
         [[False, False, True], [False, False, False], [False, True, True], [False, False, True]]
     )
@@ -565,7 +569,9 @@ def load_unimol2_script():
     script_path = (
         Path(__file__).resolve().parents[2] / "scripts" / "extract_unimol2_reaction_embeddings.py"
     )
-    spec = importlib.util.spec_from_file_location("extract_unimol2_reaction_embeddings", script_path)
+    spec = importlib.util.spec_from_file_location(
+        "extract_unimol2_reaction_embeddings", script_path
+    )
     module = importlib.util.module_from_spec(spec)
     assert spec.loader is not None
     sys.modules[spec.name] = module
@@ -981,6 +987,75 @@ def test_modality_l2_normalization_preserves_f3_token_scale():
         torch.full((2, 3), 2.0),
         atol=1e-5,
     )
+
+
+def test_symmetric_output_blocks_have_fixed_normalized_geometry():
+    block_dims = {"core": 3, "site": 2, "mechanism": 1, "cofactor": 1, "ec": 1}
+    block_weights = {
+        "core": 0.50,
+        "site": 0.20,
+        "mechanism": 0.12,
+        "cofactor": 0.10,
+        "ec": 0.08,
+    }
+    encoder = MultimodalReactionAttentionEncoder(
+        input_dim=8,
+        output_dim=8,
+        num_layers=1,
+        widths=[12],
+        reaction_model_dim=3,
+        unimol_dim=2,
+        chienn_dim=2,
+        side_composition="molecule_set",
+        output_block_dims=block_dims,
+        output_block_weights=block_weights,
+    )
+    encoded, details = encoder(
+        reaction_embedding=torch.randn(4, 3),
+        reactant_embeddings=torch.randn(4, 2, 2),
+        product_embeddings=torch.randn(4, 2, 2),
+        reactant_chirality_embeddings=torch.randn(4, 2, 2),
+        product_chirality_embeddings=torch.randn(4, 2, 2),
+        return_attention=True,
+    )
+
+    assert encoded.shape == (4, 8)
+    assert torch.allclose(encoded.norm(dim=-1), torch.ones(4), atol=1e-6)
+    offset = 0
+    for name, dim in block_dims.items():
+        block = encoded[:, offset : offset + dim]
+        expected_norm = torch.full((4,), block_weights[name] ** 0.5)
+        assert torch.allclose(block.norm(dim=-1), expected_norm, atol=1e-6)
+        assert torch.allclose(details[f"reaction_block_norm_{name}"], torch.ones(4), atol=1e-6)
+        assert torch.allclose(
+            details[f"reaction_block_weighted_norm_{name}"],
+            expected_norm,
+            atol=1e-6,
+        )
+        assert torch.allclose(
+            details[f"reaction_block_weight_{name}"],
+            torch.full((4,), block_weights[name]),
+        )
+        offset += dim
+
+    (encoded * torch.randn_like(encoded)).sum().backward()
+    for projection in encoder.output_block_projection.projections.values():
+        assert projection[1].weight.grad is not None
+
+
+def test_symmetric_output_blocks_reject_mismatched_order():
+    with pytest.raises(ValueError, match="same ordered keys"):
+        MultimodalReactionAttentionEncoder(
+            input_dim=4,
+            output_dim=4,
+            num_layers=0,
+            widths=[],
+            reaction_model_dim=3,
+            unimol_dim=2,
+            chienn_dim=2,
+            output_block_dims={"core": 3, "site": 1},
+            output_block_weights={"site": 0.25, "core": 0.75},
+        )
 
 
 def test_chemistry_dropout_only_masks_chemistry_during_training():

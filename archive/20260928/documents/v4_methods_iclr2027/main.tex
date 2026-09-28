@@ -1,0 +1,14 @@
+% Main method followed by its appendix; no title page or table of contents.
+\documentclass{article}
+\input{preamble}
+\begin{document}
+\setcounter{section}{2}
+\input{methods}
+\label{page:method-end}
+\clearpage
+\bibliographystyle{iclr2027_conference}
+\bibliography{references}
+\clearpage
+\appendix
+\input{appendix}
+\end{document}

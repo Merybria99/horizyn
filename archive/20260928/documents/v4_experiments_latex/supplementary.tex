@@ -1,0 +1,259 @@
+\section{Implementation and comparison details}
+\label{app:exp-implementation}
+
+\subsection{V4 optimization and inference}
+Table~\ref{tab:exp-recipe} summarizes the settings shared by the four
+target-specific fits. The pretrained feature extractors comprise ProtT5
+residue representations, the frozen SLEEC scorer, ReactionT5v2, Uni-Mol2,
+and ChIRo features. Their pretraining is not replaced by target-only training.
+The protein tower retains at most 1,022 residue vectors under the recorded
+ends/center policy; the EnzymeMap screening pool already restricts proteins
+to at most 650 residues. Feature extraction is reused across compatible
+experiments, while downstream retrieval layers and target training dictionaries
+remain target-specific.
+
+\begin{table}[htbp]
+\centering\small
+\caption{Fixed V4 recipe used for the primary benchmark tables. These
+settings are distinct from the earlier 18-epoch temperature study and the
+longer validation-selected public-baseline training runs.}
+\label{tab:exp-recipe}
+\begin{tabularx}{\linewidth}{l>{\raggedright\arraybackslash}X}
+\toprule
+Setting & Value\\\midrule
+Seed and phase-1 batch size & 42; 512 association rows\\
+Phase-1 retained checkpoint & End of epoch 10\\
+Phase-1 optimizer & AdamW; learning rate $10^{-4}$; weight decay $10^{-2}$\\
+Phase-1 retrieval objective & Anchor-balanced decoupled multi-positive loss; equal direction weights; fixed inverse temperature $\beta=5$\\
+Attention regularizers & Entropy and diversity coefficients both 0.01\\
+Phase-2 retained checkpoint & Full-graph update 100; F3 frozen\\
+Phase-2 optimizer & AdamW; learning rate $10^{-4}$; weight decay $10^{-3}$; gradient norm clipped at 1\\
+Phase-2 retrieval objective & Uniform-positive cross-entropy; temperature 0.2\\
+Identity penalty / training residual & 10 / 0.2\\
+Biological variant & Phase-2 relative loss; margin 0.1; coefficients $(1,1,1)$; divisor 3\\
+Inference multipliers & Protein fusion $\nu=3$; residual $c=0.5$\\
+Training-reaction dictionary & Score weight $\alpha=0.40$; 32 protein neighbors; protein and reaction kernel temperatures 0.03\\
+Ensemble / hubness correction & Neither used\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The dictionary and chemistry normalization are fitted from training inputs.
+Test associations are not added to the dictionary. Biological supervision
+uses annotations attached to training endpoints; the ReactZyme variant can
+also use reaction-only Rhea information. This is additional annotation
+supervision, not merely a different way of writing the same association loss.
+Conversely, the original V4 chemistry representation already contains
+cofactor-related features, so ``without added biology'' does not mean that
+every biological input has been removed.
+
+The two active phases have different losses. Phase 1 normalizes positive
+contributions by anchor and uses a decoupled denominator. Phase 2 uses a
+uniform-positive cross-entropy over the complete training graph. The
+original global MLNCE loss is used by the separate parent Horizyn comparator;
+it is not the V4 phase-1 objective. Phase-2 biological labels cannot modify
+frozen residue queries, and their gradients alone do not establish
+biochemical interpretations for the learned views.
+
+\subsection{Public-baseline training adaptations}
+
+The four ReactZyme family implementations are imported from the released
+source. Their downstream classifiers use hidden dimension 128, output
+dimension 64, dropout 0, batch size 1,000, and AdamW with learning rate
+$10^{-4}$ and weight decay $5\times10^{-10}$. Training allows at most 200
+epochs, with early stopping after 30 epochs without validation improvement;
+the retained checkpoint minimizes validation binary cross-entropy. Four
+deterministic corruptions per positive are used because the original negative
+pair files are absent. Known training positives are excluded from training
+negative samples; validation negatives also exclude validation positives.
+Positive and negative weights are 1 and 0.25. This matches downstream
+association partitions, but is not an exact reproduction of published
+classifier scores.
+
+The released contrastive implementation uses opposite label semantics in
+its contrastive and BCE branches. We retain that implementation under the
+``contrastive'' label and report a separately named
+\texttt{contrastive\_corrected} sensitivity that inverts the contrastive
+labels. We do not select between them using test results or relabel the
+correction as the unchanged published baseline.
+
+The original Horizyn comparator preserves the public 2,048-to-4,096-to-4,096-to-512
+reaction tower and 1,024-to-4,096-to-4,096-to-512 protein tower, global MLNCE
+with $\beta=10$, normalized retrieval outputs, and original fingerprint
+generators. Its participant-set adapter writes the benchmark components on
+one side of the reaction representation. Training uses batch size 16,384,
+AdamW learning rate $10^{-4}$, weight decay 0.01, and at most 100 epochs.
+Checkpoint selection maximizes mean bidirectional validation all-positive
+MRR evaluated every five epochs. The selected epochs are 100, 95, and 100
+for Reaction-Sim, Enzyme-Sim, and Time. This is a materially larger training
+budget than V4's ten retained epochs, so the observed ordering does not
+isolate the loss or architecture effect.
+
+ESM2 and SaProt features follow the recorded released extraction conventions;
+29,486 proteins without SaProt structural strings use the released ESM2
+fallback. MAT and UniMol inputs preserve the supplied molecular participants
+and log conformer failures. The UniMol baseline uses UniMol v1, not the
+Uni-Mol2 features supplied to V4. EnzGFM rows use frozen 650M residue means
+with the cached 1,022-residue ends/center policy and special tokens excluded;
+the published extraction convention differs. These rows are therefore
+backbone controls. Reused frozen test-input embeddings do not imply reuse of
+target-trained V4 retrieval embeddings.
+
+\paragraph{Completion snapshot.}
+The captured evidence contains \completedPublicRuns\ completed public-model
+runs: 95 of the 96 unmodified official-family configurations, all 24
+corrected-contrastive sensitivities, three Horizyn fits, and four EnzGFM
+controls. The remaining unmodified configuration is the Time-split
+Transformer with SaProt/UniMol-3D. Three CREEP runs and eight other EnzGFM
+configurations did not yet have completed test receipts in this snapshot.
+Full structural CLIPZyme and EnzymeCAGE comparisons require complete
+validated structures/pockets and justified reaction-input adapters;
+VenusRXN requires mapped directional inputs. Their missing results are
+not replaced with transferred checkpoints or reduced candidate pools.
+The supplementary tables are a frozen snapshot, not a live job-status page.
+\FloatBarrier
+
+\section{Metric definitions and retrieval diagnostics}
+\label{app:exp-metrics}
+
+\subsection{Released screening metric convention}
+For a ranked screening query, let $r_i\in\{0,\ldots,N-1\}$ be the
+\emph{zero-based} indices of its $n$ positive candidates and $\rho=n/N$.
+The released CLIPZyme notebook implementation reproduced in our evaluator is
+\begin{align}
+ S_a &= \sum_{i=1}^{n}\exp(-a r_i/N),\\
+ D_a &= \frac{\rho(1-\exp(-a))}{\exp(a/N)-1},\\
+ F_a &= \frac{\rho\sinh(a/2)}{\cosh(a/2)-\cosh(a/2-a\rho)},\\
+ \operatorname{BEDROC}_{a}
+     &= \frac{S_a F_a}{D_a}
+       + \frac{1}{1-\exp(a(1-\rho))},\qquad a\in\{85,20\}.
+ \label{eq:exp-bedroc}
+\end{align}
+This documents the implemented rank origin explicitly; we do not silently
+substitute a one-based formula or clip its finite-size output. The published
+CLIPZyme point estimates are closely reproduced under this convention.
+The enrichment cutoff is $\lfloor fN\rfloor$, while its denominator remains
+$fn$, as in Eq.~\eqref{eq:exp-ef}. We preserve NumPy's recorded descending
+score sorting convention for screening, independently of the stable
+candidate-index convention in the ReactZyme evaluator. Equal-score handling
+must not be silently unified across the two benchmark protocols.
+
+\subsection{All-positive and first-positive retrieval}
+In addition to Eq.~\eqref{eq:exp-mrr}, the saved ReactZyme scorer returns
+\begin{align}
+ \operatorname{MRR}_{\mathrm{first}}
+  &=\frac{1}{|Q|}\sum_{q\in Q}
+    \frac{1}{\min_{p\in P(q)}\operatorname{rank}_q(p)},\\
+ \operatorname{Hit}@k
+  &=\frac{1}{|Q|}\sum_{q\in Q}
+    \mathbf{1}\!\left[\min_{p\in P(q)}\operatorname{rank}_q(p)\le k\right].
+\end{align}
+We call the latter Hit@$k$ to avoid importing conflicting Top-$k$/Top-$k$-N
+terminology from different papers. Duplicate positive edges are removed
+before scoring. Query-level normalization prevents a query with many known
+catalysts from contributing proportionally more weight. Queries with no
+positive in a specified diagnostic stratum are omitted from that stratum's
+mean, while its candidate universe remains fixed.
+
+Table~\ref{tab:exp-diagnostics} shows both reciprocal-rank definitions and
+the available hit rates for the same saved score matrices. Mean Rank,
+precision-normalized Top-$k$, and Hit@20 are not fabricated from these
+summaries; they would require additional rank-level aggregation.
+
+\begin{landscape}
+\begin{table}[p]
+\centering\small
+\caption{Diagnostic ReactZyme metrics from the saved primary test summaries.
+``MRR'' is the all-positive metric; ``First MRR'' uses only the earliest
+positive. Values are fractions. No checkpoint is reselected using this table.}
+\label{tab:exp-diagnostics}
+\resizebox{\linewidth}{!}{\input{tables/retrieval_diagnostics}}
+\end{table}
+\end{landscape}
+
+\section{Case1 results across target-trained checkpoints}
+\label{app:exp-case-targets}
+
+\begin{table}[htbp]
+\centering\small
+\caption{Case1 transfer diagnostics for every target-trained model. Unique
+and entry counts are primary-paper recovery at rank 25, out of 12 and 15
+respectively. AUROC is conditional on 81 workbook-active and 42 non-detect-only
+unique sequences. Reaction-Sim is the primary deployment; the other rows
+do not replace it after examining outcomes.}
+\label{tab:exp-case-targets}
+\resizebox{\linewidth}{!}{\input{tables/case1_targets}}
+\end{table}
+
+For the EnzymeMap-trained checkpoint, biological supervision leaves the
+unique-paper recovery at 6/12 and changes conditional AUROC from 0.470606
+to 0.470018. Thus strong EnzymeMap benchmark performance is not sufficient
+to establish useful ranking for this particular literature reaction panel.
+The lower transfer performance is retained, rather than reporting only the
+best target-trained checkpoint.
+
+The primary evidence tier comprises eight paper sources: the UxaE
+engineering study of Shin and colleagues; the binding-pocket work of Xia
+and colleagues; the thermostable discovery study of Chen and colleagues;
+the hyperthermostable enzyme characterization of Chen and colleagues; the
+expression/bioconversion study of Zhao and colleagues; the engineering study
+of Wang and colleagues; the coordinated engineering study of Zhu and colleagues;
+and the mining/characterization study of Guo and colleagues
+\citep{caseS01,caseS02,caseS03,caseS04,caseS05,caseS06,caseS16,caseS17}.
+The source audit records which evidence came from an abstract, indexed
+full-text section, or supporting-information description. It does not imply
+that every construct-level assay in the workbook was independently repeated
+or fully revalidated. Full sequence and source mappings accompany the local
+audit artifacts identified in the package's source manifest.
+\FloatBarrier
+
+\section{Scope of the existing ablation evidence}
+\label{app:exp-coverage}
+
+\begin{table}[htbp]
+\centering\small
+\caption{What is controlled by the recorded ablations. A sensitivity analysis
+over nonzero coefficients is not a component-removal experiment.}
+\label{tab:exp-coverage}
+\begin{tabularx}{\linewidth}{p{.25\linewidth}X}
+\toprule
+Choice & Available evidence and limit\\\midrule
+Dictionary weight & Same weights; $\alpha=0.25,0.40,0.50$ at $c=1$ on both benchmarks. Does not remove the dictionary.\\
+Residual strength & Same weights; $c=1$ versus $c=0.5$ at $\alpha=0.40$. Does not remove phase 2.\\
+Phase-2 biology & No added labels, correct labels, shuffled labels, and three family-removal controls at fixed F3. Single seed; removal lowers total regularization.\\
+Inverse temperature & Paired seeds 17/42/73 at 18 epochs on EnzymeMap. Not a three-seed final-V4 experiment or an MLNCE-versus-anchor-balanced comparison.\\
+F3 biology & Paired seeds 42/43/44 with weights 0/0.1/1 and unannotated phase 2. Distinct from the phase-2-only variant.\\
+Directional encoder & Historical pilots exist; no complete matched final-V4 directional versus invariant comparison on both benchmarks is established by this audit.\\
+Learned residue queries & A fixed-budget comparison of four versus one versus no learned views remains necessary.\\
+Architecture versus loss & The stronger parent Horizyn result changes inputs, capacity, objective, batch size, and budget. It is not an isolated loss ablation.\\
+\bottomrule
+\end{tabularx}
+\end{table}
+
+The missing matched controls include dictionary removal ($\alpha=0$),
+residual removal ($c=0$), both removals together, and a native fusion
+multiplier of one with the other final-recipe choices fixed. Loss, direction,
+and learned-query contributions require corresponding matched retraining.
+Historical best checkpoints cannot be combined into a causal component table.
+We report the existing figures as exploratory controlled comparisons, without
+inventing the missing runs or treating all variants as independent replications.
+\FloatBarrier
+
+\section{Complete recorded public-baseline results}
+\label{app:exp-public}
+
+Tables below retain every completed test receipt at \experimentSnapshot.
+Abbreviations: \texttt{esm2} is ESM2-650M; \texttt{saprot} uses the recorded
+SaProt/ESM2 fallback; \texttt{enzgfm650} is the adapted frozen EnzGFM backbone.
+\texttt{mat\_2d}, \texttt{mat\_3d}, \texttt{unimol\_2d}, and
+\texttt{unimol\_3d} identify molecular feature sets. Missing feature fields
+in the Horizyn adapter row mean its own native fingerprint/ProtT5 inputs,
+not missing model inputs. Epochs are validation-selected. All scores below
+are all-positive MRR and use the same complete test catalogs as V4.
+
+\begingroup\footnotesize
+\setlength{\tabcolsep}{3pt}
+\input{tables/all_public_reaction_smi}
+\input{tables/all_public_enzyme_smi}
+\input{tables/all_public_time}
+\endgroup

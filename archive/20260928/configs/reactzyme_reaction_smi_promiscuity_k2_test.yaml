@@ -1,0 +1,59 @@
+# Official ReactZyme reaction-SMILES test inputs for evaluating a trained
+# promiscuity-aware K=2 checkpoint.  Model weights and complete architecture
+# hyperparameters are restored from the Lightning checkpoint.
+
+seed: 42
+
+data:
+  train_pairs_path: data/revised_protocols/reactzyme_paper/reaction_smi/train_pairs.csv
+  train_reactions_path: data/revised_protocols/reactzyme_paper/reaction_smi/train_rxns.csv
+  test_pairs_path: data/revised_protocols/reactzyme_paper/reaction_smi/test_pairs.csv
+  test_reactions_path: data/revised_protocols/reactzyme_paper/reaction_smi/test_rxns.csv
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  reaction_representation: multimodal_reaction_attention
+  reaction_t5v2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/test/reactiont5v2.h5
+  reaction_unimol2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/test/unimol2.h5
+  reaction_chiro_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/test/chiro.h5
+  reaction_chemistry_vectors_path: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/test_reaction_set_features.npz
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chemistry_dim: 617
+  reaction_use_model: true
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_use_chemistry: true
+  reaction_use_directional: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chemistry: true
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: true
+  reaction_direction_mode: forward_only
+
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: data/revised_protocols/reactzyme_paper/reaction_smi/test_candidate_ids.txt
+
+model:
+  name: ProteinPooledDualModel
+  query_encoder_type: multimodal_reaction_attention
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [512, 512]
+  embedding_dim: 512
+  enzyme_prototypes:
+    count: 2
+    bottleneck_dim: 64
+    residual_gate_init: 0.05
+    temperature: 0.10
+    dropout: 0.0
+
+training:
+  training_stage: prototype_only
+  init_from_checkpoint: runs/promiscuity_k2_reaction_smi/checkpoints/reactzyme_finetune/protein-pooling-epoch=09.ckpt
+  max_epochs: 1

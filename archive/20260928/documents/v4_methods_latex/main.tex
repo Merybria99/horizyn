@@ -1,0 +1,50 @@
+% Standalone entry point. Compile this file or upload this directory to Overleaf.
+\documentclass[11pt]{article}
+\usepackage[margin=1in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{graphicx,microtype}
+\usepackage{enumitem}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage{tikz}
+\usetikzlibrary{arrows.meta,positioning,calc}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
+\input{macros}
+\setlength{\emergencystretch}{2em}
+\allowdisplaybreaks
+\title{\methodname: Architecture, Training Objectives, and Retrieval\\\large Detailed methods draft}
+\author{}
+\date{Implementation snapshot: 21 September 2026}
+\begin{document}
+\maketitle
+\begin{abstract}
+We describe a bidirectional enzyme--reaction retrieval method with independently
+computable protein and reaction representations. The protein encoder combines a
+global sequence representation, a frozen SLEEC residue prior, and four learned
+residue views. The reaction encoder combines frozen reaction, molecular, and
+chemical features. Training comprises minibatch, anchor-balanced multi-positive
+alignment followed by full-graph residual refinement. The final retrieval score
+combines the refined neural representation with a fixed dictionary of training
+reactions. An optional biological objective regularizes the existing refinement
+heads using EC hierarchy, cofactor-associated categories, and coarse
+transformation descriptors, without introducing additional inference parameters.
+This document specifies the original V4 recipe and its phase-2-only biological
+variant, including the exact distinction between their training and inference
+computations.
+\end{abstract}
+\tableofcontents
+\clearpage
+\input{methods}
+\clearpage
+\appendix
+\input{implementation_details}
+\clearpage
+\bibliographystyle{plainnat}
+\begingroup
+\raggedright
+\bibliography{references}
+\endgroup
+\end{document}

@@ -5,11 +5,16 @@ This module implements Maximum Likelihood Noise Contrastive Estimation (MLNCE) a
 contrastive loss functions for dual-encoder architectures.
 """
 
+import math
 from typing import Any, Optional
 
 import torch
-from torch import nn
 import torch.nn.functional as F
+from torch import nn
+
+
+class NoContrastiveAnchorsError(ValueError):
+    """A valid pair batch has no anchor with both positive and negative support."""
 
 
 class FullBatchNCELoss(nn.Module):
@@ -134,7 +139,8 @@ class FullBatchNCELoss(nn.Module):
             raise ValueError("query_idx and target_idx must be non-empty")
         if query_idx.numel() != target_idx.numel():
             raise ValueError(
-                f"query_idx and target_idx must have same length, got {query_idx.numel()} and {target_idx.numel()}"
+                "query_idx and target_idx must have same length, got "
+                f"{query_idx.numel()} and {target_idx.numel()}"
             )
         num_queries, num_targets = dists.shape
         qmin = int(query_idx.min().item())
@@ -257,6 +263,208 @@ class FullBatchMLNCELoss(FullBatchNCELoss):
         return self.beta * pos_dists.mean() + logZ
 
 
+class SampledMultiPositiveInfoNCELoss(FullBatchNCELoss):
+    """Per-reaction InfoNCE over explicitly typed candidate pairs.
+
+    The numerator contains every known positive for an anchor.  The denominator
+    contains those positives plus only annotation-derived biological negatives
+    and random negatives supplied by the data pipeline.  Unlabelled matrix cells
+    never contribute to the training objective.
+    """
+
+    def forward(
+        self,
+        dists: torch.Tensor,
+        query_idx: torch.Tensor,
+        target_idx: torch.Tensor,
+        biological_negative_mask: torch.Tensor,
+        random_negative_mask: torch.Tensor,
+        return_components: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, dict[str, torch.Tensor]]:
+        self._validate_inputs(dists, query_idx, target_idx)
+        expected_shape = tuple(dists.shape)
+        for name, mask in (
+            ("biological_negative_mask", biological_negative_mask),
+            ("random_negative_mask", random_negative_mask),
+        ):
+            if mask.dtype != torch.bool or tuple(mask.shape) != expected_shape:
+                raise ValueError(f"{name} must be a bool tensor with shape {expected_shape}")
+            if mask.device != dists.device:
+                raise ValueError(
+                    f"{name} must be on the same device as dists "
+                    f"({mask.device} != {dists.device})"
+                )
+
+        positive_mask = torch.zeros_like(dists, dtype=torch.bool)
+        positive_mask[query_idx, target_idx] = True
+        if bool((biological_negative_mask & random_negative_mask).any()):
+            raise ValueError("biological and random negative masks must not overlap")
+        negative_mask = biological_negative_mask | random_negative_mask
+        if bool((positive_mask & negative_mask).any()):
+            raise ValueError("positive and negative masks must not overlap")
+
+        allowed_mask = positive_mask | negative_mask
+        valid_anchor_mask = positive_mask.any(dim=1) & negative_mask.any(dim=1)
+        if not bool(valid_anchor_mask.any()):
+            raise NoContrastiveAnchorsError("sampled InfoNCE requires a positive and a negative for an anchor")
+
+        logits = -self.beta * dists
+        negative_infinity = torch.finfo(logits.dtype).min
+        positive_log_partition = torch.logsumexp(
+            logits.masked_fill(~positive_mask, negative_infinity), dim=1
+        )
+        candidate_log_partition = torch.logsumexp(
+            logits.masked_fill(~allowed_mask, negative_infinity), dim=1
+        )
+        per_anchor = candidate_log_partition - positive_log_partition
+        loss = per_anchor[valid_anchor_mask].mean()
+        if not return_components:
+            return loss
+
+        biological_counts = biological_negative_mask.sum(dim=1).to(dists.dtype)
+        random_counts = random_negative_mask.sum(dim=1).to(dists.dtype)
+        return loss, {
+            "sampled_infonce": loss.detach(),
+            "valid_anchors": valid_anchor_mask.sum().to(dists.dtype),
+            "mean_biological_negatives": biological_counts[valid_anchor_mask].mean(),
+            "mean_random_negatives": random_counts[valid_anchor_mask].mean(),
+        }
+
+
+class BidirectionalSampledMultiPositiveInfoNCELoss(SampledMultiPositiveInfoNCELoss):
+    """Symmetric sampled multi-positive InfoNCE for both retrieval directions.
+
+    Only explicitly supplied negative cells enter either denominator.  The
+    transposed masks define the enzyme-to-reaction problem, so unlabelled cells
+    remain ignored in both directions.
+    """
+
+    def __init__(
+        self,
+        lambda_r2e: float = 0.5,
+        lambda_e2r: float = 0.5,
+        *args: Any,
+        **kwargs: Any,
+    ) -> None:
+        super().__init__(*args, **kwargs)
+        if lambda_r2e < 0.0 or lambda_e2r < 0.0 or lambda_r2e + lambda_e2r <= 0.0:
+            raise ValueError("lambda_r2e and lambda_e2r must have a positive sum")
+        weight_sum = float(lambda_r2e + lambda_e2r)
+        self.lambda_r2e = float(lambda_r2e) / weight_sum
+        self.lambda_e2r = float(lambda_e2r) / weight_sum
+
+    def _directional_loss(
+        self,
+        dists: torch.Tensor,
+        positive_mask: torch.Tensor,
+        biological_negative_mask: torch.Tensor,
+        random_negative_mask: torch.Tensor,
+    ) -> tuple[torch.Tensor, torch.Tensor, torch.Tensor, torch.Tensor]:
+        negative_mask = biological_negative_mask | random_negative_mask
+        allowed_mask = positive_mask | negative_mask
+        valid_anchor_mask = positive_mask.any(dim=1) & negative_mask.any(dim=1)
+        if not bool(valid_anchor_mask.any()):
+            zero = dists.sum() * 0.0
+            return zero, valid_anchor_mask.sum(), zero.detach(), zero.detach()
+
+        logits = -self.beta * dists
+        negative_infinity = torch.finfo(logits.dtype).min
+        positive_log_partition = torch.logsumexp(
+            logits.masked_fill(~positive_mask, negative_infinity),
+            dim=1,
+        )
+        candidate_log_partition = torch.logsumexp(
+            logits.masked_fill(~allowed_mask, negative_infinity),
+            dim=1,
+        )
+        loss = (candidate_log_partition - positive_log_partition)[valid_anchor_mask].mean()
+        biological_counts = biological_negative_mask.sum(dim=1).to(dists.dtype)
+        random_counts = random_negative_mask.sum(dim=1).to(dists.dtype)
+        return (
+            loss,
+            valid_anchor_mask.sum(),
+            biological_counts[valid_anchor_mask].mean(),
+            random_counts[valid_anchor_mask].mean(),
+        )
+
+    def forward(
+        self,
+        dists: torch.Tensor,
+        query_idx: torch.Tensor,
+        target_idx: torch.Tensor,
+        biological_negative_mask: torch.Tensor,
+        random_negative_mask: torch.Tensor,
+        return_components: bool = False,
+    ) -> torch.Tensor | tuple[torch.Tensor, dict[str, torch.Tensor]]:
+        self._validate_inputs(dists, query_idx, target_idx)
+        expected_shape = tuple(dists.shape)
+        for name, mask in (
+            ("biological_negative_mask", biological_negative_mask),
+            ("random_negative_mask", random_negative_mask),
+        ):
+            if mask.dtype != torch.bool or tuple(mask.shape) != expected_shape:
+                raise ValueError(f"{name} must be a bool tensor with shape {expected_shape}")
+            if mask.device != dists.device:
+                raise ValueError(
+                    f"{name} must be on the same device as dists "
+                    f"({mask.device} != {dists.device})"
+                )
+
+        positive_mask = torch.zeros_like(dists, dtype=torch.bool)
+        positive_mask[query_idx, target_idx] = True
+        if bool((biological_negative_mask & random_negative_mask).any()):
+            raise ValueError("biological and random negative masks must not overlap")
+        negative_mask = biological_negative_mask | random_negative_mask
+        if bool((positive_mask & negative_mask).any()):
+            raise ValueError("positive and negative masks must not overlap")
+
+        r2e, r2e_valid, r2e_bio, r2e_random = self._directional_loss(
+            dists,
+            positive_mask,
+            biological_negative_mask,
+            random_negative_mask,
+        )
+        e2r, e2r_valid, e2r_bio, e2r_random = self._directional_loss(
+            dists.t(),
+            positive_mask.t(),
+            biological_negative_mask.t(),
+            random_negative_mask.t(),
+        )
+        active_r2e = bool((r2e_valid > 0).item())
+        active_e2r = bool((e2r_valid > 0).item())
+        if not active_r2e and not active_e2r:
+            raise NoContrastiveAnchorsError(
+                "bidirectional sampled InfoNCE requires a positive and an explicit "
+                "negative for at least one anchor"
+            )
+        r2e_weight = self.lambda_r2e if active_r2e else 0.0
+        e2r_weight = self.lambda_e2r if active_e2r else 0.0
+        active_weight_sum = r2e_weight + e2r_weight
+        if active_weight_sum <= 0.0:
+            raise NoContrastiveAnchorsError(
+                "bidirectional sampled InfoNCE requires a positive and an explicit "
+                "negative for an anchor in a direction with nonzero loss weight"
+            )
+        r2e_weight /= active_weight_sum
+        e2r_weight /= active_weight_sum
+        total = r2e_weight * r2e + e2r_weight * e2r
+        if not return_components:
+            return total
+        return total, {
+            "sampled_infonce": total.detach(),
+            "r2e": r2e.detach(),
+            "e2r": e2r.detach(),
+            "r2e_valid_anchors": r2e_valid.to(dists.dtype),
+            "e2r_valid_anchors": e2r_valid.to(dists.dtype),
+            "r2e_mean_biological_negatives": r2e_bio,
+            "e2r_mean_biological_negatives": e2r_bio,
+            "r2e_mean_random_negatives": r2e_random,
+            "e2r_mean_random_negatives": e2r_random,
+            "r2e_weight": dists.new_tensor(r2e_weight),
+            "e2r_weight": dists.new_tensor(e2r_weight),
+        }
+
+
 class DegreeTemperedFullBatchMLNCELoss(FullBatchNCELoss):
     """MLNCE with inverse reaction-degree weighting of positive pairs.
 
@@ -318,6 +526,7 @@ class DecoupledAllPositiveInfoNCELoss(FullBatchNCELoss):
         beta_r2e: float = 10.0,
         beta_e2r: float = 10.0,
         temperature_regularization_weight: float = 0.0,
+        unknown_negative_weight: float = 1.0,
         *args: Any,
         **kwargs: Any,
     ):
@@ -328,11 +537,17 @@ class DecoupledAllPositiveInfoNCELoss(FullBatchNCELoss):
             raise ValueError("directional beta values must be positive")
         if temperature_regularization_weight < 0:
             raise ValueError("temperature_regularization_weight must be non-negative")
+        if not 0.0 < unknown_negative_weight <= 1.0:
+            raise ValueError("unknown_negative_weight must lie in (0, 1]")
         direction_sum = float(lambda_r2e + lambda_e2r)
         self.lambda_r2e = float(lambda_r2e) / direction_sum
         self.lambda_e2r = float(lambda_e2r) / direction_sum
         self.separate_direction_temperatures = bool(separate_direction_temperatures)
         self.temperature_regularization_weight = float(temperature_regularization_weight)
+        # ReactZyme/source-collapse non-edges are mostly unlabelled, not verified
+        # negatives.  A value below one retains contrast while reducing the
+        # penalty assigned to potentially missing positive annotations.
+        self.unknown_negative_weight = float(unknown_negative_weight)
         self.register_buffer("initial_logbeta_r2e", torch.log(torch.tensor(float(beta_r2e))))
         self.register_buffer("initial_logbeta_e2r", torch.log(torch.tensor(float(beta_e2r))))
         self.logbeta_r2e = nn.Parameter(
@@ -375,26 +590,23 @@ class DecoupledAllPositiveInfoNCELoss(FullBatchNCELoss):
         positive_mask[query_idx, target_idx] = True
         return positive_mask
 
-    @staticmethod
     def _decoupled_anchor_loss(
+        self,
         dists: torch.Tensor,
         positive_mask: torch.Tensor,
         beta: torch.Tensor,
     ) -> torch.Tensor:
-        anchor_losses: list[torch.Tensor] = []
-        for anchor_idx in range(dists.shape[0]):
-            positive_distances = dists[anchor_idx, positive_mask[anchor_idx]]
-            negative_distances = dists[anchor_idx, ~positive_mask[anchor_idx]]
-            if positive_distances.numel() == 0 or negative_distances.numel() == 0:
-                continue
-            positive_logits = -beta * positive_distances
-            negative_logits = -beta * negative_distances
-            log_negative_mass = torch.logsumexp(negative_logits, dim=0)
-            positive_losses = F.softplus(log_negative_mass - positive_logits)
-            anchor_losses.append(positive_losses.mean())
-        if not anchor_losses:
-            return dists.new_zeros(())
-        return torch.stack(anchor_losses).mean()
+        # One batched reduction instead of a Python/GPU synchronization per anchor.
+        logits = -beta * dists
+        counts = positive_mask.sum(dim=1)
+        valid = (counts > 0) & (counts < dists.shape[1])
+        negatives = (logits + math.log(self.unknown_negative_weight)).masked_fill(
+            positive_mask, torch.finfo(logits.dtype).min
+        )
+        log_negative_mass = torch.logsumexp(negatives, dim=1)
+        per_positive = F.softplus(log_negative_mass[:, None] - logits)
+        per_anchor = per_positive.masked_fill(~positive_mask, 0).sum(dim=1) / counts.clamp_min(1)
+        return per_anchor.masked_fill(~valid, 0).sum() / valid.sum().clamp_min(1)
 
     def _temperature_regularization(self) -> torch.Tensor:
         if not self.separate_direction_temperatures:
@@ -1132,7 +1344,8 @@ class HorizynFGWLoss(FullBatchMLNCELoss):
             target_idx: Enzyme indices for positive pairs.
             query_embeds: Learned normalized reaction embeddings, shape (num_reactions, dim).
             target_embeds: Learned normalized enzyme embeddings, shape (num_enzymes, dim).
-            reaction_similarity: External reaction similarity matrix, shape (num_reactions, num_reactions).
+            reaction_similarity: External reaction similarity matrix, shape
+                (num_reactions, num_reactions).
             enzyme_similarity: External enzyme similarity matrix, shape (num_enzymes, num_enzymes).
             return_components: If True, return the total loss and a dict of components.
 
@@ -1275,6 +1488,28 @@ def build_horizyn_loss(
             beta_max=beta_max,
         )
     if normalized_name in {
+        "sampledmultipositiveinfonceloss",
+        "sampled_multi_positive_infonce",
+    }:
+        return SampledMultiPositiveInfoNCELoss(
+            beta=beta,
+            learn_beta=learn_beta,
+            beta_min=beta_min,
+            beta_max=beta_max,
+        )
+    if normalized_name in {
+        "bidirectionalsampledmultipositiveinfonceloss",
+        "bidirectional_sampled_multi_positive_infonce",
+    }:
+        return BidirectionalSampledMultiPositiveInfoNCELoss(
+            beta=beta,
+            learn_beta=learn_beta,
+            beta_min=beta_min,
+            beta_max=beta_max,
+            lambda_r2e=kwargs.get("lambda_r2e", 0.5),
+            lambda_e2r=kwargs.get("lambda_e2r", 0.5),
+        )
+    if normalized_name in {
         "degreetemperedfullbatchmlnceloss",
         "degree_tempered_mlnce",
     }:
@@ -1300,6 +1535,7 @@ def build_horizyn_loss(
             beta_r2e=kwargs.get("beta_r2e", beta),
             beta_e2r=kwargs.get("beta_e2r", beta),
             temperature_regularization_weight=kwargs.get("temperature_regularization_weight", 0.0),
+            unknown_negative_weight=kwargs.get("unknown_negative_weight", 1.0),
         )
     if normalized_name in {
         "hybridcardinalityretrievalloss",
@@ -1318,6 +1554,7 @@ def build_horizyn_loss(
             beta_r2e=kwargs.get("beta_r2e", beta),
             beta_e2r=kwargs.get("beta_e2r", beta),
             temperature_regularization_weight=kwargs.get("temperature_regularization_weight", 0.0),
+            unknown_negative_weight=kwargs.get("unknown_negative_weight", 1.0),
             soft_rank_weight=kwargs.get("soft_rank_weight", 0.0),
             soft_rank_tau=kwargs.get("soft_rank_tau", 0.1),
             soft_rank_top_k=kwargs.get("soft_rank_top_k", 128),

@@ -1,0 +1,174 @@
+seed: 42
+
+logging:
+  log_dir: runs/biological_residual_reaction_smi/logs/source_pretrain
+  checkpoint_dir: runs/biological_residual_reaction_smi/checkpoints/source_pretrain
+  checkpoint_monitor: train/loss_epoch
+  checkpoint_mode: min
+  save_every_n_train_steps: null
+  log_every_n_steps: 10
+  wandb:
+    enabled: false
+    project: horizyn-biological-residual
+    run_name: biological-residual-source-pretrain-reaction-smi-seed42
+    mode: offline
+    tags: [source-collapse, biological-residual, hypergraph, reaction-smi-safe]
+    log_model: false
+
+data:
+  train_pairs_path: runs/biological_residual_reaction_smi/data/source_pretrain/train_pairs.csv
+  train_reactions_path: runs/biological_residual_reaction_smi/data/source_pretrain/train_rxns.csv
+  protein_residue_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/fit_proteins_with_clipzyme_eval_prott5_residue.h5
+  protein_functional_tokens_path: runs/biological_residual_reaction_smi/cache/source/protein_functional_tokens.h5
+  cached_enzyme_base_embeds_path: runs/biological_residual_reaction_smi/cache/source/enzyme_base.h5
+  cached_train_reaction_base_embeds_path: runs/biological_residual_reaction_smi/cache/source/train_reaction_base.h5
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/rxns_reactiont5v2_forward_768_exact_rhea_plus_clipzyme_eval.h5
+  validation_reaction_t5v2_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/rxns_reactiont5v2_forward_768_exact_rhea_plus_clipzyme_eval.h5
+  train_reaction_unimol2_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/rxns_unimol2_84m_exact_rhea_plus_clipzyme_eval.h5
+  validation_reaction_unimol2_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/rxns_unimol2_84m_exact_rhea_plus_clipzyme_eval.h5
+  train_reaction_chiro_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/rxns_chiro_256_exact_rhea_plus_clipzyme_eval.h5
+  validation_reaction_chiro_embeds_path: outputs/biofp_from_scratch_chains/biofp-fresh-chain-nohome-20260709_172734/data/standardized/retrieval_training_source_collapse/train_exact/rxns_chiro_256_exact_rhea_plus_clipzyme_eval.h5
+  train_reaction_chemistry_vectors_path: runs/source_collapse_f3mc_ec_lambda3_95_5_v1/data/reaction_set/train_reaction_set_features.npz
+  validation_reaction_chemistry_vectors_path: runs/source_collapse_f3mc_ec_lambda3_95_5_v1/data/reaction_set/train_reaction_set_features.npz
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chemistry_dim: 617
+  reaction_use_model: true
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_use_chemistry: true
+  reaction_use_directional: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chemistry: true
+  reaction_embedding_in_memory: false
+  normalize_molecule_sets_as_self_reactions: false
+  reaction_direction_mode: forward_only
+  enzyme_ec_labels_path: null
+
+  train_sampler:
+    name: hypergraph_grouped
+    anchors_per_batch: 16
+    positives_per_anchor: 4
+    reaction_anchor_fraction: 0.5
+    seed: 42
+  train_batch_size: 128
+  retrieval_batch_size: 128
+  num_workers: 1
+  pin_memory: true
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_chirality_name: chiro
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [512, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.0
+    token_layer_norm: true
+    modality_encoder_widths: [4096, 4096]
+    modality_encoder_use_layer_norm: false
+    modality_encoder_dropout: 0.0
+    modality_encoder_normalise_output: false
+    side_composition: molecule_set
+    fusion: attention
+    output_projection: mlp
+    directional_gate_init: 0.1
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    checkpoint_path: checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: true
+  enzyme_input_mode: raw_mean_sleec_biological_factorized
+  enzyme_block_fusion:
+    dims: {core: 288, site: 96, mechanism: 64, cofactor: 32, ec: 32}
+    weights: {core: 0.55, site: 0.20, mechanism: 0.12, cofactor: 0.08, ec: 0.05}
+    dropout: 0.1
+  biofp:
+    family_dims: {mechanism: 8, cofactor: 10}
+    hidden_dim: 512
+    dropout: 0.1
+  hyperbolic_encoder:
+    hyp_dim: 128
+    use_tangent: true
+    freeze_projector: false
+    load_attention_pooler: false
+    freeze_attention_pooler: false
+  biological_residual:
+    enabled: true
+    token_dim: 128
+    heads: 4
+    layers: 1
+    dropout: 0.1
+    # UniMol2 and ChIRo are independent token sets (their molecule counts differ).
+    max_molecules: 64
+    sleec_bias: 0.25
+    sleec_pool_scale: 2.0
+    lse_temperature: 0.10
+    target_chunk_size: 64
+    fusion_alpha: 0.0
+    max_fusion_alpha: 0.2
+
+training:
+  training_stage: biological_residual
+  init_from_checkpoint: runs/reactzyme_reaction_features_v1/checkpoints/reaction_smi/F3_set_chemistry/protein-pooling-epoch=29.ckpt
+  max_epochs: 5
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0005
+  weight_decay: 0.0001
+  lambda_residue: 0.0
+  loss:
+    name: DecoupledAllPositiveInfoNCELoss
+    beta: 10.0
+    learn_beta: false
+    lambda_r2e: 0.5
+    lambda_e2r: 0.5
+    positive_pair_source: all_known_in_batch
+    unknown_negative_weight: 0.25
+    biological_base_weight: 0.0
+    biological_fused_weight: 0.0
+    biological_local_weight: 1.0
+    biological_guard_weight: 0.0
+    biological_penalty_weight: 0.0
+    biofp_aux_weight: 0.0
+  metrics:
+    top_k: [1, 10, 100]
+  validation_enabled: false
+  validation_retrieval_metrics: false
+  enable_progress_bar: true
+  devices: 4
+  accelerator: gpu
+  strategy: ddp_find_unused_parameters_true
+  log_attention_stats: false
+  accumulate_grad_batches: 1
+  num_sanity_val_steps: 0
+  use_distributed_sampler: false
+  early_stopping:
+    enabled: false
+
+ablation:
+  run_id: source_collapse_biological_residual_reaction_smi_safe_seed42
+  split: source_collapse_reaction_smi_strict
+  variant: biological_residual
+  label: Promiscuity-aware biological residual source pretraining

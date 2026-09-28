@@ -1,0 +1,47 @@
+{
+  "validated_utc": "2026-09-22T00:38:35.475908+00:00",
+  "pdf_pages": 7,
+  "page_limit": 10,
+  "includes_references": true,
+  "single_column": true,
+  "template_unchanged": true,
+  "template_files_verified": 4,
+  "template_body_font_pt": 10,
+  "template_textwidth_inches": 5.5,
+  "body_pages": 6,
+  "figure_count": 4,
+  "table_count": 4,
+  "numeric_table_cells_matched_to_previous_ledger": 153,
+  "original_figure_deltas_exactly_preserved": 72,
+  "original_case1_recovery_counts_exactly_preserved": 12,
+  "minimum_exported_figure_label_font_pt": {
+    "case1.pdf": 7.5,
+    "inference.pdf": 7.0,
+    "temperature.pdf": 7.5,
+    "biology.pdf": 7.0
+  },
+  "tex_warnings": [
+    "Underfull \\vbox (badness 10000) has occurred while \\output is active []"
+  ],
+  "warning_interpretation": "One underfull vertical box from unchanged template flush-bottom layout; no clipping, overflow, or unresolved references.",
+  "pdf_text_outside_pages": [],
+  "visual_review": "All seven pages inspected at rendered size; readable figures and tables, no overlaps, no in-image titles/subtitles/footnotes.",
+  "pdf_sha256": "bdcf7d49b731667b23002f6afb8d59c8b2080aff179f3e193194ed04a41ba54b",
+  "new_model_runs": false,
+  "source_sha256": {
+    "experiments.tex": "75efea5ad0db080392f791b61bdef582d545ea22feac4662f3a3393b1c9ccea8",
+    "macros.tex": "edb2a8f6e7f5c3d6d1e3f5e34385c1cc63835badbf74cee048794cd286d084cd",
+    "references.bib": "71bc696cf2913f9d7479214d6b8640ad24d5501447944f3fd6fa31892efe8109",
+    "main.tex": "f67ac02dbe1151a3c31ffce758645eb821afc3c40e8b5f0fc3df50d3aae4f6e1",
+    "prepare_assets.py": "96c9a7004a5a9ee92dddaf17cc2fc46426927b48365c39d1d0921560cb628954",
+    "tables/screening.tex": "709b169e7994277e2bf00cb304a060131fc95338a5e384e83f15fcaafc0f63cc",
+    "tables/case1.tex": "802ef5b4ce83a51bdc886470285b134212eea9f2ebe240735abc8ea93f5bbc4a",
+    "tables/reactzyme.tex": "28f2f25c925717247548e3d5c9a47d7f366a60e73a7b635edcf0a77636bc2d51",
+    "tables/data.tex": "d10f53507d8693119d09deadf627f3109384bb5df62e29c9349db82f107a8ce5"
+  },
+  "portable_compile": {
+    "exit_code": 0,
+    "pages": 7,
+    "page_text_identical": true
+  }
+}

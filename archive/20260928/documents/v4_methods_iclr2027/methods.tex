@@ -1,0 +1,57 @@
+% Main-paper fragment; exact specifications are in the accompanying appendix.
+\section{Method}
+\label{sec:paper-v4-method}
+
+\subsection{Problem formulation}
+\label{sec:problem-formulation}
+Let $\mathcal R$ and $\mathcal E$ denote reaction and enzyme sets. Observed
+associations form a many-to-many bipartite graph
+$\mathcal D\subseteq\mathcal R\times\mathcal E$. We learn enzyme--reaction
+compatibility by independently mapping both modalities to a shared space.
+The complete reaction and enzyme encoders $f_R,f_E$ give normalized outputs
+$\mathbf{z}_r=f_R(r)$ and $\mathbf{z}_e=f_E(e)$, yielding the cosine score
+$S(r,e)=\mathbf{z}_r^\top\mathbf{z}_e\in[-1,1]$.
+
+The same score supports $E\!\to\!R$ retrieval over reaction candidates
+$\mathcal C_R(e)\subseteq\mathcal R$ and $R\!\to\!E$ retrieval over enzyme
+candidates $\mathcal C_E(r)\subseteq\mathcal E$. Relevant candidates are each
+query's observed neighbors in the test graph, allowing multiple correct
+results. Query sets, candidate pools, and positive neighborhoods can differ
+between directions. Learning uses only the training graph
+$\vD\subseteq\vR\times\vE$.
+
+\method{} first aligns the encoders, then refines their embeddings over
+the complete training graph before adding training-reaction coordinates.
+
+\input{enzyme_representation}
+
+\subsection{Reaction encoder}
+\label{sec:reaction-encoder}
+The reaction encoder combines frozen ReactionT5v2, Uni-Mol2, and ChIRo features
+\citep{sagawa2023reactiont5,ji2024unimol2,adams2022chiro} with a
+617-dimensional chemistry descriptor computed from participant SMILES.
+This descriptor concatenates averaged Morgan fingerprints (512 coordinates),
+four aggregates of 16 molecular properties (64), participant-set statistics
+(4), and cofactor indicators (37). It supplies explicit substructure,
+physicochemical, and cofactor cues alongside pretrained embeddings.
+``Fixed'' means its construction is not optimized during retrieval training:
+property normalization and the cofactor vocabulary are fitted on training
+reactions and frozen; its neural projection is learned
+(Appendix~\ref{app:v4-chemistry}).
+
+For each molecular modality $m\in\{\mathrm{UniMol2},\mathrm{ChIRo}\}$,
+independent attention poolers summarize reactant and product embeddings as
+weighted means $\mathbf{p}_-^m$ and $\mathbf{p}_+^m$. Their concatenation
+$\mathbf{c}_r^m=[\mathbf{p}_-^m;\mathbf{p}_+^m;\mathbf{p}_+^m-\mathbf{p}_-^m;|\mathbf{p}_+^m-\mathbf{p}_-^m|]$ retains both summaries
+alongside their signed and absolute differences. Independent MLPs map these
+two compositions, the ReactionT5v2 embedding, and the chemistry descriptor
+to four 512-dimensional tokens. Modality attention averages available tokens
+with learned weights; an output MLP and $\ell_2$ normalization yield $\mathbf{b}_r$.
+
+EnzymeMap supplies physical reactant and product sides. ReactZyme supplies
+an unordered participant set, copied to both poolers. Their parameters
+differ, so $\mathbf{p}_-^m$ and $\mathbf{p}_+^m$ can differ without representing an observed
+reaction direction. The chemistry descriptor combines participants
+irrespective of side. Appendix~\ref{sec:v4-reaction} specifies the encoder.
+
+\input{training_and_scoring}

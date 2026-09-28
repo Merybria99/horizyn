@@ -1,0 +1,26 @@
+% Historical editable ablation fragment; not included in the main method.
+\myparagraph{Biological supervision (ablation only)}
+The proposed method excludes this loss. In the ablation, we supervise the
+residual heads with EC hierarchy, cofactor-associated
+categories, and coarse bond-change annotations on training enzymes and reactions.
+
+For category $c$, let $d_c^{\mathrm{within}}$ and $d_c^{\mathrm{background}}$
+be confidence-weighted mean cosine distances between distinct annotated
+members and from members to annotated nonmembers of the same family,
+respectively. We define
+\begin{equation}
+ \ell_c=\bar w_c\left[m+d_c^{\mathrm{within}}
+                       -d_c^{\mathrm{background}}\right]_+,\qquad m=0.1,
+ \label{eq:ablation-relative-biology}
+\end{equation}
+Here $\bar w_c$ is the mean confidence of within-category annotation pairs.
+Category-weighted averaging, followed by equal averaging over enzymes and
+reactions, defines $\mathcal L_f$ (Appendix~\ref{sec:v4-biology}). We optimize
+\begin{equation}
+ \mathcal L_{\mathrm{Bio}}^{(2)}=\mathcal L_{\mathrm{CE}}^{(2)}+10\mathcal L_{\mathrm{id}}
+       +\frac13\sum_{f\in\vFamilies}\mathcal L_f.
+ \label{eq:ablation-phase2-total}
+\end{equation}
+The families receive equal weight; missing annotations contribute no evidence.
+Biological gradients update only the residual heads. Annotations are used
+only during training.

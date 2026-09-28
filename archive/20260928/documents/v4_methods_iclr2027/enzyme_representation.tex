@@ -1,0 +1,73 @@
+\subsection{Enzyme representation}
+\label{sec:enzyme-representation}
+\label{sec:enzyme-encoder}
+\label{sec:paper-v4-encoders}
+Catalytic function depends on both sequence context and functional residues.
+We capture these signals using frozen
+ProtT5 residue embeddings $\mathbf{H}_e\in\mathbb R^{L\times1024}$
+\citep{elnaggar2022prottrans} and scores from a frozen SLEEC model
+\citep{gong2026sleec}, complemented by $K$ learned residue summaries.
+The global ProtT5 feature is
+$\mathbf{x}_e^{P}=L^{-1}\sum_{i\in\mathcal V_e}\mathbf{h}_i$,
+where $\mathcal V_e$ indexes the $L$ valid residues.
+
+\myparagraph{SLEEC-guided pooling}
+We suppress $e$ on residue vectors and attention weights.
+SLEEC assigns each $\mathbf{h}_i\in\mathbb R^{1024}$
+a logit $\ell_i$, centered and clipped as
+$\tilde\ell_i=\operatorname{clip}(\ell_i-L^{-1}\sum_{j\in\mathcal V_e}\ell_j,-10,10)$.
+The SLEEC feature $\mathbf{x}_e^{S}\in\mathbb R^{1024}$ summarizes enzyme $e$
+by averaging its residue embeddings with normalized SLEEC weights:
+\begin{equation}
+ a_i^{\mathrm S}=(1-\eta)
+ \frac{\exp(\tilde\ell_i)}{\sum_{j\in\mathcal V_e}\exp(\tilde\ell_j)}
+ +\frac{\eta}{L},\qquad
+ \mathbf{x}_e^{S}=\sum_{i\in\mathcal V_e}a_i^{\mathrm S}\mathbf{h}_i,
+ \label{eq:sleec-attention}
+\end{equation}
+Here $\eta=0.05$ retains a uniform contribution from every valid residue.
+
+\myparagraph{Learned residue views}
+We learn queries $\mathbf{q}_k\in\mathbb R^{256}$, $k=1,\ldots,K$, shared
+across enzymes. A shared residue adapter and separate key and value projections
+produce normalized keys $\mathbf{k}_i$ and unnormalized values $\mathbf{v}_i$
+in $\mathbb R^{256}$. Write $\vunit{\mathbf{x}}=\mathbf{x}/\max(\|\mathbf{x}\|_2,\epsilon)$
+for numerical normalization, with $\epsilon=10^{-6}$ in this encoder.
+Query $\hat{\mathbf{q}}_k=\vunit{\mathbf{q}_k}$ defines
+\begin{equation}
+ p_{ki}=\frac{\exp(\gamma\hat{\mathbf{q}}_k^\top\mathbf{k}_i)}
+ {\sum_{j\in\mathcal V_e}\exp(\gamma\hat{\mathbf{q}}_k^\top\mathbf{k}_j)},
+ \qquad
+ \mathbf{x}_e^{k}=\sum_{i\in\mathcal V_e}
+ \left[(1-\eta)p_{ki}+\frac{\eta}{L}\right]\mathbf{v}_i,
+ \label{eq:paper-learned-views}
+\end{equation}
+Thus $p_{ki}$ is a scalar weight over residues for query $k$; the learned scale
+$\gamma=10\vsigmoid(\rho_\gamma)\in(0,10)$ controls concentration. Each view
+combines 95\% attention-weighted and 5\% uniform pooling of the values.
+Phase 1 trains the queries, adapter, and projections; frozen views can be
+cached per enzyme for reuse across candidate reactions. We retain
+$K=4$ as a compromise across screening and retrieval: the single-seed
+$K\in\{1,2,4,8\}$ ablation finds no uniformly best count
+(Appendix~\ref{app:v4-k-ablation}).
+
+\myparagraph{Feature-wise gated fusion}
+We combine the extracted enzyme features
+$\{\mathbf{x}_e^{P},\mathbf{x}_e^{S}\}\cup\{\mathbf{x}_e^{k}\}_{k=1}^{K}$
+by projecting each feature into a common 256-dimensional space using an
+independent MLP followed by $\ell_2$ normalization. The projected features are
+$\mathbf{y}_e^{v}=\vunit{F_v(\mathbf{x}_e^{v})}$, with view labels
+$v\in\mathcal I=\{P,S,1,\ldots,K\}$.
+A gating network maps their concatenation to feature-specific weights
+$\omega_{e,vd}$, normalized across views for each coordinate $d$.
+The fused representation is
+\begin{equation}
+ \bar y_{e,d}=\sum_{v\in\mathcal I}\omega_{e,vd}y_{e,d}^{v},
+ \qquad d=1,\ldots,256.
+ \label{eq:paper-protein}
+\end{equation}
+Independent projections of $\mathbf{x}_e^{P}$ and $\bar{\mathbf{y}}_e$ yield
+normalized 512-dimensional vectors $\mathbf{g}_e$ and $\mathbf{f}_e$.
+The enzyme embedding is $\mathbf{b}_e=\vunit{\mathbf{g}_e+s\mathbf{f}_e}$,
+where the learned scalar $s\in(0,0.5)$ controls the fused contribution
+(Appendix~\ref{sec:v4-protein}).

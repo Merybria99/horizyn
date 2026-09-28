@@ -1,0 +1,651 @@
+table,row,column,value,source
+reactzyme_data,reaction_smi,train,147393,data_audit/counts
+reactzyme_data,reaction_smi,validation,16377,data_audit/counts
+reactzyme_data,reaction_smi,test,14689,data_audit/counts
+reactzyme_data,reaction_smi,reactions,386,data_audit/counts
+reactzyme_data,reaction_smi,proteins,14688,data_audit/counts
+reactzyme_data,enzyme_smi,train,152748,data_audit/counts
+reactzyme_data,enzyme_smi,validation,16972,data_audit/counts
+reactzyme_data,enzyme_smi,test,8739,data_audit/counts
+reactzyme_data,enzyme_smi,reactions,1573,data_audit/counts
+reactzyme_data,enzyme_smi,proteins,8734,data_audit/counts
+reactzyme_data,time,train,149554,data_audit/counts
+reactzyme_data,time,validation,16618,data_audit/counts
+reactzyme_data,time,test,12287,data_audit/counts
+reactzyme_data,time,reactions,2634,data_audit/counts
+reactzyme_data,time,proteins,12277,data_audit/counts
+table1,"CLIPZyme (ESM), reported",bedroc85,36.91,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (ESM), reported",bedroc20,53.04,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (ESM), reported",ef0.05,11.93,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (ESM), reported",ef0.1,6.84,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (CGR), reported",bedroc85,38.91,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (CGR), reported",bedroc20,57.58,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (CGR), reported",ef0.05,13.16,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme (CGR), reported",ef0.1,7.73,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme, reported",bedroc85,44.69,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme, reported",bedroc20,62.98,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme, reported",ef0.05,14.09,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme, reported",ef0.1,8.06,"FGW-CLIP v2, Tables 1--2"
+table1,"FGW-CLIP, reported",bedroc85,48.66,"FGW-CLIP v2, Tables 1--2"
+table1,"FGW-CLIP, reported",bedroc20,66.69,"FGW-CLIP v2, Tables 1--2"
+table1,"FGW-CLIP, reported",ef0.05,14.91,"FGW-CLIP v2, Tables 1--2"
+table1,"FGW-CLIP, reported",ef0.1,8.18,"FGW-CLIP v2, Tables 1--2"
+table1,"CLIPZyme, released checkpoint",bedroc85,44.69424597770459,clipzyme released summary
+table1,"CLIPZyme, released checkpoint",bedroc20,62.98173925495344,clipzyme released summary
+table1,"CLIPZyme, released checkpoint",ef0.05,14.085124553319226,clipzyme released summary
+table1,"CLIPZyme, released checkpoint",ef0.1,8.060006004418565,clipzyme released summary
+table1,\methodname,bedroc85,57.23365103066209,phase2_biology/control
+table1,\methodname,bedroc20,75.54333716338482,phase2_biology/control
+table1,\methodname,ef0.05,16.859042255655567,phase2_biology/control
+table1,\methodname,ef0.1,8.958692356222887,phase2_biology/control
+table1,\vfourBio,bedroc85,57.20960816975147,phase2_biology/all_1
+table1,\vfourBio,bedroc20,75.53216671014586,phase2_biology/all_1
+table1,\vfourBio,ef0.05,16.860920719072492,phase2_biology/all_1
+table1,\vfourBio,ef0.1,8.956500815569807,phase2_biology/all_1
+table2,"CLIPZyme, reported",bedroc85,39.13,"FGW-CLIP v2, Tables 1--2"
+table2,"CLIPZyme, reported",bedroc20,58.86,"FGW-CLIP v2, Tables 1--2"
+table2,"CLIPZyme, reported",ef0.05,13.4,"FGW-CLIP v2, Tables 1--2"
+table2,"CLIPZyme, reported",ef0.1,7.81,"FGW-CLIP v2, Tables 1--2"
+table2,"FGW-CLIP, reported",bedroc85,45.14,"FGW-CLIP v2, Tables 1--2"
+table2,"FGW-CLIP, reported",bedroc20,61.43,"FGW-CLIP v2, Tables 1--2"
+table2,"FGW-CLIP, reported",ef0.05,13.57,"FGW-CLIP v2, Tables 1--2"
+table2,"FGW-CLIP, reported",ef0.1,7.61,"FGW-CLIP v2, Tables 1--2"
+table2,"CLIPZyme, released checkpoint",bedroc85,39.13282416365624,clipzyme released summary
+table2,"CLIPZyme, released checkpoint",bedroc20,58.86187192395557,clipzyme released summary
+table2,"CLIPZyme, released checkpoint",ef0.05,13.39671015589979,clipzyme released summary
+table2,"CLIPZyme, released checkpoint",ef0.1,7.80813533427353,clipzyme released summary
+table2,\methodname,bedroc85,52.87342957098796,phase2_biology/control
+table2,\methodname,bedroc20,72.6403267784587,phase2_biology/control
+table2,\methodname,ef0.05,16.4186330727305,phase2_biology/control
+table2,\methodname,ef0.1,8.793102960892874,phase2_biology/control
+table2,\vfourBio,bedroc85,52.84639837162569,phase2_biology/all_1
+table2,\vfourBio,bedroc20,72.62746277268695,phase2_biology/all_1
+table2,\vfourBio,ef0.05,16.435718440909184,phase2_biology/all_1
+table2,\vfourBio,ef0.1,8.803075536310475,phase2_biology/all_1
+literature_mrr,"FGW-CLIP, EC Mode",0,0.3181,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Mode",1,0.3722,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Mode",2,0.5253,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Mode",3,0.8683,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Mode",4,0.3394,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Mode",5,0.5222,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Max",0,0.3113,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Max",1,0.3804,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Max",2,0.53,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Max",3,0.8581,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Max",4,0.3392,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,"FGW-CLIP, EC Max",5,0.5229,"FGW-CLIP v2, Tables 3,7,8"
+literature_mrr,TIGER (ESM2Text),0,0.319,"TIGER v1, Table 1"
+literature_mrr,TIGER (ESM2Text),1,0.518,"TIGER v1, Table 1"
+literature_mrr,TIGER (ESM2Text),2,0.592,"TIGER v1, Table 1"
+literature_mrr,TIGER (ESM2Text),3,0.956,"TIGER v1, Table 1"
+literature_mrr,TIGER (ESM2Text),4,0.366,"TIGER v1, Table 1"
+literature_mrr,TIGER (ESM2Text),5,0.69,"TIGER v1, Table 1"
+literature_mrr,TIGER (ProtT3),0,0.337,"TIGER v1, Table 1"
+literature_mrr,TIGER (ProtT3),1,0.472,"TIGER v1, Table 1"
+literature_mrr,TIGER (ProtT3),2,0.579,"TIGER v1, Table 1"
+literature_mrr,TIGER (ProtT3),3,0.94,"TIGER v1, Table 1"
+literature_mrr,TIGER (ProtT3),4,0.372,"TIGER v1, Table 1"
+literature_mrr,TIGER (ProtT3),5,0.683,"TIGER v1, Table 1"
+literature_mrr,\methodname,reaction_smi/reaction_to_enzyme,0.40038102865219116,phase2_biology/control
+literature_mrr,\methodname,reaction_smi/enzyme_to_reaction,0.5343656539916992,phase2_biology/control
+literature_mrr,\methodname,enzyme_smi/reaction_to_enzyme,0.6662486791610718,phase2_biology/control
+literature_mrr,\methodname,enzyme_smi/enzyme_to_reaction,0.9713554382324219,phase2_biology/control
+literature_mrr,\methodname,time/reaction_to_enzyme,0.5382847785949707,phase2_biology/control
+literature_mrr,\methodname,time/enzyme_to_reaction,0.7806691527366638,phase2_biology/control
+literature_mrr,\vfourBio,reaction_smi/reaction_to_enzyme,0.40041205286979675,phase2_biology/all_1
+literature_mrr,\vfourBio,reaction_smi/enzyme_to_reaction,0.5347773432731628,phase2_biology/all_1
+literature_mrr,\vfourBio,enzyme_smi/reaction_to_enzyme,0.6662338376045227,phase2_biology/all_1
+literature_mrr,\vfourBio,enzyme_smi/enzyme_to_reaction,0.9673728346824646,phase2_biology/all_1
+literature_mrr,\vfourBio,time/reaction_to_enzyme,0.5383167862892151,phase2_biology/all_1
+literature_mrr,\vfourBio,time/enzyme_to_reaction,0.8006143569946289,phase2_biology/all_1
+retrained_mrr,MLP,reaction_smi/reaction_to_enzyme,0.10568996518850327,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,MLP,reaction_smi/enzyme_to_reaction,0.21871207654476166,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,MLP,enzyme_smi/reaction_to_enzyme,0.21549934148788452,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,MLP,enzyme_smi/enzyme_to_reaction,0.7079684734344482,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,MLP,time/reaction_to_enzyme,0.10460711270570755,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,MLP,time/enzyme_to_reaction,0.284912645816803,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Contrastive MLP,reaction_smi/reaction_to_enzyme,0.04055258259177208,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Contrastive MLP,reaction_smi/enzyme_to_reaction,0.23976561427116394,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Contrastive MLP,enzyme_smi/reaction_to_enzyme,0.11982277780771255,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Contrastive MLP,enzyme_smi/enzyme_to_reaction,0.6666601896286011,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Contrastive MLP,time/reaction_to_enzyme,0.04050107300281525,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Contrastive MLP,time/enzyme_to_reaction,0.25501957535743713,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Transformer,reaction_smi/reaction_to_enzyme,0.12200770527124405,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Transformer,reaction_smi/enzyme_to_reaction,0.2314320057630539,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Transformer,enzyme_smi/reaction_to_enzyme,0.21631686389446259,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Transformer,enzyme_smi/enzyme_to_reaction,0.7259916663169861,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Transformer,time/reaction_to_enzyme,0.14188697934150696,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Transformer,time/enzyme_to_reaction,0.3942883610725403,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Bi-RNN,reaction_smi/reaction_to_enzyme,0.15104706585407257,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Bi-RNN,reaction_smi/enzyme_to_reaction,0.28347042202949524,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Bi-RNN,enzyme_smi/reaction_to_enzyme,0.273579478263855,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Bi-RNN,enzyme_smi/enzyme_to_reaction,0.796985387802124,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Bi-RNN,time/reaction_to_enzyme,0.1273905485868454,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Bi-RNN,time/enzyme_to_reaction,0.3751845955848694,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Corrected contrastive MLP,reaction_smi/reaction_to_enzyme,0.06383154541254044,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Corrected contrastive MLP,reaction_smi/enzyme_to_reaction,0.24312593042850494,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,Corrected contrastive MLP,enzyme_smi/reaction_to_enzyme,0.10466062277555466,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Corrected contrastive MLP,enzyme_smi/enzyme_to_reaction,0.631571352481842,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,Corrected contrastive MLP,time/reaction_to_enzyme,0.04103562980890274,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,Corrected contrastive MLP,time/enzyme_to_reaction,0.24117937684059143,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_time_seed42/complete.json
+retrained_mrr,EnzGFM backbone control,reaction_smi/reaction_to_enzyme,0.13539014756679535,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,EnzGFM backbone control,reaction_smi/enzyme_to_reaction,0.29646384716033936,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_reaction_smi_seed42/complete.json
+retrained_mrr,EnzGFM backbone control,enzyme_smi/reaction_to_enzyme,0.2863766551017761,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,EnzGFM backbone control,enzyme_smi/enzyme_to_reaction,0.7989066243171692,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_enzyme_smi_seed42/complete.json
+retrained_mrr,EnzGFM backbone control,time/reaction_to_enzyme,0.1524980515241623,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_time_seed42/complete.json
+retrained_mrr,EnzGFM backbone control,time/enzyme_to_reaction,0.38674136996269226,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_time_seed42/complete.json
+retrained_mrr,Horizyn participant-set adapter,reaction_smi/reaction_to_enzyme,0.43181541562080383,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_reaction_smi_seed42/complete.json
+retrained_mrr,Horizyn participant-set adapter,reaction_smi/enzyme_to_reaction,0.5347991585731506,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_reaction_smi_seed42/complete.json
+retrained_mrr,Horizyn participant-set adapter,enzyme_smi/reaction_to_enzyme,0.6997011303901672,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_enzyme_smi_seed42/complete.json
+retrained_mrr,Horizyn participant-set adapter,enzyme_smi/enzyme_to_reaction,0.9769900441169739,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_enzyme_smi_seed42/complete.json
+retrained_mrr,Horizyn participant-set adapter,time/reaction_to_enzyme,0.5982034206390381,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_time_seed42/complete.json
+retrained_mrr,Horizyn participant-set adapter,time/enzyme_to_reaction,0.8406205773353577,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_time_seed42/complete.json
+retrained_mrr,\methodname,reaction_smi/reaction_to_enzyme,0.40038102865219116,phase2_biology/control
+retrained_mrr,\methodname,reaction_smi/enzyme_to_reaction,0.5343656539916992,phase2_biology/control
+retrained_mrr,\methodname,enzyme_smi/reaction_to_enzyme,0.6662486791610718,phase2_biology/control
+retrained_mrr,\methodname,enzyme_smi/enzyme_to_reaction,0.9713554382324219,phase2_biology/control
+retrained_mrr,\methodname,time/reaction_to_enzyme,0.5382847785949707,phase2_biology/control
+retrained_mrr,\methodname,time/enzyme_to_reaction,0.7806691527366638,phase2_biology/control
+retrained_mrr,\vfourBio,reaction_smi/reaction_to_enzyme,0.40041205286979675,phase2_biology/all_1
+retrained_mrr,\vfourBio,reaction_smi/enzyme_to_reaction,0.5347773432731628,phase2_biology/all_1
+retrained_mrr,\vfourBio,enzyme_smi/reaction_to_enzyme,0.6662338376045227,phase2_biology/all_1
+retrained_mrr,\vfourBio,enzyme_smi/enzyme_to_reaction,0.9673728346824646,phase2_biology/all_1
+retrained_mrr,\vfourBio,time/reaction_to_enzyme,0.5383167862892151,phase2_biology/all_1
+retrained_mrr,\vfourBio,time/enzyme_to_reaction,0.8006143569946289,phase2_biology/all_1
+case1,Native F3,0,1,Case1 saved summaries
+case1,Native F3,1,3,Case1 saved summaries
+case1,Native F3,2,9,Case1 saved summaries
+case1,Native F3,3,10,Case1 saved summaries
+case1,Native F3,AUROC,0.6008230452674898,Case1 saved summaries
+case1,\methodname,0,0,Case1 saved summaries
+case1,\methodname,1,3,Case1 saved summaries
+case1,\methodname,2,10,Case1 saved summaries
+case1,\methodname,3,10,Case1 saved summaries
+case1,\methodname,AUROC,0.6128747795414462,Case1 saved summaries
+case1,\vfourBio,0,0,Case1 saved summaries
+case1,\vfourBio,1,3,Case1 saved summaries
+case1,\vfourBio,2,11,Case1 saved summaries
+case1,\vfourBio,3,10,Case1 saved summaries
+case1,\vfourBio,AUROC,0.6137566137566137,Case1 saved summaries
+case1,Shuffled labels,0,0,Case1 saved summaries
+case1,Shuffled labels,1,3,Case1 saved summaries
+case1,Shuffled labels,2,10,Case1 saved summaries
+case1,Shuffled labels,3,10,Case1 saved summaries
+case1,Shuffled labels,AUROC,0.6111111111111112,Case1 saved summaries
+case1,Without EC,0,0,Case1 saved summaries
+case1,Without EC,1,3,Case1 saved summaries
+case1,Without EC,2,10,Case1 saved summaries
+case1,Without EC,3,10,Case1 saved summaries
+case1,Without EC,AUROC,0.6137566137566137,Case1 saved summaries
+case1,Without cofactor,0,0,Case1 saved summaries
+case1,Without cofactor,1,3,Case1 saved summaries
+case1,Without cofactor,2,11,Case1 saved summaries
+case1,Without cofactor,3,10,Case1 saved summaries
+case1,Without cofactor,AUROC,0.6143445032333921,Case1 saved summaries
+case1,Without mechanism,0,0,Case1 saved summaries
+case1,Without mechanism,1,3,Case1 saved summaries
+case1,Without mechanism,2,10,Case1 saved summaries
+case1,Without mechanism,3,10,Case1 saved summaries
+case1,Without mechanism,AUROC,0.6131687242798354,Case1 saved summaries
+case1_targets,reaction_smi,control/unique,10,Case1 saved summaries
+case1_targets,reaction_smi,control/entries,10,Case1 saved summaries
+case1_targets,reaction_smi,control/AUROC,0.6128747795414462,Case1 saved summaries
+case1_targets,reaction_smi,all_1/unique,11,Case1 saved summaries
+case1_targets,reaction_smi,all_1/entries,10,Case1 saved summaries
+case1_targets,reaction_smi,all_1/AUROC,0.6137566137566137,Case1 saved summaries
+case1_targets,enzyme_smi,control/unique,5,Case1 saved summaries
+case1_targets,enzyme_smi,control/entries,8,Case1 saved summaries
+case1_targets,enzyme_smi,control/AUROC,0.5846560846560847,Case1 saved summaries
+case1_targets,enzyme_smi,all_1/unique,5,Case1 saved summaries
+case1_targets,enzyme_smi,all_1/entries,8,Case1 saved summaries
+case1_targets,enzyme_smi,all_1/AUROC,0.5855379188712522,Case1 saved summaries
+case1_targets,time,control/unique,5,Case1 saved summaries
+case1_targets,time,control/entries,7,Case1 saved summaries
+case1_targets,time,control/AUROC,0.6343327454438565,Case1 saved summaries
+case1_targets,time,all_1/unique,5,Case1 saved summaries
+case1_targets,time,all_1/entries,7,Case1 saved summaries
+case1_targets,time,all_1/AUROC,0.6363903586125809,Case1 saved summaries
+case1_targets,enzymemap,control/unique,6,Case1 saved summaries
+case1_targets,enzymemap,control/entries,6,Case1 saved summaries
+case1_targets,enzymemap,control/AUROC,0.4706055261610817,Case1 saved summaries
+case1_targets,enzymemap,all_1/unique,6,Case1 saved summaries
+case1_targets,enzymemap,all_1/entries,6,Case1 saved summaries
+case1_targets,enzymemap,all_1/AUROC,0.47001763668430335,Case1 saved summaries
+retrieval_diagnostics,\methodname,reaction_smi/reaction_to_enzyme/reactzyme_mrr,0.40038102865219116,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/reaction_to_enzyme/first_positive_mrr,0.5941982865333557,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/reaction_to_enzyme/top_1,0.5284973978996277,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/reaction_to_enzyme/top_5,0.6554403901100159,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/reaction_to_enzyme/top_10,0.7435232996940613,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/enzyme_to_reaction/reactzyme_mrr,0.5343656539916992,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/enzyme_to_reaction/first_positive_mrr,0.5343826413154602,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/enzyme_to_reaction/top_1,0.4362744987010956,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/enzyme_to_reaction/top_5,0.6473992466926575,v4_test
+retrieval_diagnostics,\methodname,reaction_smi/enzyme_to_reaction/top_10,0.6966230869293213,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/reaction_to_enzyme/reactzyme_mrr,0.6662486791610718,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/reaction_to_enzyme/first_positive_mrr,0.926588773727417,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/reaction_to_enzyme/top_1,0.8906548023223877,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/reaction_to_enzyme/top_5,0.9713922142982483,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/reaction_to_enzyme/top_10,0.9841067790985107,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/enzyme_to_reaction/reactzyme_mrr,0.9713554382324219,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/enzyme_to_reaction/first_positive_mrr,0.9715023636817932,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/enzyme_to_reaction/top_1,0.9501946568489075,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/enzyme_to_reaction/top_5,0.9948477745056152,v4_test
+retrieval_diagnostics,\methodname,enzyme_smi/enzyme_to_reaction/top_10,0.9971376657485962,v4_test
+retrieval_diagnostics,\methodname,time/reaction_to_enzyme/reactzyme_mrr,0.5382847785949707,v4_test
+retrieval_diagnostics,\methodname,time/reaction_to_enzyme/first_positive_mrr,0.7541146874427795,v4_test
+retrieval_diagnostics,\methodname,time/reaction_to_enzyme/top_1,0.6890660524368286,v4_test
+retrieval_diagnostics,\methodname,time/reaction_to_enzyme/top_5,0.8329536318778992,v4_test
+retrieval_diagnostics,\methodname,time/reaction_to_enzyme/top_10,0.877752423286438,v4_test
+retrieval_diagnostics,\methodname,time/enzyme_to_reaction/reactzyme_mrr,0.7806691527366638,v4_test
+retrieval_diagnostics,\methodname,time/enzyme_to_reaction/first_positive_mrr,0.7808829545974731,v4_test
+retrieval_diagnostics,\methodname,time/enzyme_to_reaction/top_1,0.6741060614585876,v4_test
+retrieval_diagnostics,\methodname,time/enzyme_to_reaction/top_5,0.9023376703262329,v4_test
+retrieval_diagnostics,\methodname,time/enzyme_to_reaction/top_10,0.9368737936019897,v4_test
+retrieval_diagnostics,\vfourBio,reaction_smi/reaction_to_enzyme/reactzyme_mrr,0.40041205286979675,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/reaction_to_enzyme/first_positive_mrr,0.5941889882087708,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/reaction_to_enzyme/top_1,0.5284973978996277,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/reaction_to_enzyme/top_5,0.6554403901100159,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/reaction_to_enzyme/top_10,0.7461139559745789,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/enzyme_to_reaction/reactzyme_mrr,0.5347773432731628,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/enzyme_to_reaction/first_positive_mrr,0.5347943305969238,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/enzyme_to_reaction/top_1,0.4368872344493866,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/enzyme_to_reaction/top_5,0.6478077173233032,bio_test
+retrieval_diagnostics,\vfourBio,reaction_smi/enzyme_to_reaction/top_10,0.6969634890556335,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/reaction_to_enzyme/reactzyme_mrr,0.6662338376045227,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/reaction_to_enzyme/first_positive_mrr,0.9265879988670349,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/reaction_to_enzyme/top_1,0.8906548023223877,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/reaction_to_enzyme/top_5,0.9713922142982483,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/reaction_to_enzyme/top_10,0.9841067790985107,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/enzyme_to_reaction/reactzyme_mrr,0.9673728346824646,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/enzyme_to_reaction/first_positive_mrr,0.9675198793411255,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/enzyme_to_reaction/top_1,0.9422945380210876,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/enzyme_to_reaction/top_5,0.9947332739830017,bio_test
+retrieval_diagnostics,\vfourBio,enzyme_smi/enzyme_to_reaction/top_10,0.9971376657485962,bio_test
+retrieval_diagnostics,\vfourBio,time/reaction_to_enzyme/reactzyme_mrr,0.5383167862892151,bio_test
+retrieval_diagnostics,\vfourBio,time/reaction_to_enzyme/first_positive_mrr,0.7540410161018372,bio_test
+retrieval_diagnostics,\vfourBio,time/reaction_to_enzyme/top_1,0.6886863708496094,bio_test
+retrieval_diagnostics,\vfourBio,time/reaction_to_enzyme/top_5,0.8333333134651184,bio_test
+retrieval_diagnostics,\vfourBio,time/reaction_to_enzyme/top_10,0.8781321048736572,bio_test
+retrieval_diagnostics,\vfourBio,time/enzyme_to_reaction/reactzyme_mrr,0.8006143569946289,bio_test
+retrieval_diagnostics,\vfourBio,time/enzyme_to_reaction/first_positive_mrr,0.8008283376693726,bio_test
+retrieval_diagnostics,\vfourBio,time/enzyme_to_reaction/top_1,0.7136922478675842,bio_test
+retrieval_diagnostics,\vfourBio,time/enzyme_to_reaction/top_5,0.9025006294250488,bio_test
+retrieval_diagnostics,\vfourBio,time/enzyme_to_reaction/top_10,0.9371181726455688,bio_test
+all_public_reaction_smi,birnn_esm2_mat_2d_reaction_smi_seed42,selected_epoch,29,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.15104706585407257,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.28347042202949524,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_mat_3d_reaction_smi_seed42,selected_epoch,20,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.14136436581611633,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.32065796852111816,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_unimol_2d_reaction_smi_seed42,selected_epoch,23,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.14344023168087006,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.31830787658691406,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_unimol_3d_reaction_smi_seed42,selected_epoch,29,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.14205226302146912,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_esm2_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.31380581855773926,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_mat_2d_reaction_smi_seed42,selected_epoch,23,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.11389424651861191,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.293993204832077,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_mat_3d_reaction_smi_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.1139460951089859,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.23391613364219666,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_unimol_2d_reaction_smi_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.12576903402805328,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.28510379791259766,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_unimol_3d_reaction_smi_seed42,selected_epoch,22,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.11372847110033035,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,birnn_saprot_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.2785795331001282,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_mat_2d_reaction_smi_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.06383154541254044,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.24312593042850494,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_mat_3d_reaction_smi_seed42,selected_epoch,38,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.060943275690078735,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.22459252178668976,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_unimol_2d_reaction_smi_seed42,selected_epoch,61,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.07703947275876999,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.24565677344799042,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_unimol_3d_reaction_smi_seed42,selected_epoch,72,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.06737805157899857,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_esm2_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.242781400680542,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_mat_2d_reaction_smi_seed42,selected_epoch,25,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.058795083314180374,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.22890231013298035,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_mat_3d_reaction_smi_seed42,selected_epoch,25,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.05096696317195892,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.2070464789867401,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_unimol_2d_reaction_smi_seed42,selected_epoch,34,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.05799262970685959,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.23739993572235107,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_unimol_3d_reaction_smi_seed42,selected_epoch,33,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.05732395872473717,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_corrected_saprot_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.2373889982700348,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_mat_2d_reaction_smi_seed42,selected_epoch,73,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.04055258259177208,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.23976561427116394,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_mat_3d_reaction_smi_seed42,selected_epoch,67,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.04329560324549675,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.23872025310993195,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_unimol_2d_reaction_smi_seed42,selected_epoch,68,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.03333956375718117,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.1789293736219406,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_unimol_3d_reaction_smi_seed42,selected_epoch,73,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.01903213933110237,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_esm2_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.17926989495754242,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_mat_2d_reaction_smi_seed42,selected_epoch,85,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.03351166844367981,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.2452375590801239,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_mat_3d_reaction_smi_seed42,selected_epoch,74,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.04084779694676399,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.22648364305496216,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_unimol_2d_reaction_smi_seed42,selected_epoch,66,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.03788154944777489,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.31569451093673706,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_unimol_3d_reaction_smi_seed42,selected_epoch,68,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.030569491907954216,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,contrastive_saprot_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.26072055101394653,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,horizyn_participant_set_reaction_smi_seed42,selected_epoch,100,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_reaction_smi_seed42/complete.json
+all_public_reaction_smi,horizyn_participant_set_reaction_smi_seed42,reaction_to_enzyme,0.43181541562080383,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_reaction_smi_seed42/complete.json
+all_public_reaction_smi,horizyn_participant_set_reaction_smi_seed42,enzyme_to_reaction,0.5347991585731506,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_mat_2d_reaction_smi_seed42,selected_epoch,61,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.10568996518850327,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.21871207654476166,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_mat_3d_reaction_smi_seed42,selected_epoch,92,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.10993557423353195,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.2583061456680298,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_unimol_2d_reaction_smi_seed42,selected_epoch,60,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.08649571985006332,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.21475590765476227,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_unimol_3d_reaction_smi_seed42,selected_epoch,68,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.1005370020866394,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_esm2_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.24580363929271698,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_mat_2d_reaction_smi_seed42,selected_epoch,96,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.1024220883846283,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.2543480098247528,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_mat_3d_reaction_smi_seed42,selected_epoch,43,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.10150063782930374,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.20708784461021423,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_unimol_2d_reaction_smi_seed42,selected_epoch,39,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.07751864194869995,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.290614515542984,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_unimol_3d_reaction_smi_seed42,selected_epoch,104,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.1150389090180397,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,mlp_saprot_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.27912598848342896,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_enzgfm650_mat_2d_reaction_smi_seed42,selected_epoch,53,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_enzgfm650_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.13539014756679535,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_enzgfm650_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.29646384716033936,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_enzgfm650_mat_3d_reaction_smi_seed42,selected_epoch,24,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_enzgfm650_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.10797840356826782,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_enzgfm650_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.26687848567962646,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_mat_2d_reaction_smi_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.12200770527124405,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.2314320057630539,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_mat_3d_reaction_smi_seed42,selected_epoch,48,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.14686444401741028,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.26634255051612854,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_unimol_2d_reaction_smi_seed42,selected_epoch,52,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.12599316239356995,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.2708350419998169,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_unimol_3d_reaction_smi_seed42,selected_epoch,28,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.10078735649585724,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_esm2_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.30767273902893066,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_mat_2d_reaction_smi_seed42,selected_epoch,47,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_mat_2d_reaction_smi_seed42,reaction_to_enzyme,0.11257672309875488,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_mat_2d_reaction_smi_seed42,enzyme_to_reaction,0.2482355684041977,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_mat_3d_reaction_smi_seed42,selected_epoch,33,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_mat_3d_reaction_smi_seed42,reaction_to_enzyme,0.11799051612615585,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_mat_3d_reaction_smi_seed42,enzyme_to_reaction,0.22807663679122925,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_unimol_2d_reaction_smi_seed42,selected_epoch,46,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_unimol_2d_reaction_smi_seed42,reaction_to_enzyme,0.11664474755525589,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_unimol_2d_reaction_smi_seed42,enzyme_to_reaction,0.26394692063331604,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_unimol_3d_reaction_smi_seed42,selected_epoch,42,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_unimol_3d_reaction_smi_seed42,reaction_to_enzyme,0.11288053542375565,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_reaction_smi,transformer_saprot_unimol_3d_reaction_smi_seed42,enzyme_to_reaction,0.2547830045223236,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_3d_reaction_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_mat_2d_enzyme_smi_seed42,selected_epoch,36,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.273579478263855,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.796985387802124,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_mat_3d_enzyme_smi_seed42,selected_epoch,32,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.28300878405570984,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.8004793524742126,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_unimol_2d_enzyme_smi_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.27941253781318665,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7973437309265137,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_unimol_3d_enzyme_smi_seed42,selected_epoch,22,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.2546408772468567,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_esm2_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7892842292785645,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_mat_2d_enzyme_smi_seed42,selected_epoch,24,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.21004191040992737,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7332031726837158,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_mat_3d_enzyme_smi_seed42,selected_epoch,20,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.18896113336086273,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7109972238540649,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_unimol_2d_enzyme_smi_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.21206635236740112,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7402934432029724,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_unimol_3d_enzyme_smi_seed42,selected_epoch,20,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.19927267730236053,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,birnn_saprot_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7284346222877502,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42,selected_epoch,29,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.10466062277555466,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.631571352481842,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_mat_3d_enzyme_smi_seed42,selected_epoch,25,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.1128428652882576,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.602566123008728,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_unimol_2d_enzyme_smi_seed42,selected_epoch,35,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.09887369722127914,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.6156044602394104,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_unimol_3d_enzyme_smi_seed42,selected_epoch,48,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.13521935045719147,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_esm2_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7057676315307617,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_mat_2d_enzyme_smi_seed42,selected_epoch,30,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.06762582063674927,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.5275623798370361,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_mat_3d_enzyme_smi_seed42,selected_epoch,43,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.08830337971448898,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.5931463837623596,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_unimol_2d_enzyme_smi_seed42,selected_epoch,23,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.06723155826330185,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.5398638844490051,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_unimol_3d_enzyme_smi_seed42,selected_epoch,32,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.07221435755491257,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_corrected_saprot_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.5690243244171143,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_mat_2d_enzyme_smi_seed42,selected_epoch,67,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.11982277780771255,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.6666601896286011,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_mat_3d_enzyme_smi_seed42,selected_epoch,56,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.0966799333691597,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.6206348538398743,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_unimol_2d_enzyme_smi_seed42,selected_epoch,85,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.10741988569498062,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.6506961584091187,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_unimol_3d_enzyme_smi_seed42,selected_epoch,61,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.06523331254720688,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_esm2_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.5364625453948975,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_mat_2d_enzyme_smi_seed42,selected_epoch,56,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.07558199018239975,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.5594320893287659,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_mat_3d_enzyme_smi_seed42,selected_epoch,86,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.08486294001340866,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.6478884220123291,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_unimol_2d_enzyme_smi_seed42,selected_epoch,57,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.06169571354985237,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.5389668345451355,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_unimol_3d_enzyme_smi_seed42,selected_epoch,71,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.06732480973005295,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,contrastive_saprot_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.586284875869751,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,horizyn_participant_set_enzyme_smi_seed42,selected_epoch,95,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,horizyn_participant_set_enzyme_smi_seed42,reaction_to_enzyme,0.6997011303901672,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,horizyn_participant_set_enzyme_smi_seed42,enzyme_to_reaction,0.9769900441169739,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_mat_2d_enzyme_smi_seed42,selected_epoch,40,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.21549934148788452,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7079684734344482,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_mat_3d_enzyme_smi_seed42,selected_epoch,27,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.18423789739608765,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.6784719228744507,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_unimol_2d_enzyme_smi_seed42,selected_epoch,92,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.25014567375183105,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7648189663887024,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_unimol_3d_enzyme_smi_seed42,selected_epoch,64,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.22890061140060425,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_esm2_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7603769898414612,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_mat_2d_enzyme_smi_seed42,selected_epoch,88,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.20982542634010315,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7370094656944275,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_mat_3d_enzyme_smi_seed42,selected_epoch,58,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.18215401470661163,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.6820602416992188,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_unimol_2d_enzyme_smi_seed42,selected_epoch,55,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.1950971484184265,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7060722708702087,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_unimol_3d_enzyme_smi_seed42,selected_epoch,102,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.2257378101348877,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,mlp_saprot_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7360624670982361,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_enzgfm650_mat_2d_enzyme_smi_seed42,selected_epoch,40,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_enzgfm650_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.2863766551017761,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_enzgfm650_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7989066243171692,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_mat_2d_enzyme_smi_seed42,selected_epoch,22,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.21631686389446259,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7259916663169861,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_mat_3d_enzyme_smi_seed42,selected_epoch,28,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.2463185340166092,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7700458765029907,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_unimol_2d_enzyme_smi_seed42,selected_epoch,27,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.23186972737312317,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.7772842049598694,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_unimol_3d_enzyme_smi_seed42,selected_epoch,49,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.28063660860061646,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_esm2_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.8073096871376038,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_mat_2d_enzyme_smi_seed42,selected_epoch,45,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_mat_2d_enzyme_smi_seed42,reaction_to_enzyme,0.2117484211921692,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_mat_2d_enzyme_smi_seed42,enzyme_to_reaction,0.738391637802124,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_mat_3d_enzyme_smi_seed42,selected_epoch,45,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_mat_3d_enzyme_smi_seed42,reaction_to_enzyme,0.20479696989059448,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_mat_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7209581732749939,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_unimol_2d_enzyme_smi_seed42,selected_epoch,41,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_unimol_2d_enzyme_smi_seed42,reaction_to_enzyme,0.22914645075798035,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_unimol_2d_enzyme_smi_seed42,enzyme_to_reaction,0.753960907459259,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_unimol_3d_enzyme_smi_seed42,selected_epoch,24,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_unimol_3d_enzyme_smi_seed42,reaction_to_enzyme,0.17161305248737335,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_enzyme_smi,transformer_saprot_unimol_3d_enzyme_smi_seed42,enzyme_to_reaction,0.7011005282402039,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_3d_enzyme_smi_seed42/complete.json
+all_public_time,birnn_esm2_mat_2d_time_seed42,selected_epoch,28,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_time_seed42/complete.json
+all_public_time,birnn_esm2_mat_2d_time_seed42,reaction_to_enzyme,0.1273905485868454,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_time_seed42/complete.json
+all_public_time,birnn_esm2_mat_2d_time_seed42,enzyme_to_reaction,0.3751845955848694,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_2d_time_seed42/complete.json
+all_public_time,birnn_esm2_mat_3d_time_seed42,selected_epoch,18,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_time_seed42/complete.json
+all_public_time,birnn_esm2_mat_3d_time_seed42,reaction_to_enzyme,0.12593598663806915,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_time_seed42/complete.json
+all_public_time,birnn_esm2_mat_3d_time_seed42,enzyme_to_reaction,0.35196399688720703,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_mat_3d_time_seed42/complete.json
+all_public_time,birnn_esm2_unimol_2d_time_seed42,selected_epoch,27,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,birnn_esm2_unimol_2d_time_seed42,reaction_to_enzyme,0.14355380833148956,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,birnn_esm2_unimol_2d_time_seed42,enzyme_to_reaction,0.40540364384651184,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,birnn_esm2_unimol_3d_time_seed42,selected_epoch,22,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,birnn_esm2_unimol_3d_time_seed42,reaction_to_enzyme,0.13434141874313354,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,birnn_esm2_unimol_3d_time_seed42,enzyme_to_reaction,0.35791096091270447,runs/reactzyme_public_baselines_20260921/models/birnn_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,birnn_saprot_mat_2d_time_seed42,selected_epoch,45,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_time_seed42/complete.json
+all_public_time,birnn_saprot_mat_2d_time_seed42,reaction_to_enzyme,0.05752323567867279,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_time_seed42/complete.json
+all_public_time,birnn_saprot_mat_2d_time_seed42,enzyme_to_reaction,0.1475050151348114,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_2d_time_seed42/complete.json
+all_public_time,birnn_saprot_mat_3d_time_seed42,selected_epoch,22,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_time_seed42/complete.json
+all_public_time,birnn_saprot_mat_3d_time_seed42,reaction_to_enzyme,0.05389844626188278,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_time_seed42/complete.json
+all_public_time,birnn_saprot_mat_3d_time_seed42,enzyme_to_reaction,0.12713351845741272,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_mat_3d_time_seed42/complete.json
+all_public_time,birnn_saprot_unimol_2d_time_seed42,selected_epoch,19,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,birnn_saprot_unimol_2d_time_seed42,reaction_to_enzyme,0.042791664600372314,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,birnn_saprot_unimol_2d_time_seed42,enzyme_to_reaction,0.11478561908006668,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,birnn_saprot_unimol_3d_time_seed42,selected_epoch,31,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,birnn_saprot_unimol_3d_time_seed42,reaction_to_enzyme,0.05638369172811508,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,birnn_saprot_unimol_3d_time_seed42,enzyme_to_reaction,0.1310657113790512,runs/reactzyme_public_baselines_20260921/models/birnn_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_mat_2d_time_seed42,selected_epoch,22,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_mat_2d_time_seed42,reaction_to_enzyme,0.04103562980890274,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_mat_2d_time_seed42,enzyme_to_reaction,0.24117937684059143,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_mat_3d_time_seed42,selected_epoch,27,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_mat_3d_time_seed42,reaction_to_enzyme,0.038137905299663544,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_mat_3d_time_seed42,enzyme_to_reaction,0.24052941799163818,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_unimol_2d_time_seed42,selected_epoch,20,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_unimol_2d_time_seed42,reaction_to_enzyme,0.038951802998781204,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_unimol_2d_time_seed42,enzyme_to_reaction,0.23165176808834076,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_unimol_3d_time_seed42,selected_epoch,27,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_unimol_3d_time_seed42,reaction_to_enzyme,0.03551473468542099,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_esm2_unimol_3d_time_seed42,enzyme_to_reaction,0.24141988158226013,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_mat_2d_time_seed42,selected_epoch,50,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_mat_2d_time_seed42,reaction_to_enzyme,0.020604582503437996,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_mat_2d_time_seed42,enzyme_to_reaction,0.10869818180799484,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_mat_3d_time_seed42,selected_epoch,54,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_mat_3d_time_seed42,reaction_to_enzyme,0.019258443266153336,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_mat_3d_time_seed42,enzyme_to_reaction,0.09285886585712433,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_unimol_2d_time_seed42,selected_epoch,41,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_unimol_2d_time_seed42,reaction_to_enzyme,0.02448887936770916,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_unimol_2d_time_seed42,enzyme_to_reaction,0.0879998579621315,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_unimol_3d_time_seed42,selected_epoch,46,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_unimol_3d_time_seed42,reaction_to_enzyme,0.025425689294934273,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_corrected_saprot_unimol_3d_time_seed42,enzyme_to_reaction,0.09601961821317673,runs/reactzyme_public_baselines_20260921/models/contrastive_corrected_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_esm2_mat_2d_time_seed42,selected_epoch,82,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_esm2_mat_2d_time_seed42,reaction_to_enzyme,0.04050107300281525,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_esm2_mat_2d_time_seed42,enzyme_to_reaction,0.25501957535743713,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_esm2_mat_3d_time_seed42,selected_epoch,72,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_esm2_mat_3d_time_seed42,reaction_to_enzyme,0.03668637201189995,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_esm2_mat_3d_time_seed42,enzyme_to_reaction,0.27564674615859985,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_esm2_unimol_2d_time_seed42,selected_epoch,104,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_esm2_unimol_2d_time_seed42,reaction_to_enzyme,0.028089499101042747,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_esm2_unimol_2d_time_seed42,enzyme_to_reaction,0.27400290966033936,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_esm2_unimol_3d_time_seed42,selected_epoch,61,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_esm2_unimol_3d_time_seed42,reaction_to_enzyme,0.01704675704240799,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_esm2_unimol_3d_time_seed42,enzyme_to_reaction,0.21591447293758392,runs/reactzyme_public_baselines_20260921/models/contrastive_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_saprot_mat_2d_time_seed42,selected_epoch,61,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_saprot_mat_2d_time_seed42,reaction_to_enzyme,0.01576012372970581,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_saprot_mat_2d_time_seed42,enzyme_to_reaction,0.09311512112617493,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_2d_time_seed42/complete.json
+all_public_time,contrastive_saprot_mat_3d_time_seed42,selected_epoch,57,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_saprot_mat_3d_time_seed42,reaction_to_enzyme,0.01466564554721117,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_saprot_mat_3d_time_seed42,enzyme_to_reaction,0.09692393988370895,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_mat_3d_time_seed42/complete.json
+all_public_time,contrastive_saprot_unimol_2d_time_seed42,selected_epoch,59,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_saprot_unimol_2d_time_seed42,reaction_to_enzyme,0.013869555667042732,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_saprot_unimol_2d_time_seed42,enzyme_to_reaction,0.10172216594219208,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,contrastive_saprot_unimol_3d_time_seed42,selected_epoch,53,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_saprot_unimol_3d_time_seed42,reaction_to_enzyme,0.011944578029215336,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,contrastive_saprot_unimol_3d_time_seed42,enzyme_to_reaction,0.08679571002721786,runs/reactzyme_public_baselines_20260921/models/contrastive_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,horizyn_participant_set_time_seed42,selected_epoch,100,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_time_seed42/complete.json
+all_public_time,horizyn_participant_set_time_seed42,reaction_to_enzyme,0.5982034206390381,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_time_seed42/complete.json
+all_public_time,horizyn_participant_set_time_seed42,enzyme_to_reaction,0.8406205773353577,runs/reactzyme_public_baselines_20260921/models/horizyn_participant_set_time_seed42/complete.json
+all_public_time,mlp_esm2_mat_2d_time_seed42,selected_epoch,73,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_time_seed42/complete.json
+all_public_time,mlp_esm2_mat_2d_time_seed42,reaction_to_enzyme,0.10460711270570755,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_time_seed42/complete.json
+all_public_time,mlp_esm2_mat_2d_time_seed42,enzyme_to_reaction,0.284912645816803,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_2d_time_seed42/complete.json
+all_public_time,mlp_esm2_mat_3d_time_seed42,selected_epoch,75,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_time_seed42/complete.json
+all_public_time,mlp_esm2_mat_3d_time_seed42,reaction_to_enzyme,0.10981180518865585,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_time_seed42/complete.json
+all_public_time,mlp_esm2_mat_3d_time_seed42,enzyme_to_reaction,0.29621899127960205,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_mat_3d_time_seed42/complete.json
+all_public_time,mlp_esm2_unimol_2d_time_seed42,selected_epoch,74,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,mlp_esm2_unimol_2d_time_seed42,reaction_to_enzyme,0.10327579081058502,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,mlp_esm2_unimol_2d_time_seed42,enzyme_to_reaction,0.2996218204498291,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,mlp_esm2_unimol_3d_time_seed42,selected_epoch,55,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,mlp_esm2_unimol_3d_time_seed42,reaction_to_enzyme,0.10837846249341965,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,mlp_esm2_unimol_3d_time_seed42,enzyme_to_reaction,0.2881564795970917,runs/reactzyme_public_baselines_20260921/models/mlp_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,mlp_saprot_mat_2d_time_seed42,selected_epoch,101,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_time_seed42/complete.json
+all_public_time,mlp_saprot_mat_2d_time_seed42,reaction_to_enzyme,0.056410398334264755,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_time_seed42/complete.json
+all_public_time,mlp_saprot_mat_2d_time_seed42,enzyme_to_reaction,0.14145420491695404,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_2d_time_seed42/complete.json
+all_public_time,mlp_saprot_mat_3d_time_seed42,selected_epoch,33,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_time_seed42/complete.json
+all_public_time,mlp_saprot_mat_3d_time_seed42,reaction_to_enzyme,0.04010510444641113,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_time_seed42/complete.json
+all_public_time,mlp_saprot_mat_3d_time_seed42,enzyme_to_reaction,0.09341299533843994,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_mat_3d_time_seed42/complete.json
+all_public_time,mlp_saprot_unimol_2d_time_seed42,selected_epoch,46,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,mlp_saprot_unimol_2d_time_seed42,reaction_to_enzyme,0.04713849350810051,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,mlp_saprot_unimol_2d_time_seed42,enzyme_to_reaction,0.10455147922039032,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,mlp_saprot_unimol_3d_time_seed42,selected_epoch,55,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,mlp_saprot_unimol_3d_time_seed42,reaction_to_enzyme,0.043458543717861176,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,mlp_saprot_unimol_3d_time_seed42,enzyme_to_reaction,0.09877315163612366,runs/reactzyme_public_baselines_20260921/models/mlp_saprot_unimol_3d_time_seed42/complete.json
+all_public_time,transformer_enzgfm650_mat_2d_time_seed42,selected_epoch,57,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_time_seed42/complete.json
+all_public_time,transformer_enzgfm650_mat_2d_time_seed42,reaction_to_enzyme,0.1524980515241623,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_time_seed42/complete.json
+all_public_time,transformer_enzgfm650_mat_2d_time_seed42,enzyme_to_reaction,0.38674136996269226,runs/reactzyme_public_baselines_20260921/models/transformer_enzgfm650_mat_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_mat_2d_time_seed42,selected_epoch,64,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_mat_2d_time_seed42,reaction_to_enzyme,0.14188697934150696,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_mat_2d_time_seed42,enzyme_to_reaction,0.3942883610725403,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_mat_3d_time_seed42,selected_epoch,29,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_time_seed42/complete.json
+all_public_time,transformer_esm2_mat_3d_time_seed42,reaction_to_enzyme,0.1372164487838745,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_time_seed42/complete.json
+all_public_time,transformer_esm2_mat_3d_time_seed42,enzyme_to_reaction,0.35527729988098145,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_mat_3d_time_seed42/complete.json
+all_public_time,transformer_esm2_unimol_2d_time_seed42,selected_epoch,45,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_unimol_2d_time_seed42,reaction_to_enzyme,0.1489415466785431,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_unimol_2d_time_seed42,enzyme_to_reaction,0.3985392451286316,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_2d_time_seed42/complete.json
+all_public_time,transformer_esm2_unimol_3d_time_seed42,selected_epoch,29,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,transformer_esm2_unimol_3d_time_seed42,reaction_to_enzyme,0.12234550714492798,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,transformer_esm2_unimol_3d_time_seed42,enzyme_to_reaction,0.35786738991737366,runs/reactzyme_public_baselines_20260921/models/transformer_esm2_unimol_3d_time_seed42/complete.json
+all_public_time,transformer_saprot_mat_2d_time_seed42,selected_epoch,38,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_time_seed42/complete.json
+all_public_time,transformer_saprot_mat_2d_time_seed42,reaction_to_enzyme,0.04705790430307388,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_time_seed42/complete.json
+all_public_time,transformer_saprot_mat_2d_time_seed42,enzyme_to_reaction,0.11109459400177002,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_2d_time_seed42/complete.json
+all_public_time,transformer_saprot_mat_3d_time_seed42,selected_epoch,26,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_time_seed42/complete.json
+all_public_time,transformer_saprot_mat_3d_time_seed42,reaction_to_enzyme,0.04942336305975914,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_time_seed42/complete.json
+all_public_time,transformer_saprot_mat_3d_time_seed42,enzyme_to_reaction,0.13012945652008057,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_mat_3d_time_seed42/complete.json
+all_public_time,transformer_saprot_unimol_2d_time_seed42,selected_epoch,59,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,transformer_saprot_unimol_2d_time_seed42,reaction_to_enzyme,0.055180344730615616,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_time_seed42/complete.json
+all_public_time,transformer_saprot_unimol_2d_time_seed42,enzyme_to_reaction,0.13971416652202606,runs/reactzyme_public_baselines_20260921/models/transformer_saprot_unimol_2d_time_seed42/complete.json

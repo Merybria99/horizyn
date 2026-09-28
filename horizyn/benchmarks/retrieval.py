@@ -8,9 +8,11 @@ import hashlib
 import json
 import math
 import os
+import shutil
 import socket
 import time
 import uuid
+import warnings
 from collections import defaultdict
 from dataclasses import dataclass, field
 from pathlib import Path
@@ -21,7 +23,6 @@ import torch
 import torch.nn.functional as F
 import yaml
 
-from horizyn.config import load_config
 from horizyn.artifacts import (
     ArtifactManifestV2,
     SplitRoleManifestV2,
@@ -30,13 +31,13 @@ from horizyn.artifacts import (
     sha256_file,
     sha256_strings,
 )
+from horizyn.capability.enzyme_capability_dataset import CapabilityVectorDataset, TextVectorDataset
+from horizyn.config import load_config
 from horizyn.datasets.base import BaseDataset
 from horizyn.datasets.hdf5 import EmbedDataset
 from horizyn.datasets.residue_hdf5 import ResidueEmbedDataset
 from horizyn.reaction_features import build_reaction_feature_dataset
 from horizyn.utils import residue_collate_fn, unimol2_reaction_collate_fn
-from horizyn.capability.enzyme_capability_dataset import CapabilityVectorDataset, TextVectorDataset
-
 
 DEFAULT_REACTZYME_TOP_K = [1, 2, 3, 4, 5, 10, 20, 50]
 DEFAULT_SOTA_TOP_K = [1, 10, 100, 1000]
@@ -44,6 +45,7 @@ DEFAULT_BEDROC_ALPHAS = [85.0, 20.0]
 DEFAULT_EF_FRACTIONS = [0.05, 0.10]
 COSINE_EPS = 1e-12
 TARGET_CACHE_SCHEMA_VERSION = 2
+TARGET_CACHE_CHUNK_SCHEMA_VERSION = 1
 METRIC_SCHEMA_VERSION = 3
 TARGET_CACHE_LOCK_POLL_SECONDS = 10.0
 TARGET_CACHE_LOCK_STALE_SECONDS = 24 * 60 * 60
@@ -1543,6 +1545,7 @@ def encode_residue_targets(
     text_dataset: TextVectorDataset | None = None,
     progress_every_batches: int = 0,
     retrieval_direction: str = "reaction_to_enzyme",
+    cache_info: dict[str, Any] | None = None,
 ) -> torch.Tensor:
     output: list[torch.Tensor] = []
     storage_device = device if store_on_device else "cpu"
@@ -1565,7 +1568,14 @@ def encode_residue_targets(
         torch.zeros(text_dataset.vec_dim, dtype=torch.float32) if text_dataset is not None else None
     )
     total_batches = math.ceil(len(target_keys) / batch_size)
+    chunk_dir = _prepare_target_embedding_chunk_store(
+        cache_info,
+        target_keys,
+        batch_size,
+    )
     started_at = time.monotonic()
+    newly_encoded_count = 0
+    resumed_count = 0
     with torch.inference_mode():
         for batch_index, batch_start in enumerate(
             range(0, len(target_keys), batch_size),
@@ -1573,6 +1583,17 @@ def encode_residue_targets(
         ):
             batch_end = min(batch_start + batch_size, len(target_keys))
             batch_target_keys = target_keys[batch_start:batch_end]
+            resumed = _load_target_embedding_chunk(
+                chunk_dir,
+                cache_info,
+                batch_start,
+                batch_end,
+                batch_target_keys,
+            )
+            if resumed is not None:
+                output.append(resumed.to(storage_device))
+                resumed_count += len(batch_target_keys)
+                continue
             samples = []
             for target_id in batch_target_keys:
                 sample = dict(dataset[target_id])
@@ -1648,17 +1669,44 @@ def encode_residue_targets(
                 text_mask=text_mask,
                 retrieval_direction=retrieval_direction,
             )
-            output.append(encoded.detach().to(storage_device))
+            encoded_detached = encoded.detach()
+            if encoded_detached.dim() != 2 or encoded_detached.shape[0] != len(batch_target_keys):
+                raise ValueError(
+                    "Encoded target batch must be rank-2 and aligned with candidate IDs"
+                )
+            finite_rows = torch.isfinite(encoded_detached).all(dim=1)
+            if not bool(finite_rows.all()):
+                invalid_rows = torch.nonzero(~finite_rows, as_tuple=False).flatten().tolist()
+                invalid_ids = [batch_target_keys[index] for index in invalid_rows[:10]]
+                raise ValueError(
+                    "Target encoder produced non-finite embeddings for candidates: "
+                    f"{invalid_ids}"
+                )
+            if chunk_dir is not None:
+                encoded_cpu = encoded_detached.float().cpu()
+                _write_target_embedding_chunk(
+                    chunk_dir,
+                    cache_info,
+                    batch_start,
+                    batch_end,
+                    batch_target_keys,
+                    encoded_cpu,
+                )
+                output.append(encoded_cpu.to(storage_device))
+            else:
+                output.append(encoded_detached.to(storage_device))
+            newly_encoded_count += len(batch_target_keys)
             if progress_every_batches > 0 and (
                 batch_index % progress_every_batches == 0 or batch_index == total_batches
             ):
                 encoded_count = min(batch_start + batch_size, len(target_keys))
                 elapsed = max(time.monotonic() - started_at, 1e-9)
+                rate = newly_encoded_count / elapsed
                 print(
                     "Encoded candidate enzymes: "
                     f"{encoded_count:,}/{len(target_keys):,} "
                     f"({encoded_count / max(len(target_keys), 1):.1%}); "
-                    f"{encoded_count / elapsed:,.1f} proteins/s",
+                    f"{rate:,.1f} new proteins/s; resumed={resumed_count:,}",
                     flush=True,
                 )
     if not output:
@@ -1742,6 +1790,127 @@ def _target_cache_paths(
         cache_dir / f"{cache_key}.json",
         cache_dir / f"{cache_key}.lock",
     )
+
+
+def _target_embedding_chunk_manifest(
+    cache_info: dict[str, Any],
+    target_keys: list[str],
+    batch_size: int,
+) -> dict[str, Any]:
+    return {
+        "schema_version": TARGET_CACHE_CHUNK_SCHEMA_VERSION,
+        "cache_key": cache_info["cache_key"],
+        "target_keys_sha256": sha256_strings(target_keys),
+        "num_targets": len(target_keys),
+        "batch_size": batch_size,
+    }
+
+
+def _prepare_target_embedding_chunk_store(
+    cache_info: dict[str, Any] | None,
+    target_keys: list[str],
+    batch_size: int,
+) -> Path | None:
+    if cache_info is None or cache_info.get("status") != "miss_encode":
+        return None
+    if batch_size <= 0:
+        raise ValueError("Target encoding batch size must be positive")
+    cache_path = Path(cache_info["cache_path"])
+    chunk_dir = cache_path.parent / f".{cache_path.stem}.chunks-{batch_size}"
+    manifest_path = chunk_dir / "manifest.json"
+    expected = _target_embedding_chunk_manifest(cache_info, target_keys, batch_size)
+    chunk_dir.mkdir(parents=True, exist_ok=True)
+    if manifest_path.exists():
+        try:
+            actual = json.loads(manifest_path.read_text(encoding="utf-8"))
+        except (OSError, json.JSONDecodeError) as error:
+            raise ValueError(f"Invalid target chunk manifest: {manifest_path}") from error
+        if actual != expected:
+            raise ValueError(f"Target chunk manifest provenance mismatch: {manifest_path}")
+    else:
+        existing_chunks = list(chunk_dir.glob("chunk_*.pt"))
+        if existing_chunks:
+            raise ValueError(f"Target chunk store has data but no manifest: {chunk_dir}")
+        temporary = chunk_dir / f".manifest.json.{os.getpid()}.tmp"
+        try:
+            temporary.write_text(json.dumps(expected, indent=2) + "\n", encoding="utf-8")
+            os.replace(temporary, manifest_path)
+        finally:
+            temporary.unlink(missing_ok=True)
+    cache_info["chunk_dir"] = str(chunk_dir)
+    cache_info["chunk_batch_size"] = batch_size
+    return chunk_dir
+
+
+def _target_embedding_chunk_path(chunk_dir: Path, start: int, end: int) -> Path:
+    return chunk_dir / f"chunk_{start:012d}_{end:012d}.pt"
+
+
+def _load_target_embedding_chunk(
+    chunk_dir: Path | None,
+    cache_info: dict[str, Any] | None,
+    start: int,
+    end: int,
+    target_keys: list[str],
+) -> torch.Tensor | None:
+    if chunk_dir is None or cache_info is None:
+        return None
+    path = _target_embedding_chunk_path(chunk_dir, start, end)
+    if not path.exists():
+        return None
+    try:
+        payload = torch.load(path, map_location="cpu", weights_only=True)
+    except (OSError, RuntimeError, ValueError) as error:
+        raise ValueError(f"Cannot load target embedding chunk: {path}") from error
+    expected_identity = {
+        "schema_version": TARGET_CACHE_CHUNK_SCHEMA_VERSION,
+        "cache_key": cache_info["cache_key"],
+        "start": start,
+        "end": end,
+        "target_keys_sha256": sha256_strings(target_keys),
+    }
+    if not isinstance(payload, dict) or any(
+        payload.get(key) != value for key, value in expected_identity.items()
+    ):
+        raise ValueError(f"Target embedding chunk provenance mismatch: {path}")
+    embeds = payload.get("target_embeds")
+    if not isinstance(embeds, torch.Tensor):
+        raise ValueError(f"Target embedding chunk has no tensor payload: {path}")
+    embeds = embeds.float().cpu()
+    if embeds.dim() != 2 or embeds.shape[0] != end - start:
+        raise ValueError(f"Target embedding chunk shape mismatch: {path}")
+    if not torch.isfinite(embeds).all():
+        raise ValueError(f"Target embedding chunk contains non-finite values: {path}")
+    return embeds
+
+
+def _write_target_embedding_chunk(
+    chunk_dir: Path | None,
+    cache_info: dict[str, Any] | None,
+    start: int,
+    end: int,
+    target_keys: list[str],
+    target_embeds: torch.Tensor,
+) -> None:
+    if chunk_dir is None or cache_info is None:
+        return
+    path = _target_embedding_chunk_path(chunk_dir, start, end)
+    if path.exists():
+        raise FileExistsError(f"Refusing to replace existing target embedding chunk: {path}")
+    payload = {
+        "schema_version": TARGET_CACHE_CHUNK_SCHEMA_VERSION,
+        "cache_key": cache_info["cache_key"],
+        "start": start,
+        "end": end,
+        "target_keys_sha256": sha256_strings(target_keys),
+        "target_embeds": target_embeds.float().cpu(),
+    }
+    temporary = chunk_dir / f".{path.name}.{os.getpid()}.tmp"
+    try:
+        torch.save(payload, temporary)
+        os.replace(temporary, path)
+    finally:
+        temporary.unlink(missing_ok=True)
 
 
 def _cache_sidecar_matches(
@@ -2163,6 +2332,32 @@ def _write_target_embedding_cache(
                 pass
 
 
+def _remove_completed_target_chunk_store(cache_info: dict[str, Any] | None) -> None:
+    if cache_info is None:
+        return
+    chunk_dir_value = cache_info.get("chunk_dir")
+    if not chunk_dir_value:
+        return
+    chunk_dir = Path(chunk_dir_value)
+    cache_path = Path(cache_info["cache_path"])
+    expected_prefix = f".{cache_path.stem}.chunks-"
+    if chunk_dir.parent != cache_path.parent or not chunk_dir.name.startswith(expected_prefix):
+        raise ValueError(f"Refusing to remove unexpected target chunk directory: {chunk_dir}")
+    try:
+        shutil.rmtree(chunk_dir, ignore_errors=False)
+    except FileNotFoundError:
+        return
+    except OSError as error:
+        warnings.warn(
+            f"Target cache is complete but its chunk store could not be removed: "
+            f"{chunk_dir}: {error}",
+            RuntimeWarning,
+            stacklevel=2,
+        )
+    else:
+        print(f"Removed completed target chunk store: {chunk_dir}", flush=True)
+
+
 def write_target_embedding_cache(
     cache_info: dict[str, Any] | None,
     base_metadata: dict[str, Any],
@@ -2173,6 +2368,7 @@ def write_target_embedding_cache(
 
     try:
         _write_target_embedding_cache(cache_info, base_metadata, target_keys, target_embeds)
+        _remove_completed_target_chunk_store(cache_info)
     finally:
         if cache_info is not None and cache_info.get("status") == "miss_encode":
             _release_target_cache_lock(Path(cache_info["lock_path"]), cache_info.get("lock_token"))
@@ -2944,6 +3140,7 @@ def run_benchmark_task(
                         capability_dataset=capability_dataset,
                         text_dataset=text_dataset,
                         retrieval_direction=target_retrieval_direction,
+                        cache_info=target_cache_info,
                     )
                 except Exception:
                     release_target_embedding_cache_lock(target_cache_info)

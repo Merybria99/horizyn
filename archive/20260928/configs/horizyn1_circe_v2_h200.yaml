@@ -1,0 +1,175 @@
+# Opt-in 4x H200 profile. Same global 400 rows, 85/15 quotas and learning rate.
+# Mixed-precision towers; FP32 contrastive, Lorentz and SLEEC islands.
+# Template: the staged launcher resolves data paths into RUN_ROOT/configs/train.yaml.
+# Do not run this template directly before prepare/index/features have completed.
+seed: 42
+logging:
+  log_dir: runs/horizyn1_circe_v2/logs/train
+  checkpoint_dir: runs/horizyn1_circe_v2/checkpoints
+  checkpoint_monitor: val/mean_bidirectional_mrr
+  checkpoint_mode: max
+  checkpoint_on_validation_end: true
+  save_every_n_train_steps: 2000
+  log_every_n_steps: 20
+  wandb:
+    enabled: false
+    project: horizyn-circe-v2
+    mode: offline
+    run_name: horizyn1-circe-v2-seed42
+data:
+  train_pairs_path: runs/horizyn1_circe_v2/data/train_pairs.csv
+  train_reactions_path: runs/horizyn1_circe_v2/data/train_rxns.csv
+  validation_pairs_path: runs/horizyn1_circe_v2/data/panels/validation_both_cold_pairs.csv
+  validation_reactions_path: runs/horizyn1_circe_v2/data/validation_rxns.csv
+  indexed_pairs_dir: runs/horizyn1_circe_v2/data/index
+  protein_residue_embeds_path: runs/horizyn1_circe_v2/features/proteins_prott5_residue.h5
+  residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: runs/horizyn1_circe_v2/features/reactiont5v2.h5
+  validation_reaction_t5v2_embeds_path: runs/horizyn1_circe_v2/features/reactiont5v2.h5
+  train_reaction_unimol2_embeds_path: runs/horizyn1_circe_v2/features/unimol2.h5
+  validation_reaction_unimol2_embeds_path: runs/horizyn1_circe_v2/features/unimol2.h5
+  train_reaction_chiro_embeds_path: runs/horizyn1_circe_v2/features/chiro.h5
+  validation_reaction_chiro_embeds_path: runs/horizyn1_circe_v2/features/chiro.h5
+  train_reaction_chemistry_vectors_path: runs/horizyn1_circe_v2/features/chemistry/all_reaction_set_features.npz
+  validation_reaction_chemistry_vectors_path: runs/horizyn1_circe_v2/features/chemistry/all_reaction_set_features.npz
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chirality_dim: 256
+  reaction_chienn_dim: 256
+  reaction_chemistry_dim: 617
+  reaction_use_model: true
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_use_chemistry: true
+  reaction_use_directional: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chemistry: true
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: false
+  reaction_direction_mode: forward_only
+  enzyme_ec_labels_path: null
+  typed_negative_pools_path: null
+  typed_negative_positive_fraction: 0.85
+  typed_negative_biological_fraction: 0.5
+  typed_negative_seed: 42
+  train_batch_size: 100
+  retrieval_batch_size: 128
+  validation_retrieval_batch_size: 128
+  num_workers: 4
+  persistent_workers: true
+  prefetch_factor: 2
+  worker_num_threads: 1
+  pin_memory: true
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: runs/horizyn1_circe_v2/data/panels/validation_both_cold_protein_ids.txt
+  validation_retrieval_query_ids_path: runs/horizyn1_circe_v2/data/panels/validation_both_cold_query_ids.json
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_chirality_name: chiro
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [512, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.0
+    token_layer_norm: true
+    modality_encoder_widths: [4096, 4096]
+    modality_encoder_use_layer_norm: false
+    modality_encoder_dropout: 0.0
+    modality_encoder_normalise_output: false
+    side_composition: directional_delta
+    fusion: attention
+    output_projection: mlp
+    directional_gate_init: 0.1
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    score_hidden_dim: 1024
+    score_embedding_source: same
+    checkpoint_path: checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: true
+  enzyme_input_mode: raw_mean_sleec_biological_factorized
+  enzyme_block_fusion:
+    dims: {core: 288, site: 96, mechanism: 64, cofactor: 32, ec: 32}
+    weights: {core: 0.55, site: 0.20, mechanism: 0.12, cofactor: 0.08, ec: 0.05}
+    dropout: 0.1
+  biofp:
+    family_dims: {mechanism: 8, cofactor: 32}
+    hidden_dim: 512
+    dropout: 0.1
+  hyperbolic_encoder:
+    hyp_dim: 128
+    use_tangent: true
+    freeze_projector: false
+    load_attention_pooler: false
+    freeze_attention_pooler: false
+training:
+  max_epochs: 5
+  max_steps: 100000
+  precision: bf16-mixed
+  contrastive_fp32: true
+  fp32_sensitive_modules: true
+  fused_adamw: true
+  cpu_num_threads: 4
+  ddp_gradient_as_bucket_view: true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: BidirectionalSampledMultiPositiveInfoNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    lambda_r2e: 0.5
+    lambda_e2r: 0.5
+    sampled_require_both_directions: true
+    sampled_share_indexed_negatives: true
+    positive_pair_source: all_known_in_batch
+    biofp_aux_weight: 0.0
+    biofp_family_weights: {}
+    biofp_confidence_cap: 1.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: runs/horizyn1_circe_v2/data/panels/validation_both_cold_protein_ids.txt
+  validation_retrieval_batch_size: 128
+  validation_retrieval_candidate_chunk_size: 32768
+  validation_interval_steps: 2000
+  enable_progress_bar: false
+  devices: 4
+  accelerator: gpu
+  strategy: ddp_find_unused_parameters_true
+  log_attention_stats: false
+  attention_logging_interval: 100
+  accumulate_grad_batches: 1
+  validation_retrieval_directions: [reaction_to_enzyme, enzyme_to_reaction]
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 0
+  use_distributed_sampler: false
+  early_stopping:
+    enabled: true
+    monitor: val/mean_bidirectional_mrr
+    mode: max
+    patience: 5
+    min_delta: 0.0001

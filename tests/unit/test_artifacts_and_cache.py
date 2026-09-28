@@ -17,10 +17,46 @@ from horizyn.artifacts import (
 from horizyn.benchmarks.retrieval import (
     _target_cache_base_metadata,
     _target_cache_paths,
+    encode_residue_targets,
     prepare_target_embedding_cache,
     release_target_embedding_cache_lock,
     write_target_embedding_cache,
 )
+
+
+class _ResidueMapping:
+    def __init__(self):
+        self.rows = {
+            "p1": torch.tensor([[1.0, 0.0]]),
+            "p2": torch.tensor([[2.0, 0.0], [2.0, 0.0]]),
+            "p3": torch.tensor([[3.0, 0.0]]),
+            "p4": torch.tensor([[4.0, 0.0], [4.0, 0.0]]),
+            "p5": torch.tensor([[5.0, 0.0]]),
+        }
+
+    def __getitem__(self, key):
+        return {"residue_embeddings": self.rows[key]}
+
+
+class _CountingResidueEncoder(torch.nn.Module):
+    def __init__(self, *, non_finite=False):
+        super().__init__()
+        self.anchor = torch.nn.Parameter(torch.zeros(1))
+        self.calls = 0
+        self.non_finite = non_finite
+
+    def encode_targets(self, residues, *, residue_padding_mask, **_kwargs):
+        self.calls += 1
+        valid = (~residue_padding_mask).unsqueeze(-1)
+        encoded = (residues * valid).sum(dim=1) / valid.sum(dim=1)
+        if self.non_finite:
+            encoded[0, 0] = float("nan")
+        return encoded
+
+
+class _ResidueModule:
+    def __init__(self, model):
+        self.model = model
 
 
 def _write_source_files(tmp_path):
@@ -211,6 +247,94 @@ def test_target_cache_write_failure_releases_owned_lock(tmp_path):
         )
 
     assert not Path(cache_info["lock_path"]).exists()
+
+
+def test_residue_target_encoding_resumes_completed_chunks(tmp_path):
+    base_metadata = _cache_metadata(tmp_path / "sources", direction="reaction_to_enzyme")
+    keys = ["p1", "p2", "p3", "p4", "p5"]
+    _, cache_info = prepare_target_embedding_cache(
+        tmp_path / "cache",
+        base_metadata,
+        keys,
+        device="cpu",
+        store_on_device=False,
+    )
+    dataset = _ResidueMapping()
+    first_model = _CountingResidueEncoder()
+
+    first = encode_residue_targets(
+        _ResidueModule(first_model),
+        dataset,
+        keys,
+        "cpu",
+        batch_size=2,
+        store_on_device=False,
+        cache_info=cache_info,
+    )
+    chunk_dir = Path(cache_info["chunk_dir"])
+    chunks = sorted(chunk_dir.glob("chunk_*.pt"))
+    assert first_model.calls == 3
+    assert len(chunks) == 3
+
+    chunks[-1].unlink()
+    resumed_model = _CountingResidueEncoder()
+    resumed = encode_residue_targets(
+        _ResidueModule(resumed_model),
+        dataset,
+        keys,
+        "cpu",
+        batch_size=2,
+        store_on_device=False,
+        cache_info=cache_info,
+    )
+
+    assert resumed_model.calls == 1
+    assert torch.equal(resumed, first)
+    write_target_embedding_cache(cache_info, base_metadata, keys, resumed)
+    assert not chunk_dir.exists()
+    assert not Path(cache_info["lock_path"]).exists()
+
+
+def test_residue_target_encoding_rejects_non_finite_batch_before_chunk_write(tmp_path):
+    base_metadata = _cache_metadata(tmp_path / "sources", direction="reaction_to_enzyme")
+    keys = ["p1", "p2"]
+    _, cache_info = prepare_target_embedding_cache(
+        tmp_path / "cache",
+        base_metadata,
+        keys,
+        device="cpu",
+        store_on_device=False,
+    )
+
+    try:
+        with pytest.raises(ValueError, match="p1"):
+            encode_residue_targets(
+                _ResidueModule(_CountingResidueEncoder(non_finite=True)),
+                _ResidueMapping(),
+                keys,
+                "cpu",
+                batch_size=2,
+                store_on_device=False,
+                cache_info=cache_info,
+            )
+        assert not list(Path(cache_info["chunk_dir"]).glob("chunk_*.pt"))
+    finally:
+        release_target_embedding_cache_lock(cache_info)
+
+
+def test_residue_target_encoding_without_cache_preserves_model_dtype():
+    model = _CountingResidueEncoder().half()
+
+    encoded = encode_residue_targets(
+        _ResidueModule(model),
+        _ResidueMapping(),
+        ["p1", "p2"],
+        "cpu",
+        batch_size=2,
+        store_on_device=False,
+    )
+
+    assert encoded.dtype == torch.float16
 
 
 def test_current_git_revision_distinguishes_tracked_dirty_state(tmp_path):

@@ -1,0 +1,38 @@
+% Standalone experimental section. All included assets are inside this folder.
+\documentclass[11pt,a4paper]{article}
+\usepackage[margin=0.85in]{geometry}
+\usepackage[T1]{fontenc}
+\usepackage{lmodern}
+\usepackage{amsmath,amssymb,mathtools}
+\usepackage{booktabs,tabularx,longtable,array}
+\usepackage{graphicx,microtype}
+\usepackage{pdflscape,placeins}
+\usepackage[numbers,sort&compress]{natbib}
+\usepackage{xcolor}
+\usepackage[colorlinks=true,linkcolor=blue!55!black,citecolor=blue!55!black,urlcolor=blue!55!black]{hyperref}
+\input{macros}
+\input{tables/snapshot_macros}
+\setlength{\emergencystretch}{2em}
+\setcounter{tocdepth}{2}
+\allowdisplaybreaks
+\title{\methodname: Experimental Evaluation\\\large Editable manuscript section and supplementary results}
+\author{}
+\date{Evidence snapshot: \experimentSnapshot}
+\begin{document}
+\maketitle
+\noindent This draft accompanies the V4 methods package. It separates
+published reference scores, completed matched-data retraining, and retrospective
+Case1 recovery. All tables use saved results; no new model evaluations were
+performed to prepare this document.
+\tableofcontents
+\clearpage
+% Numbering is set only in this standalone wrapper, not in the section fragment.
+\setcounter{section}{4}
+\input{experiments}
+\clearpage
+\appendix
+\input{supplementary}
+\clearpage
+\bibliographystyle{plainnat}
+\begingroup\raggedright\bibliography{references}\endgroup
+\end{document}

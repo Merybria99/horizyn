@@ -1,0 +1,1404 @@
+{
+  "10.1039/D3SC02048G": {
+    "DOI": "10.1039/d3sc02048g",
+    "author": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-8404-6596",
+        "authenticated-orcid": false,
+        "given": "Esther",
+        "family": "Heid",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Institute of Materials Chemistry, TU Wien, 1060 Vienna, Austria"
+          },
+          {
+            "name": "Department of Chemical Engineering, Massachusetts Institute of Technology, Cambridge, Massachusetts 02139, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-1737-4407",
+        "authenticated-orcid": false,
+        "given": "Daniel",
+        "family": "Probst",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "IBM Research Europe, CH-8803 R\u00fcschlikon, Switzerland"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0003-2603-9694",
+        "authenticated-orcid": false,
+        "given": "William H.",
+        "family": "Green",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Chemical Engineering, Massachusetts Institute of Technology, Cambridge, Massachusetts 02139, USA"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-9844-9145",
+        "authenticated-orcid": false,
+        "given": "Georg K. H.",
+        "family": "Madsen",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Institute of Materials Chemistry, TU Wien, 1060 Vienna, Austria"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": [
+      "EnzymeMap: curation, validation and data-driven prediction of enzymatic reactions"
+    ],
+    "container-title": [
+      "Chemical Science"
+    ],
+    "volume": "14",
+    "issue": "48",
+    "page": "14229-14242",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2023
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1039/d3sc02048g"
+  },
+  "10.1021/acscatal.0c02922": {
+    "DOI": "10.1021/acscatal.0c02922",
+    "author": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-1527-0164",
+        "authenticated-orcid": true,
+        "given": "Kyung-Chul",
+        "family": "Shin",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Research Institute of Bioactive-Metabolome Network, Konkuk University, Seoul 05029, Republic of Korea"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tae-Eui",
+        "family": "Lee",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Bioscience and Biotechnology, Konkuk University, 120 Neungdong-ro, Gwangjin-gu, Seoul 05029, Republic of Korea"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Min-Ju",
+        "family": "Seo",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Biochemistry, Molecular Biology, and Biophysics, University of Minnesota, St. Paul, Minneapolis, Minnesota 55108, United States"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Dae Wook",
+        "family": "Kim",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Forest Plant Industry Department, Baekdudaegan National Arboretum, Bonghwa 36209, Republic of Korea"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-1411-3132",
+        "authenticated-orcid": true,
+        "given": "Lin-Woo",
+        "family": "Kang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Biological Sciences, Konkuk University, 120 Neungdong-ro, Gwangjin-gu, Seoul 05029, Republic of Korea"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-6886-7589",
+        "authenticated-orcid": true,
+        "given": "Deok-Kun",
+        "family": "Oh",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Bioscience and Biotechnology, Konkuk University, 120 Neungdong-ro, Gwangjin-gu, Seoul 05029, Republic of Korea"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": "Development of Tagaturonate 3-Epimerase into Tagatose 4-Epimerase with a Biocatalytic Route from Fructose to Tagatose",
+    "container-title": "ACS Catalysis",
+    "volume": "10",
+    "issue": "20",
+    "page": "12212-12222",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2020,
+          9,
+          28
+        ]
+      ]
+    },
+    "issued": {
+      "date-parts": [
+        [
+          2020,
+          9,
+          28
+        ]
+      ]
+    },
+    "URL": "http://dx.doi.org/10.1021/acscatal.0c02922"
+  },
+  "10.1016/j.mcat.2024.114439": {
+    "DOI": "10.1016/j.mcat.2024.114439",
+    "author": [
+      {
+        "ORCID": "https://orcid.org/0000-0002-7001-3777",
+        "authenticated-orcid": false,
+        "given": "Wenhao",
+        "family": "Xia",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Shimeng",
+        "family": "Liu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lihui",
+        "family": "Huang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Hao",
+        "family": "Wu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tao",
+        "family": "Bai",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Shanshan",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-3818-5958",
+        "authenticated-orcid": false,
+        "given": "Fei",
+        "family": "Hao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Xiao",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wen",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": [
+      "Reshaping the binding pocket of D-tagaturonate epimerase UxaE to improve the epimerization activity of C4-OH for enabling green synthesis of d-tagatose"
+    ],
+    "container-title": [
+      "Molecular Catalysis"
+    ],
+    "volume": "566",
+    "issue": null,
+    "page": "114439",
+    "article-number": "114439",
+    "published": {
+      "date-parts": [
+        [
+          2024,
+          9
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1016/j.mcat.2024.114439"
+  },
+  "10.1021/acs.jafc.4c03793": {
+    "DOI": "10.1021/acs.jafc.4c03793",
+    "author": [
+      {
+        "given": "JiaJun",
+        "family": "Chen",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Food Science and Resources, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          },
+          {
+            "name": "School of Food Science and Technology, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Dawei",
+        "family": "Ni",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Food Science and Resources, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          },
+          {
+            "name": "School of Food Science and Technology, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yingying",
+        "family": "Zhu",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Food Science and Resources, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          },
+          {
+            "name": "School of Food Science and Technology, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-5053-2441",
+        "authenticated-orcid": true,
+        "given": "Wei",
+        "family": "Xu",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Food Science and Resources, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          },
+          {
+            "name": "School of Food Science and Technology, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Tarek A. A.",
+        "family": "Moussa",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Department of Botany and Microbiology, Faculty of Science, Cairo University, Giza 12613, Egypt"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7861-0170",
+        "authenticated-orcid": true,
+        "given": "Wenli",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Food Science and Resources, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          },
+          {
+            "name": "School of Food Science and Technology, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-6597-527X",
+        "authenticated-orcid": true,
+        "given": "Wanmeng",
+        "family": "Mu",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Food Science and Resources, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          },
+          {
+            "name": "School of Food Science and Technology, Jiangnan University, Wuxi, Jiangsu 214122, China"
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": "Discovery of a Thermostable Tagatose 4-Epimerase Powered by Structure- and Sequence-Based Protein Clustering",
+    "container-title": "Journal of Agricultural and Food Chemistry",
+    "volume": "72",
+    "issue": "33",
+    "page": "18585-18593",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2024,
+          8,
+          12
+        ]
+      ]
+    },
+    "issued": {
+      "date-parts": [
+        [
+          2024,
+          8,
+          12
+        ]
+      ]
+    },
+    "URL": "http://dx.doi.org/10.1021/acs.jafc.4c03793"
+  },
+  "10.1016/j.ijbiomac.2025.141168": {
+    "DOI": "10.1016/j.ijbiomac.2025.141168",
+    "author": [
+      {
+        "given": "Jiajun",
+        "family": "Chen",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yuhan",
+        "family": "Wei",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Dawei",
+        "family": "Ni",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yingying",
+        "family": "Zhu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wei",
+        "family": "Xu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wenli",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wanmeng",
+        "family": "Mu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": "Biochemical characterization and biocatalytic application of a hyperthermostable tagatose 4-epimerase from Infirmifilum uzonense",
+    "container-title": "International Journal of Biological Macromolecules",
+    "volume": "305",
+    "issue": null,
+    "page": "141168",
+    "article-number": "141168",
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          5
+        ]
+      ]
+    },
+    "issued": {
+      "date-parts": [
+        [
+          2025,
+          5
+        ]
+      ]
+    },
+    "URL": "http://dx.doi.org/10.1016/j.ijbiomac.2025.141168"
+  },
+  "10.1016/j.ijbiomac.2025.143722": {
+    "DOI": "10.1016/j.ijbiomac.2025.143722",
+    "author": [
+      {
+        "given": "Shenxi",
+        "family": "Zhao",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Jiajun",
+        "family": "Chen",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yuhan",
+        "family": "Wei",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wei",
+        "family": "Xu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wenli",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Dawei",
+        "family": "Ni",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Wanmeng",
+        "family": "Mu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": "Characterization of a tagatose 4-epimerase and optimizing its expression for efficient D-tagatose bioconversion from fructose",
+    "container-title": "International Journal of Biological Macromolecules",
+    "volume": "311",
+    "issue": null,
+    "page": "143722",
+    "article-number": "143722",
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          6
+        ]
+      ]
+    },
+    "issued": {
+      "date-parts": [
+        [
+          2025,
+          6
+        ]
+      ]
+    },
+    "URL": "http://dx.doi.org/10.1016/j.ijbiomac.2025.143722"
+  },
+  "10.1021/acs.jafc.5c01663": {
+    "DOI": "10.1021/acs.jafc.5c01663",
+    "author": [
+      {
+        "given": "Yuxin",
+        "family": "Wang",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Division of Life Sciences and Medicine",
+            "place": [
+              "Hefei, China"
+            ]
+          },
+          {
+            "name": "University of Science and Technology of China",
+            "place": [
+              "Hefei, China"
+            ]
+          },
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Zijian",
+        "family": "Tan",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Jiangsu Collaborative Innovation Centre of Chinese Medicinal Resources Industrialization, School of Pharmacy",
+            "place": [
+              "Nanjing, China"
+            ]
+          },
+          {
+            "name": "Nanjing University of Chinese Medicine",
+            "place": [
+              "Nanjing, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Hongli",
+        "family": "Wei",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "National Center of Technology Innovation for Synthetic Biology",
+            "place": [
+              "Tianjin, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Nan",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "National Center of Technology Innovation for Synthetic Biology",
+            "place": [
+              "Tianjin, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lifei",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yifan",
+        "family": "Yang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0001-7954-7700",
+        "authenticated-orcid": true,
+        "given": "Weidong",
+        "family": "Liu",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "National Center of Technology Innovation for Synthetic Biology",
+            "place": [
+              "Tianjin, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "ORCID": "https://orcid.org/0000-0002-7611-099X",
+        "authenticated-orcid": true,
+        "given": "Leilei",
+        "family": "Zhu",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "State Key Laboratory of Engineering Biology for Low-Carbon Manufacturing",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "Tianjin Institute of Industrial Biotechnology, Chinese Academy of Sciences",
+            "place": [
+              "Tianjin, P.R. China"
+            ]
+          },
+          {
+            "name": "National Center of Technology Innovation for Synthetic Biology",
+            "place": [
+              "Tianjin, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": [
+      "Protein Engineering of Tagatose 4-Epimerase for D-Tagatose Production"
+    ],
+    "container-title": [
+      "Journal of Agricultural and Food Chemistry"
+    ],
+    "volume": "73",
+    "issue": "20",
+    "page": "12353-12363",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2025,
+          5,
+          12
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1021/acs.jafc.5c01663"
+  },
+  "10.1021/acs.jafc.6c00985": {
+    "DOI": "10.1021/acs.jafc.6c00985",
+    "author": [
+      {
+        "given": "Zhihong",
+        "family": "Zhu",
+        "sequence": "first",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Liqun",
+        "family": "Shen",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Cheng",
+        "family": "Yu",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Yang",
+        "family": "Li",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Bo",
+        "family": "Zhang",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Lingfei",
+        "family": "Hua",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Zhibo",
+        "family": "Leng",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      },
+      {
+        "given": "Zijie",
+        "family": "Li",
+        "sequence": "additional",
+        "affiliation": [
+          {
+            "name": "Key Laboratory of Carbohydrate Chemistry and Biotechnology, Ministry of Education, School of Biotechnology",
+            "place": [
+              "Wuxi, China"
+            ]
+          },
+          {
+            "name": "Jiangnan University",
+            "place": [
+              "Wuxi, China"
+            ]
+          }
+        ],
+        "role": [
+          {
+            "role": "author",
+            "vocabulary": "crossref"
+          }
+        ]
+      }
+    ],
+    "title": [
+      "Coordinated Engineering of Noncatalytic and Active-Site Regions in a Thermophilic D-Tagatose 4-Epimerase Enhances D-Tagatose Bioconversion from D-Fructose"
+    ],
+    "container-title": [
+      "Journal of Agricultural and Food Chemistry"
+    ],
+    "volume": "74",
+    "issue": "18",
+    "page": "14437-14446",
+    "article-number": null,
+    "published": {
+      "date-parts": [
+        [
+          2026,
+          5,
+          1
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1021/acs.jafc.6c00985"
+  },
+  "10.1016/j.ijbiomac.2026.152971": {
+    "DOI": "10.1016/j.ijbiomac.2026.152971",
+    "author": [
+      {
+        "given": "Xin-Xin",
+        "family": "Guo",
+        "sequence": "first",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Lin-Lin",
+        "family": "Ding",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Long",
+        "family": "Pan",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ai-Mei",
+        "family": "Liao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Yin-Chen",
+        "family": "Hou",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Hua",
+        "family": "Li",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Xin",
+        "family": "Wang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ya-Wei",
+        "family": "Zhao",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Na",
+        "family": "Liu",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      },
+      {
+        "given": "Ya-Kun",
+        "family": "Fang",
+        "sequence": "additional",
+        "affiliation": [],
+        "role": [
+          {
+            "vocabulary": "crossref",
+            "role": "author"
+          }
+        ]
+      }
+    ],
+    "title": [
+      "Mining, enzymatic characterisation and mutagenesis of tagatose 4-epimerase"
+    ],
+    "container-title": [
+      "International Journal of Biological Macromolecules"
+    ],
+    "volume": "370",
+    "issue": null,
+    "page": "152971",
+    "article-number": "152971",
+    "published": {
+      "date-parts": [
+        [
+          2026,
+          7
+        ]
+      ]
+    },
+    "URL": "https://doi.org/10.1016/j.ijbiomac.2026.152971"
+  }
+}

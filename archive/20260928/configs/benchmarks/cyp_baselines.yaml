@@ -1,0 +1,20 @@
+# Retrospective protocol: F3/residual CYP results were already inspected.
+# Freeze before new comparisons; no checkpoint/alpha fitting on these 45 queries.
+benchmark: data/external/cyp_specificity_2026/benchmark
+archive: data/external/cyp_specificity_2026/release/fusionesp_data_dir.tar.gz
+fusion_checkpoints: data/external/cyp_specificity_2026/release/fusionesp_model_ckpts.tar.gz
+fusion_python: .deps/cyp-checkpoint-converter/bin/python
+existing_run: runs/cyp_specificity_v1
+bootstrap_samples: 10000
+seed: 42
+methods:
+  random: {group: control, label: Random (exact expectation)}
+  alignment_sequence: {group: control, label: Global alignment / CYP-train reference}
+  alignment_substrate: {group: control, label: Substrate + global alignment / CYP-train reference}
+  f3: {group: internal, label: CIRCE F3}
+  residual: {group: internal, label: Biological residual (fixed alpha 0.1)}
+  fusionesp_pretrained: {group: pretrained, label: FusionESP original (substrate only)}
+  fusionesp_cyp_adapted: {group: cyp_adapted, label: FusionESP CYP-fine-tuned (substrate only)}
+  clipzyme_pretrained: {group: pretrained, label: CLIPZyme original, import_only: true}
+  horizyn1_dev: {group: pretrained, label: Official Horizyn-1 dev, import_only: true}
+  enzymecage_pretrained: {group: pretrained, label: EnzymeCAGE original, import_only: true}

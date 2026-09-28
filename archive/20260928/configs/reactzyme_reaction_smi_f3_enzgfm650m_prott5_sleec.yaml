@@ -1,0 +1,211 @@
+# Reaction-SMILES ReactZyme split for the CIRCE/F3 EnzGFM substitution.
+# EnzGFM-650M supplies the residue values used by the enzyme tower. The
+# frozen SLEEC scorer continues to receive aligned ProtT5 residue embeddings.
+
+seed: 42
+
+logging:
+  log_dir: runs/circe_v2_annotation_negatives/logs/train
+  checkpoint_dir: runs/circe_v2_annotation_negatives/checkpoints
+  checkpoint_monitor: val/mean_bidirectional_mrr
+  checkpoint_mode: max
+  save_every_n_train_steps: null
+  log_every_n_steps: 10
+  checkpoint_on_validation_end: true
+  wandb:
+    enabled: true
+    project: horizyn-circe-v2
+    entity: omnai
+    run_name: circe-v2-annotation-negatives-seed42
+    mode: online
+    tags:
+      - horizyn
+      - reactzyme-paper-protocol
+      - reaction-smi-split
+      - F3
+      - enzgfm-650m
+      - prott5-sleec-prior
+      - dual-residue-source
+      - reactiont5v2
+      - unimol2
+      - chiro
+      - set-chemistry
+      - full-batch-mlnce
+      - sampled-multi-positive-infonce
+      - annotation-negatives
+    log_model: false
+
+data:
+  train_pairs_path: data/revised_protocols/reactzyme_paper/reaction_smi/train_pairs.csv
+  train_reactions_path: data/revised_protocols/reactzyme_paper/reaction_smi/train_rxns.csv
+  validation_pairs_path: data/revised_protocols/reactzyme_paper/reaction_smi/validation_pairs.csv
+  validation_reactions_path: data/revised_protocols/reactzyme_paper/reaction_smi/validation_rxns.csv
+
+  protein_residue_embeds_path: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/reaction_smi_train_validation_proteins_enzgfm_650m_residue.h5
+  residue_dim: 2048
+  protein_score_residue_embeds_path: data/standardized/retrieval_training_source_collapse/test/horizyn_reactzyme_shared_candidates/proteins_prott5_residue.h5
+  score_residue_dim: 1024
+  max_protein_tokens: 1022
+  protein_truncation: ends_center
+
+  reaction_representation: multimodal_reaction_attention
+  train_reaction_t5v2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/reactiont5v2.h5
+  validation_reaction_t5v2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/reactiont5v2.h5
+  train_reaction_unimol2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/unimol2.h5
+  validation_reaction_unimol2_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/unimol2.h5
+  train_reaction_chiro_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/chiro.h5
+  validation_reaction_chiro_embeds_path: data/revised_protocols/reactzyme_official/features/reaction_smi/train/chiro.h5
+  train_reaction_chemistry_vectors_path: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/train_reaction_set_features.npz
+  validation_reaction_chemistry_vectors_path: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/validation_reaction_set_features.npz
+  reaction_model_dim: 768
+  reaction_unimol_dim: 768
+  reaction_chiro_dim: 256
+  reaction_chirality_dim: 256
+  reaction_chienn_dim: 256
+  reaction_chemistry_dim: 617
+  reaction_use_model: true
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_use_chemistry: true
+  reaction_use_directional: false
+  reaction_allow_missing_unimol2: true
+  reaction_allow_missing_chiro: true
+  reaction_allow_missing_chirality: false
+  reaction_allow_missing_chienn: false
+  reaction_allow_missing_chemistry: true
+  reaction_embedding_in_memory: true
+  normalize_molecule_sets_as_self_reactions: true
+  reaction_direction_mode: forward_only
+  enzyme_ec_labels_path: null
+  typed_negative_pools_path: runs/circe_v2_annotation_negatives/data/train_negative_pools.json
+  typed_negative_positive_fraction: 0.5
+  typed_negative_biological_fraction: 0.5
+  typed_negative_seed: 42
+
+  train_batch_size: 500
+  retrieval_batch_size: 512
+  validation_retrieval_batch_size: 512
+  num_workers: 1
+  pin_memory: false
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: data/revised_protocols/reactzyme_paper/reaction_smi/validation_candidate_ids.txt
+
+model:
+  name: ProteinPooledDualModel
+  pooling: sleec_guided_attention
+  query_encoder_type: multimodal_reaction_attention
+  reaction_use_chiro: true
+  reaction_use_chirality: false
+  reaction_use_chienn: false
+  reaction_chirality_name: chiro
+  query_encoder_dims: [512, 4096, 4096, 512]
+  target_encoder_dims: [512, 512]
+  embedding_dim: 512
+  reaction_pooling: attention
+  reaction_attention_pooling:
+    attention_bias: true
+    separate_side_poolers: true
+  reaction_multimodal_attention:
+    hidden_dim: 512
+    dropout: 0.0
+    modality_dropout: 0.0
+    token_layer_norm: true
+    modality_encoder_widths: [4096, 4096]
+    modality_encoder_use_layer_norm: false
+    modality_encoder_dropout: 0.0
+    modality_encoder_normalise_output: false
+    side_composition: molecule_set
+    fusion: attention
+    output_projection: mlp
+    directional_gate_init: 0.1
+  sleec_pooling:
+    threshold: 0.34
+    scorer_hidden_dim: 256
+    score_hidden_dim: 1024
+    score_embedding_source: external
+    checkpoint_path: checkpoints/SLEEC/sleec_stage1_prott5_uniref90_msa_4gpu_20260601_235157/best.ckpt
+    freeze_scorer: true
+    initial_bias_scale: 1.0
+    train_bias_scale: true
+  enzyme_input_mode: raw_mean_sleec_biological_factorized
+  enzyme_block_fusion:
+    dims:
+      core: 288
+      site: 96
+      mechanism: 64
+      cofactor: 32
+      ec: 32
+    weights:
+      core: 0.55
+      site: 0.2
+      mechanism: 0.12
+      cofactor: 0.08
+      ec: 0.05
+    dropout: 0.1
+  biofp:
+    family_dims:
+      mechanism: 8
+      cofactor: 10
+    hidden_dim: 512
+    dropout: 0.1
+  hyperbolic_encoder:
+    hyp_dim: 128
+    use_tangent: true
+    freeze_projector: false
+    load_attention_pooler: false
+    freeze_attention_pooler: false
+
+training:
+  max_epochs: 30
+  precision: 32-true
+  float32_matmul_precision: high
+  learning_rate: 0.0001
+  weight_decay: 0.01
+  lambda_residue: 0.0
+  loss:
+    name: SampledMultiPositiveInfoNCELoss
+    beta: 10.0
+    learn_beta: false
+    beta_min: 0.01
+    beta_max: 100.0
+    positive_pair_source: all_known_in_batch
+    biofp_aux_weight: 0.0
+    biofp_family_weights: {}
+    biofp_confidence_cap: 1.0
+  metrics:
+    top_k: [1, 10, 100, 1000]
+  validation_retrieval_metrics: true
+  validation_retrieval_candidate_set: custom
+  validation_retrieval_candidate_ids_path: data/revised_protocols/reactzyme_paper/reaction_smi/validation_candidate_ids.txt
+  validation_retrieval_batch_size: 512
+  validation_interval_steps: null
+  enable_progress_bar: false
+  devices: 4
+  accelerator: gpu
+  strategy: ddp_find_unused_parameters_true
+  log_attention_stats: true
+  attention_logging_interval: 10
+  accumulate_grad_batches: 1
+  validation_retrieval_directions:
+    - reaction_to_enzyme
+    - enzyme_to_reaction
+  check_val_every_n_epoch: 1
+  num_sanity_val_steps: 0
+  use_distributed_sampler: true
+  early_stopping:
+    enabled: true
+    monitor: val/mean_bidirectional_mrr
+    mode: max
+    patience: 5
+    min_delta: 0.0001
+
+ablation:
+  run_id: circe_v2_annotation_negatives
+  split: reaction_smi
+  variant: circe_v2_annotation_negatives
+  label: CIRCE-V2
+  description: Training-only annotation-derived biological negatives plus random negatives.
+  data_protocol: reactzyme-paper-90-10-validation
+  evaluation_subset: validation
+  effective_global_batch_size: 2000

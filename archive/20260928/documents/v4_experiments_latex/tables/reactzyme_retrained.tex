@@ -1,0 +1,19 @@
+% Generated from evidence_snapshot.json by prepare_tables.py.
+\begin{tabular}{lrrrrrr}
+\toprule
+Method & \multicolumn{2}{c}{Reaction similarity} & \multicolumn{2}{c}{Enzyme similarity} & \multicolumn{2}{c}{Time} \\
+\midrule
+ & R$\to$E & E$\to$R & R$\to$E & E$\to$R & R$\to$E & E$\to$R \\
+\midrule
+MLP & 0.105690 & 0.218712 & 0.215499 & 0.707968 & 0.104607 & 0.284913 \\
+Contrastive MLP & 0.040553 & 0.239766 & 0.119823 & 0.666660 & 0.040501 & 0.255020 \\
+Transformer & 0.122008 & 0.231432 & 0.216317 & 0.725992 & 0.141887 & 0.394288 \\
+Bi-RNN & 0.151047 & 0.283470 & 0.273579 & 0.796985 & 0.127391 & 0.375185 \\
+Corrected contrastive MLP & 0.063832 & 0.243126 & 0.104661 & 0.631571 & 0.041036 & 0.241179 \\
+EnzGFM backbone control & 0.135390 & 0.296464 & 0.286377 & 0.798907 & 0.152498 & 0.386741 \\
+Horizyn participant-set adapter & 0.431815 & 0.534799 & 0.699701 & 0.976990 & 0.598203 & 0.840621 \\
+\midrule
+\methodname & 0.400381 & 0.534366 & 0.666249 & 0.971355 & 0.538285 & 0.780669 \\
+\vfourBio & 0.400412 & 0.534777 & 0.666234 & 0.967373 & 0.538317 & 0.800614 \\
+\bottomrule
+\end{tabular}

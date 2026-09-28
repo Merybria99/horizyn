@@ -1,0 +1,51 @@
+# Frozen before the nitrilase comparison. No threshold/checkpoint fitting.
+release: data/external/activity_panels_2026/nitrilase/release
+benchmark: data/external/activity_panels_2026/nitrilase/benchmark
+mmseqs: .deps/mmseqs/bin/mmseqs
+horizyn_python: .deps/cyp-external-env/bin/python
+seed: 42
+bootstrap_samples: 2000
+features:
+  prott5: data/external/cyp_specificity_2026/models/prott5_safetensors
+  reaction_t5: ../hf_cache/hub/models--sagawa--ReactionT5v2-forward/snapshots/933114058cb2604dc1bf536dbebdfcefbe83d4fc
+  unimol_weights: ../unimol_weights
+  cofactor_dictionary: data/processed/capability_features/train_exact_rhea_reconstructed/cofactor_dictionary.csv
+models:
+  circe_v2_reactzyme:
+    type: circe
+    label: CIRCE v2 / ReactZyme epoch 23
+    config: configs/reactzyme_reaction_smi_prott5_annotation_negatives.yaml
+    checkpoint: runs/circe_v2_prott5_annotation_negatives/checkpoints/protein-pooling-epoch=23.ckpt
+    chemistry_schema: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/schema.json
+    sources: [reactzyme]
+  circe_v2_large:
+    type: circe
+    label: CIRCE v2 / large corpus step 16k
+    config: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/configs/train.yaml
+    checkpoint: runs/horizyn1_circe_v2_reaction_holdout_tyrosine_validation_fixed/checkpoints/protein-pooling-epoch=00-v1.ckpt
+    chemistry_schema: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/features/chemistry/schema.json
+    sources: [horizyn_reconstructed]
+  f3:
+    type: circe
+    label: CIRCE F3 / ReactZyme epoch 29
+    config: runs/reactzyme_reaction_features_v1/configs/F3_set_chemistry/reaction_smi/train.yaml
+    checkpoint: runs/reactzyme_reaction_features_v1/checkpoints/reaction_smi/F3_set_chemistry/protein-pooling-epoch=29.ckpt
+    chemistry_schema: runs/reactzyme_reaction_features_v1/data/reaction_smi/reaction_set/schema.json
+    sources: [reactzyme]
+  horizyn1_dev:
+    type: horizyn
+    label: Official Horizyn-1 development
+    config: data/external/cyp_specificity_2026/horizyn_official/configs/sota.yaml
+    checkpoint: data/external/cyp_specificity_2026/release/horizyn_v1_0_dev.ckpt.part
+    upstream: data/external/cyp_specificity_2026/horizyn_official
+    revision: 6944198303f2f0946d448a259ab788589cfd27b3
+    sources: [] # Upstream supervised exposure remains unknown.
+sources:
+  reactzyme:
+    pairs: data/revised_protocols/reactzyme_paper/reaction_smi/train_pairs.csv
+    reactions: data/revised_protocols/reactzyme_paper/reaction_smi/train_rxns.csv
+    proteins: data/revised_protocols/reactzyme_paper/reaction_smi/train_pairs.csv
+  horizyn_reconstructed:
+    pairs: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/data/train_pairs.csv
+    reactions: runs/horizyn1_circe_v2_reaction_holdout_h200_paired/data/train_rxns.csv
+    proteins: data/reconstructed/horizyn1_2023_05/clustered/proteins.fasta

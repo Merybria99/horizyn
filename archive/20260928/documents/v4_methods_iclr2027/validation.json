@@ -1,0 +1,64 @@
+{
+  "checked_at_utc": "2026-09-22T23:51:44.533735+00:00",
+  "primary_method": "V4",
+  "added_biological_supervision": false,
+  "compile": {
+    "engine": "Tectonic 0.17.0",
+    "success": true,
+    "total_pages": 21,
+    "undefined_references": false,
+    "undefined_citations": false,
+    "overfull_boxes": false,
+    "warnings": [
+      "Underfull \\hbox (badness 1888) in paragraph at lines 47--51",
+      "Underfull \\vbox (badness 10000) has occurred while \\output is active []"
+    ],
+    "main_method_pages": 3,
+    "main_method_content_page_equivalents": 2.2727698102409457,
+    "reference_pages": 1,
+    "appendix_starts_on_page": 5,
+    "appendix_pages": 17,
+    "portable_zip_clean_rebuild_success": true,
+    "portable_rebuild_text_identical": true
+  },
+  "template_files_match_frozen_supplied_original_hashes": {
+    "iclr2027_conference.sty": true,
+    "iclr2027_conference.bst": true,
+    "natbib.sty": true,
+    "fancyhdr.sty": true
+  },
+  "template_check_note": "Original template directory is no longer at its historical path; bundled bytes match all four previously recorded original hashes.",
+  "presentation": {
+    "single_column": true,
+    "template_font_margins_spacing_unmodified": true,
+    "no_duplicate_labels": true,
+    "no_unresolved_markers_in_pdf": true,
+    "main_page_budget": 2.5,
+    "within_main_page_budget": true,
+    "main_only_preview_extracted_from_full_pdf": true,
+    "visually_reviewed_pages_this_revision": [
+      2
+    ],
+    "partial_page_measurement": {
+      "body_top_pt": 82.75175476074219,
+      "last_main_text_bottom_pt": 259.506591796875,
+      "template_text_height_pt": 648,
+      "last_page_occupied_fraction": 0.2727698102409457
+    }
+  },
+  "source_consistency": {
+    "training_rerun": false,
+    "evaluation_rerun_for_this_revision": false,
+    "historical_results_preserved": true,
+    "proposed_method_uses_existing_no_biology_checkpoints": true,
+    "config_and_checkpoint_hash_checks": 12,
+    "all_primary_hashes_match_existing_manifest": true,
+    "phase2_total_objective": "L_CE^(2) + 10 L_id"
+  },
+  "prior_validation": "prior_presentation_validation.json",
+  "document_sha256": {
+    "main.pdf": "e8a8b3f6e45d2d716c9bb5a98e62e0a21fa02caaae9923a36979026e6835d648",
+    "main.tex": "59b63db0f2ecd82cc405c9d4198df7cd64ba3353282d738f89afbea8885a16c7",
+    "macros.tex": "b591281af18ac11b15a8dd31939a15b2fc2f66317ee9f07e46270c9ed1a9e0f0"
+  }
+}

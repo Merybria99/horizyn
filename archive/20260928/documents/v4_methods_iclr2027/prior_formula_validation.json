@@ -1,0 +1,20 @@
+{
+  "origin": "../v4_methods_latex/validation.json",
+  "origin_sha256": "f199deda1175997567648b893d5561415801186c13637aebe7f7a522c5a2993a",
+  "status": "Previously executed checks, retained as provenance; not rerun for this documentation revision.",
+  "formula_checks": {
+    "phase1_decoupled_formula": {
+      "value_max_abs_error": 4.76837158203125e-07,
+      "gradient_max_abs_error": 1.1920928955078125e-07
+    },
+    "phase2_uniform_positive_ce_formula": {
+      "value_max_abs_error": 0.0,
+      "gradient_max_abs_error": 7.450580596923828e-09
+    },
+    "relative_biological_formula": {
+      "value_max_abs_error": 7.078051567077637e-08,
+      "gradient_max_abs_error": 2.2351741790771484e-08
+    }
+  },
+  "notes": "Small synthetic CPU checks compare the documented scalar definitions and their gradients with implemented losses. They do not rerun training or validate accuracy claims."
+}

@@ -1,0 +1,20 @@
+[
+  {
+    "name": "EnzGFM",
+    "url": "https://github.com/DeepBxM/EnzGFM.git",
+    "revision": "0631099828e1b2aadbfe56751eec5f67a7bfdf0c",
+    "local_archive": "archive/20260928/third_party/EnzGFM"
+  },
+  {
+    "name": "HoroPCA",
+    "url": "https://github.com/HazyResearch/HoroPCA.git",
+    "revision": "c9a99967a62688711f6b63dab3baee53fe2d8430",
+    "local_archive": "archive/20260928/third_party/HoroPCA"
+  },
+  {
+    "name": "ChiENN",
+    "url": "https://github.com/gmum/ChiENN.git",
+    "revision": "ee3185b39e8469a8caacf3d6d45a04c4a1cfff5b",
+    "local_archive": "archive/20260928/third_party/ChiENN"
+  }
+]

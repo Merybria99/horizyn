@@ -1,0 +1,62 @@
+[
+  {
+    "setting": "reaction_smi",
+    "variant": "control",
+    "mrr": 0.5343656539916992,
+    "lower": 0.5343571143600452,
+    "upper": 0.5343724581180644,
+    "score_tolerance": 1e-06,
+    "positive_edges": 14689,
+    "near_competitor_edges": 13
+  },
+  {
+    "setting": "reaction_smi",
+    "variant": "all_1",
+    "mrr": 0.5347773432731628,
+    "lower": 0.5347734856955275,
+    "upper": 0.534781305218768,
+    "score_tolerance": 1e-06,
+    "positive_edges": 14689,
+    "near_competitor_edges": 12
+  },
+  {
+    "setting": "enzyme_smi",
+    "variant": "control",
+    "mrr": 0.9713554382324219,
+    "lower": 0.9483094266226689,
+    "upper": 0.9790074649403546,
+    "score_tolerance": 1e-06,
+    "positive_edges": 8739,
+    "near_competitor_edges": 542
+  },
+  {
+    "setting": "enzyme_smi",
+    "variant": "all_1",
+    "mrr": 0.9673728346824646,
+    "lower": 0.9483666683475062,
+    "upper": 0.9790647066651917,
+    "score_tolerance": 1e-06,
+    "positive_edges": 8739,
+    "near_competitor_edges": 542
+  },
+  {
+    "setting": "time",
+    "variant": "control",
+    "mrr": 0.7806691527366638,
+    "lower": 0.7715794736407087,
+    "upper": 0.8198163971718693,
+    "score_tolerance": 1e-06,
+    "positive_edges": 12287,
+    "near_competitor_edges": 1285
+  },
+  {
+    "setting": "time",
+    "variant": "all_1",
+    "mrr": 0.8006143569946289,
+    "lower": 0.7716099668902298,
+    "upper": 0.8198838311872825,
+    "score_tolerance": 1e-06,
+    "positive_edges": 12287,
+    "near_competitor_edges": 1287
+  }
+]

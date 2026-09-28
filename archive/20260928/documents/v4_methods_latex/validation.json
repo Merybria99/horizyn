@@ -1,0 +1,51 @@
+{
+  "formula_checks": {
+    "phase1_decoupled_formula": {
+      "value_max_abs_error": 4.76837158203125e-07,
+      "gradient_max_abs_error": 1.1920928955078125e-07
+    },
+    "phase2_uniform_positive_ce_formula": {
+      "value_max_abs_error": 0.0,
+      "gradient_max_abs_error": 7.450580596923828e-09
+    },
+    "relative_biological_formula": {
+      "value_max_abs_error": 7.078051567077637e-08,
+      "gradient_max_abs_error": 2.2351741790771484e-08
+    }
+  },
+  "notes": "Small synthetic CPU checks compare the documented scalar definitions and their gradients with implemented losses. They do not rerun training or validate accuracy claims.",
+  "compile": {
+    "engine": "Tectonic 0.17.0",
+    "success": true,
+    "pages": 19,
+    "latex_warnings": [],
+    "bibtex_warnings": 0
+  },
+  "source_consistency": {
+    "target_configurations_checked": 4,
+    "source_files_mapped": 18,
+    "phase2_parameter_values": 2102272,
+    "saved_F3_state_tensors_inspected": 120,
+    "attention_penalty_coefficients": [
+      0.01,
+      0.01
+    ],
+    "cross_references_resolved": true,
+    "bibliography_keys_resolved": true
+  },
+  "pdf_checks": {
+    "no_nearly_empty_pages": true,
+    "no_unresolved_reference_markers": true,
+    "no_text_outside_page": true,
+    "architecture_figure_visually_reviewed": true
+  },
+  "artifact_hashes": {
+    "main.pdf": "2bdefebc5af02efdbd8f0e924a175964a1a7ba5882448de236199701544c5369",
+    "macros.tex": "1b710200c707d28370769d6c4391923e2cb29054ef5c6e6bf2a3e79b3e8ee3fd",
+    "references.bib": "233bf1a610b9e7e7b77230fa5e98561a97f15197f677237b9a152710b4fa6eb5",
+    "main.tex": "23bf333b7a100160937465580e79319f0b90d80ed1616f091dd2bf49ff8d8ec7",
+    "implementation_details.tex": "bf510a22e77e922de265ecd3af8b09d1a6cd760b0a93db0c7c3adbed0afb1bde",
+    "architecture.tex": "c805a1f397caf5f322f7a431dc8bf27a24119396a2cd0c30a8238a818b0aadb1",
+    "methods.tex": "2197b58579acd87ed65d22fad3a82a4eb2b598f800d4198beddbc88ab0da2e54"
+  }
+}

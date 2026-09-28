@@ -1,0 +1,179 @@
+table,row,column,value
+screening,CLIPZyme (ESM),0,36.91
+screening,CLIPZyme (ESM),1,53.04
+screening,CLIPZyme (ESM),2,11.93
+screening,CLIPZyme (ESM),3,6.84
+screening,CLIPZyme (CGR),0,38.91
+screening,CLIPZyme (CGR),1,57.58
+screening,CLIPZyme (CGR),2,13.16
+screening,CLIPZyme (CGR),3,7.73
+screening,CLIPZyme,0,44.69
+screening,CLIPZyme,1,62.98
+screening,CLIPZyme,2,14.09
+screening,CLIPZyme,3,8.06
+screening,CLIPZyme,4,39.13
+screening,CLIPZyme,5,58.86
+screening,CLIPZyme,6,13.4
+screening,CLIPZyme,7,7.81
+screening,FGW-CLIP,0,48.66
+screening,FGW-CLIP,1,66.69
+screening,FGW-CLIP,2,14.91
+screening,FGW-CLIP,3,8.18
+screening,FGW-CLIP,4,45.14
+screening,FGW-CLIP,5,61.43
+screening,FGW-CLIP,6,13.57
+screening,FGW-CLIP,7,7.61
+screening,CLIPZyme (released),0,44.69424597770459
+screening,CLIPZyme (released),1,62.98173925495344
+screening,CLIPZyme (released),2,14.085124553319226
+screening,CLIPZyme (released),3,8.060006004418565
+screening,CLIPZyme (released),4,39.13282416365624
+screening,CLIPZyme (released),5,58.86187192395557
+screening,CLIPZyme (released),6,13.39671015589979
+screening,CLIPZyme (released),7,7.80813533427353
+screening,\methodname,0,57.23365103066209
+screening,\methodname,1,75.54333716338482
+screening,\methodname,2,16.859042255655567
+screening,\methodname,3,8.958692356222887
+screening,\methodname,4,52.87342957098796
+screening,\methodname,5,72.6403267784587
+screening,\methodname,6,16.4186330727305
+screening,\methodname,7,8.793102960892874
+data,reaction_smi,0,147393
+data,reaction_smi,1,16377
+data,reaction_smi,2,14689
+data,reaction_smi,3,386
+data,reaction_smi,4,14688
+data,enzyme_smi,0,152748
+data,enzyme_smi,1,16972
+data,enzyme_smi,2,8739
+data,enzyme_smi,3,1573
+data,enzyme_smi,4,8734
+data,time,0,149554
+data,time,1,16618
+data,time,2,12287
+data,time,3,2634
+data,time,4,12277
+reactzyme,FGW-CLIP (EC Mode),0,0.3181
+reactzyme,FGW-CLIP (EC Mode),1,0.3722
+reactzyme,FGW-CLIP (EC Mode),2,0.5253
+reactzyme,FGW-CLIP (EC Mode),3,0.8683
+reactzyme,FGW-CLIP (EC Mode),4,0.3394
+reactzyme,FGW-CLIP (EC Mode),5,0.5222
+reactzyme,FGW-CLIP (EC Max),0,0.3113
+reactzyme,FGW-CLIP (EC Max),1,0.3804
+reactzyme,FGW-CLIP (EC Max),2,0.53
+reactzyme,FGW-CLIP (EC Max),3,0.8581
+reactzyme,FGW-CLIP (EC Max),4,0.3392
+reactzyme,FGW-CLIP (EC Max),5,0.5229
+reactzyme,TIGER (ESM2Text),0,0.319
+reactzyme,TIGER (ESM2Text),1,0.518
+reactzyme,TIGER (ESM2Text),2,0.592
+reactzyme,TIGER (ESM2Text),3,0.956
+reactzyme,TIGER (ESM2Text),4,0.366
+reactzyme,TIGER (ESM2Text),5,0.69
+reactzyme,TIGER (ProtT3),0,0.337
+reactzyme,TIGER (ProtT3),1,0.472
+reactzyme,TIGER (ProtT3),2,0.579
+reactzyme,TIGER (ProtT3),3,0.94
+reactzyme,TIGER (ProtT3),4,0.372
+reactzyme,TIGER (ProtT3),5,0.683
+reactzyme,MLP,0,0.10568996518850327
+reactzyme,MLP,1,0.21871207654476166
+reactzyme,MLP,2,0.21549934148788452
+reactzyme,MLP,3,0.7079684734344482
+reactzyme,MLP,4,0.10460711270570755
+reactzyme,MLP,5,0.284912645816803
+reactzyme,Contrastive MLP,0,0.04055258259177208
+reactzyme,Contrastive MLP,1,0.23976561427116394
+reactzyme,Contrastive MLP,2,0.11982277780771255
+reactzyme,Contrastive MLP,3,0.6666601896286011
+reactzyme,Contrastive MLP,4,0.04050107300281525
+reactzyme,Contrastive MLP,5,0.25501957535743713
+reactzyme,Transformer,0,0.12200770527124405
+reactzyme,Transformer,1,0.2314320057630539
+reactzyme,Transformer,2,0.21631686389446259
+reactzyme,Transformer,3,0.7259916663169861
+reactzyme,Transformer,4,0.14188697934150696
+reactzyme,Transformer,5,0.3942883610725403
+reactzyme,Bi-RNN,0,0.15104706585407257
+reactzyme,Bi-RNN,1,0.28347042202949524
+reactzyme,Bi-RNN,2,0.273579478263855
+reactzyme,Bi-RNN,3,0.796985387802124
+reactzyme,Bi-RNN,4,0.1273905485868454
+reactzyme,Bi-RNN,5,0.3751845955848694
+reactzyme,Corrected contrastive,0,0.06383154541254044
+reactzyme,Corrected contrastive,1,0.24312593042850494
+reactzyme,Corrected contrastive,2,0.10466062277555466
+reactzyme,Corrected contrastive,3,0.631571352481842
+reactzyme,Corrected contrastive,4,0.04103562980890274
+reactzyme,Corrected contrastive,5,0.24117937684059143
+reactzyme,EnzGFM control,0,0.13539014756679535
+reactzyme,EnzGFM control,1,0.29646384716033936
+reactzyme,EnzGFM control,2,0.2863766551017761
+reactzyme,EnzGFM control,3,0.7989066243171692
+reactzyme,EnzGFM control,4,0.1524980515241623
+reactzyme,EnzGFM control,5,0.38674136996269226
+reactzyme,Horizyn (adapted),0,0.43181541562080383
+reactzyme,Horizyn (adapted),1,0.5347991585731506
+reactzyme,Horizyn (adapted),2,0.6997011303901672
+reactzyme,Horizyn (adapted),3,0.9769900441169739
+reactzyme,Horizyn (adapted),4,0.5982034206390381
+reactzyme,Horizyn (adapted),5,0.8406205773353577
+reactzyme,\methodname,0,0.40038102865219116
+reactzyme,\methodname,1,0.5343656539916992
+reactzyme,\methodname,2,0.6662486791610718
+reactzyme,\methodname,3,0.9713554382324219
+reactzyme,\methodname,4,0.5382847785949707
+reactzyme,\methodname,5,0.7806691527366638
+case1,Native F3,unique,9
+case1,Native F3,entries,10
+case1,Native F3,auroc,0.6008230452674898
+case1,\methodname,unique,10
+case1,\methodname,entries,10
+case1,\methodname,auroc,0.6128747795414462
+case1,V4 (EnzymeMap),unique,6
+case1,V4 (EnzymeMap),entries,6
+case1,V4 (EnzymeMap),auroc,0.4706055261610817
+stages,ReactZyme / Reaction-Sim / E$\to$R MRR,phase1,0.49364954233169556
+stages,ReactZyme / Reaction-Sim / E$\to$R MRR,phase2,0.5343656539916992
+stages,ReactZyme / Reaction-Sim / E$\to$R MRR,phase2_bio,0.5347773432731628
+stages,ReactZyme / Reaction-Sim / R$\to$E MRR,phase1,0.3566311001777649
+stages,ReactZyme / Reaction-Sim / R$\to$E MRR,phase2,0.40038102865219116
+stages,ReactZyme / Reaction-Sim / R$\to$E MRR,phase2_bio,0.40041205286979675
+stages,ReactZyme / Enzyme-Sim / E$\to$R MRR,phase1,0.9445012211799622
+stages,ReactZyme / Enzyme-Sim / E$\to$R MRR,phase2,0.9713554382324219
+stages,ReactZyme / Enzyme-Sim / E$\to$R MRR,phase2_bio,0.9673728346824646
+stages,ReactZyme / Enzyme-Sim / R$\to$E MRR,phase1,0.6254441142082214
+stages,ReactZyme / Enzyme-Sim / R$\to$E MRR,phase2,0.6662486791610718
+stages,ReactZyme / Enzyme-Sim / R$\to$E MRR,phase2_bio,0.6662338376045227
+stages,ReactZyme / Time / E$\to$R MRR,phase1,0.6966198682785034
+stages,ReactZyme / Time / E$\to$R MRR,phase2,0.7806691527366638
+stages,ReactZyme / Time / E$\to$R MRR,phase2_bio,0.8006143569946289
+stages,ReactZyme / Time / R$\to$E MRR,phase1,0.427677184343338
+stages,ReactZyme / Time / R$\to$E MRR,phase2,0.5382847785949707
+stages,ReactZyme / Time / R$\to$E MRR,phase2_bio,0.5383167862892151
+stages,EnzymeMap / Full library / BEDROC$_{85}$,phase1,0.5452625759369153
+stages,EnzymeMap / Full library / BEDROC$_{85}$,phase2,0.5723365103066209
+stages,EnzymeMap / Full library / BEDROC$_{85}$,phase2_bio,0.5720960816975147
+stages,EnzymeMap / Full library / BEDROC$_{20}$,phase1,0.7366564209376544
+stages,EnzymeMap / Full library / BEDROC$_{20}$,phase2,0.7554333716338482
+stages,EnzymeMap / Full library / BEDROC$_{20}$,phase2_bio,0.7553216671014586
+stages,EnzymeMap / Full library / EF5,phase1,16.739662371867038
+stages,EnzymeMap / Full library / EF5,phase2,16.859042255655567
+stages,EnzymeMap / Full library / EF5,phase2_bio,16.860920719072492
+stages,EnzymeMap / Full library / EF10,phase1,8.867904985178585
+stages,EnzymeMap / Full library / EF10,phase2,8.958692356222887
+stages,EnzymeMap / Full library / EF10,phase2_bio,8.956500815569807
+stages,EnzymeMap / Training-ID-excluded / BEDROC$_{85}$,phase1,0.518774149284386
+stages,EnzymeMap / Training-ID-excluded / BEDROC$_{85}$,phase2,0.5287342957098796
+stages,EnzymeMap / Training-ID-excluded / BEDROC$_{85}$,phase2_bio,0.5284639837162569
+stages,EnzymeMap / Training-ID-excluded / BEDROC$_{20}$,phase1,0.7165108622254541
+stages,EnzymeMap / Training-ID-excluded / BEDROC$_{20}$,phase2,0.726403267784587
+stages,EnzymeMap / Training-ID-excluded / BEDROC$_{20}$,phase2_bio,0.7262746277268696
+stages,EnzymeMap / Training-ID-excluded / EF5,phase1,16.362317829972042
+stages,EnzymeMap / Training-ID-excluded / EF5,phase2,16.4186330727305
+stages,EnzymeMap / Training-ID-excluded / EF5,phase2_bio,16.435718440909184
+stages,EnzymeMap / Training-ID-excluded / EF10,phase1,8.700612694039306
+stages,EnzymeMap / Training-ID-excluded / EF10,phase2,8.793102960892874
+stages,EnzymeMap / Training-ID-excluded / EF10,phase2_bio,8.803075536310475

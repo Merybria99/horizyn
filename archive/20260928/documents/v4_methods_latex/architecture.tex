@@ -1,0 +1,36 @@
+\begin{figure}[tb]
+\centering
+\begin{tikzpicture}[
+    box/.style={draw=black!55,rounded corners,align=center,font=\small,
+                text width=4.65cm,minimum height=1.0cm,inner sep=5pt},
+    arrow/.style={-{Latex[length=2mm]},thick},node distance=0.55cm]
+  \node[box,fill=blue!5] (protein) {Protein sequence\\Frozen ProtT5\\residue features};
+  \node[box,fill=orange!7,right=1.2cm of protein] (reaction) {Reaction input\\Frozen model features\\and chemistry};
+  \node[box,fill=blue!5,below=of protein] (pe) {Global + SLEEC + four slots\\Feature-wise fusion\\512-D protein vector};
+  \node[box,fill=orange!7,below=of reaction] (re) {Molecular side pooling\\Modality attention\\512-D reaction vector};
+  \node[box,below=of pe] (ph) {Protein residual refinement\\512-D neural representation};
+  \node[box,below=of re] (rh) {Reaction residual refinement\\512-D neural representation};
+  \node[box,fill=green!5,below=of ph] (pa) {Append dictionary block\\Support from 32\\training protein neighbors};
+  \node[box,fill=green!5,below=of rh] (ra) {Append dictionary block\\Similarity to all\\training reactions};
+  \node[draw=black!55,rounded corners,align=center,font=\small,
+        text width=9.6cm,below=0.65cm of $(pa.south)!0.5!(ra.south)$] (score)
+       {Dot product: $S(r,e)=0.6\,u_r^\top u_e+0.4\,a_r^\top a_e$\\
+        Independent vectors for both $R\!\to\!E$ and $E\!\to\!R$};
+  \draw[arrow] (protein)--(pe); \draw[arrow] (reaction)--(re);
+  \draw[arrow] (pe)--(ph); \draw[arrow] (re)--(rh);
+  \draw[arrow] (ph)--(pa); \draw[arrow] (rh)--(ra);
+  \draw[arrow,dashed,draw=blue!60!black] (protein.west) -- ++(-0.4,0) |- (pa.west);
+  \draw[arrow,dashed,draw=orange!70!black] (reaction.east) -- ++(0.4,0) |- (ra.east);
+  \draw[arrow] (pa.south)--(score.north -| pa.south);
+  \draw[arrow] (ra.south)--(score.north -| ra.south);
+\end{tikzpicture}
+\caption{Inference structure of \methodname. Dashed paths supply frozen raw
+features to the dictionary maps. Dictionary coordinates are computed
+from frozen raw features and training associations, independently of the neural
+refinement heads. The arrows into the appended representations indicate
+composition, not that dictionary features are generated from the heads.
+The optional biological loss acts on the two residual heads during phase 2;
+it introduces no additional inference branch. The protein fused-view multiplier
+and refinement multiplier are specified in Section~\ref{sec:v4-inference}.}
+\label{fig:v4-architecture}
+\end{figure}
