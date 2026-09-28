@@ -85,5 +85,6 @@ directory contains:
 - `retention_verification.json`: checks of retained scientific files.
 - `cleanup.py`: the one-off cleanup implementation; its default mode plans without deleting.
 
-The changes remain on `research/v4-f3-circev2-cleanup-20260928` and have not
-been committed or pushed.
+The code and audit metadata were subsequently published on the workspace and
+implementation repositories' `ICLR2027` branches. Large local artifacts and
+the full pre-cleanup inventory remain outside Git.

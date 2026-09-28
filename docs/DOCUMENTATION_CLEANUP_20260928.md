@@ -66,5 +66,9 @@ existing dependency/Lightning warnings. Its result is recorded in
 contains the original-content `before.tar.gz`, exact `migration.json`,
 `summary.json`, content/link `verification.json`, and the test result.
 
-Changes remain uncommitted and unpushed on
-`research/v4-f3-circev2-cleanup-20260928`.
+The cleaned code, documentation, readable historical source, and selected audit
+metadata were subsequently published on `ICLR2027`. Retired vendor repositories
+remain local; publication records their upstream URLs/revisions in
+`archive/20260928/third_party/repositories.json`. The 13 preexisting restricted
+archive files remain local and were not added to Git. All maintained source
+files are included in the published branch.

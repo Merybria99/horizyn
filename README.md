@@ -70,6 +70,8 @@ The CLI also provides `encode` and `evaluate`. Use `--help` for each command. [P
 
 [Output artifact cleanup](docs/ARTIFACT_CLEANUP_20260928.md) documents the removed scratch files and regenerable caches, retained scientific assets, and deletion audit trail.
 
+[Checkpoint cleanup](docs/CHECKPOINT_CLEANUP_20260928.md) records the pruned historical intermediate epochs and protected model selections.
+
 [Baseline sources and evidence](docs/BASELINES.md) distinguishes retained comparators from retired integrations. [Research documents](documents/README.md) indexes the archived campaigns and drafts.
 
 ## Attribution
